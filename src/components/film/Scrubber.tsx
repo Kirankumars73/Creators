@@ -38,7 +38,8 @@ export function Scrubber() {
   }, []);
 
   useEffect(() => {
-    film.add(() => {
+    if (!film.ready) return;
+    return film.add(() => {
       ScrollTrigger.create({
         start: 0,
         end: 'max',

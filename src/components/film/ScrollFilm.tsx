@@ -4,16 +4,27 @@ import { gsap } from 'gsap';
 import { CustomEase } from 'gsap/CustomEase';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useSyncExternalStore, type ReactNode } from 'react';
 import { usePrefersReducedMotion } from '@/lib/motion/reduced-motion';
 import type { SectionId } from './sections';
 
 type Film = {
-  /** Register scroll-linked animations in the page's one GSAP context (§10.2). */
-  add(setup: () => void): void;
+  /**
+   * Register scroll-linked animations (§10.2). Returns their cleanup — return it from the
+   * effect. Everything still registered is reverted when the page unmounts.
+   */
+  add(setup: () => void): () => void;
   scrollTo(id: SectionId): void;
   reduced: boolean;
+  /**
+   * False during server render and hydration, when `reduced` is only a guess. Register
+   * nothing until it's true: registering twice (guess, then truth) leaves `from` tweens
+   * animating 0 → 0 and duplicate triggers behind.
+   */
+  ready: boolean;
 };
+
+const subscribeNothing = () => () => {};
 
 const FilmContext = createContext<Film | null>(null);
 
@@ -33,18 +44,13 @@ function register() {
  */
 export function ScrollFilm({ children }: { children: ReactNode }) {
   const reduced = usePrefersReducedMotion();
-  const ctx = useRef<gsap.Context | null>(null);
+  const ready = useSyncExternalStore(subscribeNothing, () => true, () => false);
+  const live = useRef(new Set<gsap.Context>());
   const lenis = useRef<Lenis | null>(null);
-
-  const getCtx = useCallback(() => {
-    register();
-    ctx.current ??= gsap.context(() => {});
-    return ctx.current;
-  }, []);
 
   useEffect(() => {
     register();
-    if (reduced) return;
+    if (!ready || reduced) return;
     const l = new Lenis({ autoRaf: false });
     lenis.current = l;
     l.on('scroll', ScrollTrigger.update);
@@ -56,20 +62,47 @@ export function ScrollFilm({ children }: { children: ReactNode }) {
       l.destroy();
       lenis.current = null;
     };
-  }, [reduced]);
+  }, [ready, reduced]);
 
-  useEffect(
-    () => () => {
-      ctx.current?.revert();
-      ctx.current = null;
-    },
-    [],
-  );
+  // Trigger positions are measured once; fonts swapping in or sections growing (the roll
+  // call filling up) move everything below. Re-measure when fonts land and when the page resizes.
+  useEffect(() => {
+    register();
+    let timer: ReturnType<typeof setTimeout>;
+    const refresh = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => ScrollTrigger.refresh(), 120);
+    };
+    void document.fonts?.ready.then(refresh);
+    const ro = new ResizeObserver(refresh);
+    ro.observe(document.body);
+    return () => {
+      clearTimeout(timer);
+      ro.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    const contexts = live.current;
+    return () => {
+      for (const c of contexts) c.revert();
+      contexts.clear();
+    };
+  }, []);
 
   const film = useMemo<Film>(
     () => ({
       reduced,
-      add: (setup) => getCtx().add(setup),
+      ready,
+      add: (setup) => {
+        register();
+        const c = gsap.context(setup);
+        live.current.add(c);
+        return () => {
+          c.revert();
+          live.current.delete(c);
+        };
+      },
       scrollTo: (id) => {
         const el = document.getElementById(id);
         if (!el) return;
@@ -77,7 +110,7 @@ export function ScrollFilm({ children }: { children: ReactNode }) {
         else el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
       },
     }),
-    [reduced, getCtx],
+    [reduced, ready],
   );
 
   return <FilmContext.Provider value={film}>{children}</FilmContext.Provider>;

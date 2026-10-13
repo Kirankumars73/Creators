@@ -278,6 +278,11 @@ html.js:not(.no-cold-open) .wipe {
   to { clip-path: inset(-0.25em -0.1em -0.25em -0.1em); }
 }
 
+/* Section title card (§6.3): parked off-frame until GSAP runs the cut. */
+.section-card {
+  transform: translateX(-100%);
+}
+
 /* Reel cards (§6.1): quiet until the pointer is near. */
 .reel {
   transition: border-color 180ms var(--ease-cut), filter 180ms var(--ease-cut);

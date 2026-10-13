@@ -25,9 +25,9 @@ export function ReelCards() {
   useEffect(() => {
     const el = root.current;
     const hero = el?.closest('section');
-    if (!el || !hero || film.reduced) return;
+    if (!film.ready || film.reduced || !el || !hero) return;
     const cards = [...el.querySelectorAll<HTMLElement>('[data-reel]')];
-    film.add(() => {
+    const revert = film.add(() => {
       cards.forEach((card, i) => {
         gsap.to(card, {
           y: () => (1 - CARDS[i]!.speed) * hero.offsetHeight * 0.6,
@@ -37,7 +37,7 @@ export function ReelCards() {
       });
     });
 
-    if (!window.matchMedia('(pointer: fine)').matches) return;
+    if (!window.matchMedia('(pointer: fine)').matches) return revert;
     let raf = 0;
     const onMove = (e: PointerEvent) => {
       cancelAnimationFrame(raf);
@@ -56,6 +56,7 @@ export function ReelCards() {
     hero.addEventListener('pointermove', onMove);
     hero.addEventListener('pointerleave', onLeave);
     return () => {
+      revert();
       cancelAnimationFrame(raf);
       hero.removeEventListener('pointermove', onMove);
       hero.removeEventListener('pointerleave', onLeave);
