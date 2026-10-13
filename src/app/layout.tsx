@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { Grain } from '@/components/texture/Grain';
 import { brand } from '@/config/brand';
 import { TOKENS } from '@/config/tokens';
 import { siteUrl } from '@/lib/site';
@@ -19,7 +20,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="en" data-surface="poster" className={fontVariables}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Grain />
+      </body>
     </html>
   );
 }
