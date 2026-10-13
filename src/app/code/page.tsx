@@ -6,9 +6,13 @@ import { brand } from '@/config/brand';
 import { CODE_ARTICLES } from '@/config/code';
 import { t } from '@/i18n/ml';
 
+const CODE_DESCRIPTION = `The charter of ${brand.name}. Credit the editor. Every time.`;
+
 export const metadata: Metadata = {
   title: 'The Code',
-  description: `The charter of ${brand.name}. Credit the editor. Every time.`,
+  description: CODE_DESCRIPTION,
+  openGraph: { type: 'article', locale: 'en_IN', siteName: brand.name, title: 'The Code', description: CODE_DESCRIPTION },
+  twitter: { card: 'summary_large_image', title: 'The Code', description: CODE_DESCRIPTION },
 };
 
 export default function CodePage() {

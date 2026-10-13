@@ -7,6 +7,11 @@ const nextConfig: NextConfig = {
   // Fonts + pre-rendered Malayalam read from disk by next/og routes.
   outputFileTracingIncludes: {
     '/api/pass/[id]': ['./src/assets/**/*'],
+    '/opengraph-image': ['./src/assets/**/*'],
+    '/twitter-image': ['./src/assets/**/*'],
+    '/code/opengraph-image': ['./src/assets/**/*'],
+    '/code/twitter-image': ['./src/assets/**/*'],
+    '/apple-icon': ['./src/assets/**/*'],
   },
   turbopack: {
     rules: {

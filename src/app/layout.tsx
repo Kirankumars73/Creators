@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: { template: brand.titleTemplate, default: brand.name },
   description: brand.description,
+  openGraph: { type: 'website', locale: 'en_IN', siteName: brand.name, title: brand.name, description: brand.description },
+  twitter: { card: 'summary_large_image', title: brand.name, description: brand.description },
 };
 
 const PRE_PAINT = `(function(){var d=document.documentElement;d.classList.add('js');try{if(sessionStorage.getItem('ck:cold-open')||matchMedia('(prefers-reduced-motion: reduce)').matches)d.classList.add('no-cold-open')}catch(e){d.classList.add('no-cold-open')}})();`;
