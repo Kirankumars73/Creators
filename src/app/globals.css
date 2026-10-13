@@ -213,6 +213,51 @@
   animation: star-flick 600ms steps(6, end) both;
 }
 
+/* Cold open (§6.0) ------------------------------------------------------- */
+html:not(.js) [data-cold-open],
+.no-cold-open [data-cold-open] {
+  display: none;
+}
+.cold-open .co-half {
+  position: absolute;
+  inset-inline: 0;
+  height: 50%;
+  background: var(--ink);
+}
+.cold-open .co-top {
+  top: 0;
+  animation: co-top 320ms var(--ease-pan) 1180ms forwards, co-top-out 110ms var(--ease-cut) 1480ms forwards;
+}
+.cold-open .co-bottom {
+  bottom: 0;
+  animation: co-bottom 320ms var(--ease-pan) 1180ms forwards, co-bottom-out 110ms var(--ease-cut) 1480ms forwards;
+}
+.cold-open .co-arm {
+  transform-origin: 0 100%;
+  transform: rotate(-16deg);
+  /* A hard 90ms rotation, no easing out: a clack. */
+  animation: co-snap 90ms var(--ease-cut) 1050ms forwards;
+}
+.cold-open .co-flash {
+  opacity: 0;
+  animation: co-flash 40ms steps(1, end) 1140ms;
+}
+.cold-open .co-slate {
+  animation: co-gone 1ms linear 1140ms forwards;
+}
+.cold-open .co-line {
+  clip-path: inset(0 100% 0 0);
+  animation: co-type 280ms steps(14, end) forwards;
+}
+@keyframes co-top { to { transform: translateY(calc(-100% + 6vh)); } }
+@keyframes co-bottom { to { transform: translateY(calc(100% - 6vh)); } }
+@keyframes co-top-out { from { transform: translateY(calc(-100% + 6vh)); } to { transform: translateY(-100%); } }
+@keyframes co-bottom-out { from { transform: translateY(calc(100% - 6vh)); } to { transform: translateY(100%); } }
+@keyframes co-snap { to { transform: rotate(0deg); } }
+@keyframes co-flash { 0%, 100% { opacity: 0.08; } }
+@keyframes co-gone { to { opacity: 0; } }
+@keyframes co-type { to { clip-path: inset(0 0 0 0); } }
+
 /* Writing on a clapperboard: a blinking block cursor where supported. */
 .slate-input {
   caret-color: var(--lane);

@@ -18,6 +18,7 @@ export function Scrubber() {
   const [fractions, setFractions] = useState<number[]>(() => SECTIONS.map(() => 1 / SECTIONS.length));
   const [startFrames, setStartFrames] = useState<number[]>(() => SECTIONS.map(() => 0));
   const [active, setActive] = useState(0);
+  const [measured, setMeasured] = useState(false);
   const tops = useRef<number[]>([]);
   const playhead = useRef<HTMLDivElement>(null);
   const hairline = useRef<HTMLDivElement>(null);
@@ -30,6 +31,7 @@ export function Scrubber() {
       setFractions(clipFractions(els.map((el) => el?.offsetHeight ?? 0), 0.09));
       // "Timecode" of a section = how many screens in it starts, at 25 frames a screen.
       setStartFrames(tops.current.map((top) => Math.round((top / window.innerHeight) * 25)));
+      setMeasured(true);
     });
     ro.observe(document.body);
     return () => ro.disconnect();
@@ -55,7 +57,8 @@ export function Scrubber() {
       aria-label="Section navigation"
       className="fixed inset-x-0 bottom-0 z-50 overflow-hidden border-t border-rule bg-carbon/90 backdrop-blur-[12px]"
     >
-      <div className="relative hidden h-14 items-center gap-px px-2 md:flex">
+      {/* Invisible until measured: clips resizing from equal widths would count as layout shift. */}
+      <div className={`relative hidden h-14 items-center gap-px px-2 md:flex ${measured ? '' : 'invisible'}`}>
         {SECTIONS.map((s, i) => (
           <div key={s.id} className="group relative flex min-w-0 items-center" style={{ flexBasis: `${(fractions[i] ?? 0) * 100}%` }}>
             <ClipBlock

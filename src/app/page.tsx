@@ -1,4 +1,5 @@
 import { CodeTeaser } from '@/components/film/CodeTeaser';
+import { ColdOpen } from '@/components/film/ColdOpen';
 import { EndCredits } from '@/components/film/EndCredits';
 import { Hero } from '@/components/film/Hero';
 import { Inside } from '@/components/film/Inside';
@@ -14,6 +15,7 @@ export default function Home() {
   return (
     <ScrollFilm>
       {/* Fixed layers sit outside <main>: the gate-weave transform would otherwise trap them. */}
+      <ColdOpen />
       <Scrubber />
       <GateWeave>
         <Hero />
