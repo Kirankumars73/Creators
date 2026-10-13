@@ -2,6 +2,7 @@
 // Visual check helper: node scripts/shoot.mjs <url> <outdir> [width,width…] [--reduced] [--slices]
 // --slices saves one viewport-sized shot per screen down the page instead of one tall image.
 // --viewport saves only what is on screen (fixed layers where they really sit).
+// --wait=ms waits before shooting (default 800; ~2200 lets the cold open finish).
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { chromium } from '@playwright/test';
@@ -10,6 +11,7 @@ const [url, outdir = 'shots', widthsArg = '390,1440'] = process.argv.slice(2).fi
 const reduced = process.argv.includes('--reduced');
 const slices = process.argv.includes('--slices');
 const viewportOnly = process.argv.includes('--viewport');
+const waitMs = Number(process.argv.find((a) => a.startsWith('--wait='))?.slice(7) ?? 800);
 if (!url) {
   console.error('usage: node scripts/shoot.mjs <url> <outdir> [390,1440] [--reduced]');
   process.exit(2);
@@ -19,7 +21,7 @@ const browser = await chromium.launch();
 for (const w of widthsArg.split(',').map(Number)) {
   const page = await browser.newPage({ viewport: { width: w, height: 900 }, reducedMotion: reduced ? 'reduce' : 'no-preference' });
   await page.goto(url, { waitUntil: 'networkidle' });
-  await page.waitForTimeout(800);
+  await page.waitForTimeout(waitMs);
   const stem = `${new URL(url).pathname.replaceAll('/', '_') || 'root'}-${w}${reduced ? '-rm' : ''}`;
   const file = join(outdir, `${stem}.png`);
   if (slices) {

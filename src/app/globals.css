@@ -262,6 +262,37 @@ html:not(.js) [data-cold-open],
 @keyframes co-gone { to { opacity: 0; } }
 @keyframes co-type { to { clip-path: inset(0 0 0 0); } }
 @keyframes co-end { to { visibility: hidden; } }
+@keyframes quiet-in { from { opacity: 0; } }
+
+/* Hero word wipe (§6.1): each word rises in behind a clip edge, 55ms apart — never a fade.
+   Hidden only when JS is on; after the cold open's cut when it plays. */
+.js .wipe {
+  clip-path: inset(100% -0.1em -0.25em -0.1em);
+  animation: wipe-up 520ms var(--ease-pan) forwards;
+  animation-delay: calc(var(--i, 0) * 55ms);
+}
+html.js:not(.no-cold-open) .wipe {
+  animation-delay: calc(1180ms + var(--i, 0) * 55ms);
+}
+@keyframes wipe-up {
+  to { clip-path: inset(-0.25em -0.1em -0.25em -0.1em); }
+}
+
+/* Reel cards (§6.1): quiet until the pointer is near. */
+.reel {
+  transition: border-color 180ms var(--ease-cut), filter 180ms var(--ease-cut);
+}
+.reel .reel-still {
+  filter: saturate(0.35);
+  transition: filter 180ms var(--ease-cut);
+}
+.reel[data-near] {
+  border-color: var(--lane);
+  filter: drop-shadow(0 0 28px color-mix(in oklab, var(--lane) 35%, transparent));
+}
+.reel[data-near] .reel-still {
+  filter: saturate(1);
+}
 
 /* Writing on a clapperboard: a blinking block cursor where supported. */
 .slate-input {
@@ -270,6 +301,10 @@ html:not(.js) [data-cold-open],
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .js .wipe {
+    clip-path: none;
+    animation: quiet-in 150ms linear both;
+  }
   .star-flick {
     animation: none;
   }

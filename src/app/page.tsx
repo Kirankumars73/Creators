@@ -10,15 +10,17 @@ import { ScrollFilm } from '@/components/film/ScrollFilm';
 import { Scrubber } from '@/components/film/Scrubber';
 import { WhosInside } from '@/components/film/WhosInside';
 import { GateWeave } from '@/components/texture/GateWeave';
+import { getMemberCounts } from '@/lib/wall/cached';
 
-export default function Home() {
+export default async function Home() {
+  const counts = await getMemberCounts();
   return (
     <ScrollFilm>
       {/* Fixed layers sit outside <main>: the gate-weave transform would otherwise trap them. */}
       <ColdOpen />
       <Scrubber />
       <GateWeave>
-        <Hero />
+        <Hero counts={counts} />
         <TheRoom />
         <WhosInside />
         <CodeTeaser />
