@@ -131,6 +131,10 @@
   filter: drop-shadow(0 0 28px color-mix(in oklab, var(--rosso) 35%, transparent));
 }
 
+@utility halation-lane {
+  filter: drop-shadow(0 0 28px color-mix(in oklab, var(--lane) 35%, transparent));
+}
+
 @utility halation-mustard {
   filter: drop-shadow(0 0 28px color-mix(in oklab, var(--mustard) 35%, transparent));
 }

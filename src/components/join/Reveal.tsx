@@ -8,7 +8,7 @@ import { brand, type Lane } from '@/config/brand';
 import { t } from '@/i18n/ml';
 import { useCommunityOpened, markCommunityOpened } from '@/lib/join/chip-store';
 import { isInviteOk, type InviteClientResult } from '@/lib/join/invite-client';
-import { useRenderProgress } from '@/lib/join/render-progress';
+import { useRenderProgress, type RenderTask } from '@/lib/join/render-progress';
 import { usePrefersReducedMotion } from '@/lib/motion/reduced-motion';
 import { DeliverableChip } from './DeliverableChip';
 import { RenderBar } from './RenderBar';
@@ -36,7 +36,7 @@ export function ExportSequence({
   returning,
   onRetry,
   footer,
-}: Omit<RevealProps, 'result'> & { task: Promise<InviteClientResult> }) {
+}: Omit<RevealProps, 'result'> & { task: RenderTask<InviteClientResult> }) {
   const render = useRenderProgress(task);
   if (!render.done) return <RenderBar progress={render.progress} frames={render.frames} />;
   const result: InviteClientResult = render.result ?? { status: 0, error: 'network' };
@@ -81,7 +81,7 @@ function RevealOk({
         <span aria-hidden="true" className="star-flick absolute -top-3 right-[18%] [animation-delay:120ms]">
           <Star size={12} />
         </span>
-        <h2 className="text-title halation-rosso text-lane">Export complete.</h2>
+        <h2 className="text-title halation-lane text-lane">Export complete.</h2>
         <p className="text-ml mt-5 text-[clamp(1.5rem,3.6vw,2.75rem)] font-semibold text-chalk" lang="ml">
           {youreIn.ml ?? youreIn.en}
         </p>
