@@ -20,9 +20,12 @@ export default function CodePage() {
         <span aria-hidden="true">←</span> {brand.name}
       </Link>
       <header className="mt-16 md:mt-24">
-        <p className={eyebrow.ml ? 'text-ml text-lg text-chalk-dim' : 'text-label text-chalk-mute'}>
-          {eyebrow.ml ?? eyebrow.en}
-        </p>
+        {/* The eyebrow is the Malayalam line (§4.2); its English fallback would just repeat the title. */}
+        {eyebrow.ml ? (
+          <p lang="ml" className="text-ml text-lg text-chalk-dim">
+            {eyebrow.ml}
+          </p>
+        ) : null}
         <h1 className="text-hero mt-4 text-chalk">The Code</h1>
       </header>
       <ol className="mt-16 flex flex-col">

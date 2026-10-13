@@ -38,7 +38,7 @@ export function LaneFrame({ lane, mode = 'static', selected = false, size = 'car
   return (
     <article
       data-lane={lane}
-      className={`relative flex flex-col justify-between border bg-carbon p-4 md:p-6 ${selected ? 'border-lane' : 'border-rule'} ${
+      className={`relative flex flex-col justify-between border bg-carbon p-4 transition-colors duration-[180ms] ease-cut md:p-6 ${selected ? 'border-lane' : 'border-rule'} ${
         size === 'card' ? 'aspect-[9/16]' : 'h-full'
       } ${className}`}
     >

@@ -75,3 +75,35 @@ test.describe('scroll reveals actually reveal (regression: hydration double-regi
     await expect.poll(() => card.evaluate((el) => getComputedStyle(el).display), { timeout: 3000 }).toBe('none');
   });
 });
+
+test.describe("WHO'S INSIDE and THE CODE (§6.4, §6.5)", () => {
+  test('/code carries all seven articles, starting with crediting the editor', async ({ page }) => {
+    await page.goto('/code');
+    await expect(page.locator('[data-article]')).toHaveCount(7);
+    await expect(page.locator('[data-article="01"]')).toContainText('Credit the editor. Every time. In the caption, not the comments.');
+  });
+
+  test('the teaser leads to the full Code', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('link', { name: /read all seven/i }).click();
+    await expect(page).toHaveURL(/\/code$/);
+  });
+
+  test('on a phone the lanes never push the page sideways', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    const overflow = await page.locator('#whos-inside').evaluate((el) => el.scrollWidth - el.clientWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
+
+  test('hovering a lane racks focus onto it and its lane color', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await expect(page.locator('[data-cold-open]')).toBeHidden();
+    const frames = page.locator('#whos-inside [data-gate]');
+    await expect(frames).toHaveCount(2);
+    await frames.nth(1).hover();
+    await expect.poll(() => frames.nth(0).evaluate((el) => getComputedStyle(el).filter)).toContain('blur(3px)');
+    await expect.poll(() => frames.nth(1).evaluate((el) => getComputedStyle(el).filter)).not.toContain('blur(3px)');
+  });
+});
