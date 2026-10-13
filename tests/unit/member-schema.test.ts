@@ -78,7 +78,8 @@ describe('memberInputSchema', () => {
   });
 
   test('show on the wall defaults to on', () => {
-    const { showOnWall: _omit, ...rest } = validCreator;
-    expect(memberInputSchema.parse(rest).showOnWall).toBe(true);
+    const withoutWallChoice: Record<string, unknown> = { ...validCreator };
+    delete withoutWallChoice.showOnWall;
+    expect(memberInputSchema.parse(withoutWallChoice).showOnWall).toBe(true);
   });
 });
