@@ -15,13 +15,12 @@ type Props = {
   lane: Lane | null;
   userName: string | null;
   inApp: InAppInfo;
-  siteUrl: string;
   currentUrl: string;
   authError: boolean;
 };
 
-export function BasicJoin({ step, lane, userName, inApp, siteUrl, currentUrl, authError }: Props) {
-  if (step === 'signin') return <SignIn inApp={inApp} siteUrl={siteUrl} currentUrl={currentUrl} error={authError} />;
+export function BasicJoin({ step, lane, userName, inApp, currentUrl, authError }: Props) {
+  if (step === 'signin') return <SignIn inApp={inApp} currentUrl={currentUrl} error={authError} />;
   if (step === 'lane') {
     return (
       <ul className="flex flex-col gap-3">

@@ -29,5 +29,6 @@ export async function submitMemberCore(deps: SubmitDeps, input: unknown): Promis
   const { errorCode } = await deps.insert(buildMemberInsert(user, parsed.data));
   if (!errorCode) return { ok: true, alreadyMember: false };
   const mapped = mapInsertError(errorCode);
+  if (mapped === 'unknown') console.error('[join] member insert failed', errorCode);
   return mapped === 'already_member' ? { ok: true, alreadyMember: true } : { ok: false, error: mapped };
 }

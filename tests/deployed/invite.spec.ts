@@ -3,7 +3,10 @@ import { expect, test } from '@playwright/test';
 
 // One-time setup: sign in as the creator test account (show_on_wall off) and save the session:
 //   pnpm exec playwright codegen --save-storage=.auth/creator.json "$BASE_URL/join"
+// Supabase refresh tokens are single-use, so every signed-in test writes the rotated
+// session back to the file. If a run still fails with 401, re-run the codegen step.
 const CREATOR_STATE = '.auth/creator.json';
+const hasCreatorState = existsSync(CREATOR_STATE);
 
 test.beforeAll(() => {
   if (!process.env.BASE_URL) throw new Error('Set BASE_URL to the deployed origin.');
@@ -15,8 +18,14 @@ test('POST /api/invite without a session is 401', async ({ request }) => {
 });
 
 test.describe('signed in as the creator test account', () => {
-  test.skip(!existsSync(CREATOR_STATE), `Missing ${CREATOR_STATE} — see the comment at the top of this file.`);
-  test.use({ storageState: CREATOR_STATE });
+  // Fail, never skip: a green run without these checks would claim §14 was verified when it wasn't.
+  test.beforeAll(() => {
+    if (!hasCreatorState) throw new Error(`Missing ${CREATOR_STATE}. See the comment at the top of this file.`);
+  });
+  test.use({ storageState: hasCreatorState ? CREATOR_STATE : undefined });
+  test.afterEach(async ({ request }) => {
+    await request.storageState({ path: CREATOR_STATE });
+  });
 
   test('the network response gives the creators lane and never the editors link (§14)', async ({ request }) => {
     const editors = process.env.WA_EDITORS_URL;

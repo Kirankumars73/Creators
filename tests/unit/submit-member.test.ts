@@ -34,3 +34,13 @@ describe('submitMemberCore', () => {
     expect(await submitMemberCore({ getUser: async () => user, insert }, valid)).toEqual({ ok: false, error: 'invalid' });
   });
 });
+
+describe('submitMemberCore — unknown database errors are visible to whoever runs it', () => {
+  test('logs the raw code', async () => {
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const insert = vi.fn(async () => ({ errorCode: 'PGRST204' }));
+    expect(await submitMemberCore({ getUser: async () => user, insert }, valid)).toEqual({ ok: false, error: 'unknown' });
+    expect(log).toHaveBeenCalledWith('[join] member insert failed', 'PGRST204');
+    log.mockRestore();
+  });
+});

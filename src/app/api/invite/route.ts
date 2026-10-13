@@ -19,7 +19,8 @@ export async function POST() {
       now: () => new Date(),
     });
     return NextResponse.json(result.body, { status: result.status, headers: NO_STORE });
-  } catch {
+  } catch (err) {
+    console.error('[api/invite]', err);
     return NextResponse.json({ error: 'unavailable' }, { status: 503, headers: NO_STORE });
   }
 }

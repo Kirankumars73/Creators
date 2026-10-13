@@ -7,7 +7,8 @@ import { submitMemberCore, type SubmitResult } from '@/lib/members/submit';
 export async function submitMember(input: unknown): Promise<SubmitResult> {
   try {
     return await submitMemberCore({ getUser: getSessionUser, insert: insertMember }, input);
-  } catch {
+  } catch (err) {
+    console.error('[join] submitMember', err);
     return { ok: false, error: 'unknown' };
   }
 }

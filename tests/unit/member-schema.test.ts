@@ -83,3 +83,11 @@ describe('memberInputSchema', () => {
     expect(memberInputSchema.parse(withoutWallChoice).showOnWall).toBe(true);
   });
 });
+
+describe('normalizeInstagram — pasted-handle edge cases (Phase 2 review)', () => {
+  test('the /_u/ deep-link form keeps the real handle', () =>
+    expect(normalizeInstagram('https://instagram.com/_u/the.gowtham_das')).toBe('the.gowtham_das'));
+  test('a space after the @ is forgiven', () => expect(normalizeInstagram('@ the.gowtham_das')).toBe('the.gowtham_das'));
+  test('invisible characters picked up by copy-paste are dropped', () =>
+    expect(normalizeInstagram('​the.gowtham_das‎')).toBe('the.gowtham_das'));
+});

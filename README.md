@@ -33,7 +33,7 @@ A WhatsApp **Community** holds 1 announcements group + up to 100 linked groups, 
 
 1. `pnpm install`, then copy `.env.example` to `.env.local`.
 2. **Supabase:** create a project (region `ap-south-1`, Mumbai). `pnpm dlx supabase login`, `pnpm dlx supabase link --project-ref <ref>`, `pnpm dlx supabase db push` applies `supabase/migrations/*`.
-3. **Google sign-in:** in Google Cloud, create an OAuth client (Web) with redirect URI `https://<ref>.supabase.co/auth/v1/callback`; paste its id/secret into Supabase → Authentication → Providers → Google. In Supabase → Authentication → URL configuration, set the Site URL to production and allow `<prod>/auth/callback` and `http://localhost:3000/auth/callback`.
+3. **Google sign-in:** in Google Cloud, create an OAuth client (Web) with redirect URI `https://<ref>.supabase.co/auth/v1/callback`; paste its id/secret into Supabase → Authentication → Providers → Google. In Supabase → Authentication → URL configuration, set the Site URL to production and allow `<prod>/auth/callback**`, `http://localhost:3000/**` and your Vercel preview pattern (e.g. `https://*-<team>.vercel.app/**`). **Disable the Email and Anonymous providers**: Google is the only way in, and the admin check trusts the Google-verified email.
 4. **WhatsApp:** Gowtham creates the Community "Creators Kootam" and the linked groups "Frame Kootam" and "Cut Kootam" (groups, not Channels: Channels are one-way), and sends the three invite links. They go in `WA_COMMUNITY_URL`, `WA_CREATORS_URL`, `WA_EDITORS_URL`: server env only.
 5. **Vercel:** `pnpm dlx vercel login`, `pnpm dlx vercel link`, add every `.env.example` key to Production and Preview, `pnpm dlx vercel deploy --prod`.
 

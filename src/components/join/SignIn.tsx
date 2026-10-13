@@ -7,17 +7,24 @@ import { createBrowserSupabase } from '@/lib/supabase/browser';
 
 type SignInProps = {
   inApp: InAppInfo;
-  siteUrl: string;
-  /** This page's URL, handed to the external browser. */
+  /** This page's URL on the origin the visitor is actually on, handed to the external browser. */
   currentUrl: string;
   /** The OAuth round-trip came back with an error. */
   error?: boolean;
 };
 
 const PRIVACY = 'We read your name, email and profile photo. Nothing else. We never post anything.';
-const APP_NAME = { instagram: 'Instagram', facebook: 'Facebook', linkedin: 'LinkedIn', webview: 'This app' } as const;
+const APP_NAME = {
+  instagram: 'Instagram',
+  facebook: 'Facebook',
+  threads: 'Threads',
+  tiktok: 'TikTok',
+  snapchat: 'Snapchat',
+  linkedin: 'LinkedIn',
+  webview: 'This app',
+} as const;
 
-export function SignIn({ inApp, siteUrl, currentUrl, error = false }: SignInProps) {
+export function SignIn({ inApp, currentUrl, error = false }: SignInProps) {
   const [pending, setPending] = useState(false);
   const [failed, setFailed] = useState(error);
 
@@ -30,7 +37,8 @@ export function SignIn({ inApp, siteUrl, currentUrl, error = false }: SignInProp
     const result = supabase
       ? await supabase.auth.signInWithOAuth({
           provider: 'google',
-          options: { redirectTo: `${siteUrl}/auth/callback?next=${encodeURIComponent('/join?step=lane')}` },
+          // Back to wherever they are (production, a preview, localhost), never a build-time guess.
+          options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent('/join?step=lane')}` },
         })
       : { error: new Error('not configured') };
     // On success the browser is already leaving for Google.
@@ -65,9 +73,12 @@ function InAppEscape({ inApp, currentUrl }: { inApp: InAppInfo; currentUrl: stri
         {app}’s browser won’t let Google sign you in. {browser === 'your browser' ? 'Your browser' : browser} will.
       </p>
       {inApp.platform === 'android' ? (
-        <a href={chromeIntentUrl(currentUrl)} className={buttonClasses('poster')}>
-          Open in Chrome
-        </a>
+        <>
+          <a href={chromeIntentUrl(currentUrl)} className={buttonClasses('poster')}>
+            Open in Chrome
+          </a>
+          <p className="text-body max-w-md text-chalk-dim">If that does nothing, tap ⋮ at the top right and pick Open in Chrome.</p>
+        </>
       ) : (
         <p className="text-body max-w-md text-chalk">
           Tap <span aria-label="the three-dot menu">•••</span> at the top right, then <strong>Open in external browser</strong>.

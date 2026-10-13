@@ -37,3 +37,22 @@ describe('chromeIntentUrl', () => {
       'intent://creatorskootam.in/join?step=lane#Intent;scheme=https;package=com.android.chrome;end',
     ));
 });
+
+describe('detectInAppBrowser — more apps that block Google (Phase 2 review)', () => {
+  const more = {
+    threadsAndroid:
+      'Mozilla/5.0 (Linux; Android 14; Pixel 8 Build/AP2A.240805.005; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/127.0.6533.103 Mobile Safari/537.36 Barcelona 344.0.0.41.109 Android (34/14; 420dpi; 1080x2400; Google/google; Pixel 8; shiba; shiba; en_IN; 631374437)',
+    tiktokAndroid:
+      'Mozilla/5.0 (Linux; Android 13; SM-A536E Build/TP1A.220624.014; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/126.0.6478.71 Mobile Safari/537.36 trill_350402 JsSdk/1.0 NetType/WIFI Channel/googleplay AppName/musical_ly app_version/35.4.2 ByteLocale/en Region/IN BytedanceWebview/d8a21c6',
+    snapchatIos:
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Snapchat/13.0.0.40 (like Safari/8618.2.12.10.4, panda)',
+    bareIosWebView: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148',
+    chromeIos:
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/126.0.6478.153 Mobile/15E148 Safari/604.1',
+  };
+  test('Threads', () => expect(detectInAppBrowser(more.threadsAndroid)).toMatchObject({ inApp: true, app: 'threads' }));
+  test('TikTok', () => expect(detectInAppBrowser(more.tiktokAndroid)).toMatchObject({ inApp: true, app: 'tiktok' }));
+  test('Snapchat', () => expect(detectInAppBrowser(more.snapchatIos)).toMatchObject({ inApp: true, app: 'snapchat', platform: 'ios' }));
+  test('an iPhone WebView with no Safari token', () => expect(detectInAppBrowser(more.bareIosWebView)).toMatchObject({ inApp: true, app: 'webview' }));
+  test('Chrome on iPhone is a real browser', () => expect(detectInAppBrowser(more.chromeIos).inApp).toBe(false));
+});

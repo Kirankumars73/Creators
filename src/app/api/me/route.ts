@@ -11,7 +11,8 @@ export async function GET() {
     const member = await getOwnMember();
     if (!member) return NextResponse.json({ error: 'no_member' }, { status: 404, headers: NO_STORE });
     return NextResponse.json({ member }, { headers: NO_STORE });
-  } catch {
+  } catch (err) {
+    console.error('[api/me]', err);
     return NextResponse.json({ error: 'unavailable' }, { status: 503, headers: NO_STORE });
   }
 }

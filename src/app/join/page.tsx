@@ -6,7 +6,7 @@ import { getSessionUser } from '@/lib/auth/session';
 import { detectInAppBrowser } from '@/lib/join/in-app-browser';
 import { resolveStep } from '@/lib/join/step';
 import { getOwnMember } from '@/lib/members/self';
-import { siteUrl } from '@/lib/site';
+import { requestOrigin, siteUrl } from '@/lib/site';
 
 export const metadata: Metadata = { title: 'Take your place' };
 
@@ -26,9 +26,18 @@ export default function JoinPage({ searchParams }: PageProps<'/join'>) {
 
 async function JoinStepServer({ searchParams }: { searchParams: PageProps<'/join'>['searchParams'] }) {
   const sp = await searchParams;
-  const ua = (await headers()).get('user-agent') ?? '';
-  const user = await getSessionUser().catch(() => null);
-  const member = user ? await getOwnMember().catch(() => null) : null;
+  const h = await headers();
+  const ua = h.get('user-agent') ?? '';
+  const user = await getSessionUser().catch((err: unknown) => {
+    console.error('[join] session read failed', err);
+    return null;
+  });
+  const member = user
+    ? await getOwnMember().catch((err: unknown) => {
+        console.error('[join] member read failed', err);
+        return null;
+      })
+    : null;
   const { step, lane } = resolveStep({ step: first(sp.step), lane: first(sp.lane) }, { signedIn: !!user, hasMember: !!member });
   return (
     <BasicJoin
@@ -36,8 +45,7 @@ async function JoinStepServer({ searchParams }: { searchParams: PageProps<'/join
       lane={lane}
       userName={user?.name ?? null}
       inApp={detectInAppBrowser(ua)}
-      siteUrl={siteUrl}
-      currentUrl={`${siteUrl}/join`}
+      currentUrl={`${requestOrigin(h, siteUrl)}/join`}
       authError={first(sp.error) === 'auth'}
     />
   );

@@ -7,11 +7,13 @@ export const INSTAGRAM_RE = /^[a-zA-Z0-9._]{1,30}$/;
 
 // Instagram paths that are pages, not profiles.
 const NOT_PROFILES = new Set(['p', 'reel', 'reels', 'stories', 'explore', 'tv', 'accounts', 'direct']);
-const IG_URL = /^(?:[a-z][a-z0-9+.-]*:\/\/)?(?:www\.|m\.)?(?:instagram\.com|instagr\.am)\/@?([^/?#]*)/i;
+const IG_URL = /^(?:[a-z][a-z0-9+.-]*:\/\/)?(?:www\.|m\.)?(?:instagram\.com|instagr\.am)\/(?:_u\/)?@?([^/?#]*)/i;
+// Zero-width and direction marks that ride along with copy-paste.
+const INVISIBLE = /\p{Cf}/gu;
 
 /** "@Handle", "instagram.com/handle", "https://www.instagram.com/handle/?igsh=…" → "handle". */
 export function normalizeInstagram(raw: string): string {
-  const trimmed = raw.trim().replace(/^@+/, '');
+  const trimmed = raw.replace(INVISIBLE, '').trim().replace(/^@+/, '').trim();
   const match = trimmed.match(IG_URL);
   if (!match) return trimmed.toLowerCase();
   const handle = (match[1] ?? '').toLowerCase();
