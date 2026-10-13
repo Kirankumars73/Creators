@@ -22,3 +22,6 @@ export type MemberRow = {
   created_at: string;
   updated_at: string;
 };
+
+/** What the server inserts; id, status, role_changes and timestamps come from defaults. */
+export type MemberInsert = Omit<MemberRow, 'id' | 'status' | 'role_changes' | 'created_at' | 'updated_at'>;
