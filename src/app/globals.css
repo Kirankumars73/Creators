@@ -197,6 +197,12 @@
   margin-top: 0.04em;
 }
 
+/* Writing on a clapperboard: a blinking block cursor where supported. */
+.slate-input {
+  caret-color: var(--lane);
+  caret-shape: block;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .crop-draw path,
   .odometer-strip {
