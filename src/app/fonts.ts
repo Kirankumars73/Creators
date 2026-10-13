@@ -5,6 +5,6 @@ const anton = Anton({ weight: '400', subsets: ['latin'], display: 'swap', variab
 const archivo = Archivo({ subsets: ['latin'], axes: ['wdth'], display: 'swap', variable: '--font-archivo' });
 const geistSans = Geist({ subsets: ['latin'], display: 'swap', variable: '--font-geist-sans' });
 const geistMono = Geist_Mono({ subsets: ['latin'], display: 'swap', variable: '--font-geist-mono' });
-const anek = Anek_Malayalam({ subsets: ['malayalam'], display: 'swap', variable: '--font-anek' });
+const anek = Anek_Malayalam({ subsets: ['malayalam'], axes: ['wdth'], display: 'swap', variable: '--font-anek' });
 
 export const fontVariables = [anton, archivo, geistSans, geistMono, anek].map((f) => f.variable).join(' ');

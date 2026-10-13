@@ -160,3 +160,40 @@
     color: var(--ink);
   }
 }
+
+/* Motif support ----------------------------------------------------------- */
+
+/* CropMarks draw={true}: strokes draw in on hover/focus of the .group parent. */
+.crop-draw path {
+  stroke-dasharray: var(--crop-len);
+  stroke-dashoffset: var(--crop-len);
+  transition: stroke-dashoffset 240ms var(--ease-pan);
+}
+.group:hover .crop-draw path,
+.group:focus-visible .crop-draw path,
+.group:focus-within .crop-draw path {
+  stroke-dashoffset: 0;
+}
+
+.odometer-strip {
+  transition: transform var(--dur-pan) var(--ease-pan);
+}
+.odometer[data-rolled="false"] .odometer-strip {
+  transform: translateY(0) !important;
+  transition: none;
+}
+
+.wordmark-ml {
+  font-size: 0.8em;
+  font-weight: 700;
+  font-stretch: 125%;
+  line-height: 1.12;
+  margin-top: 0.04em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crop-draw path,
+  .odometer-strip {
+    transition: none;
+  }
+}
