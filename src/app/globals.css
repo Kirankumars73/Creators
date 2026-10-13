@@ -42,6 +42,7 @@
 [data-lane="creator"] { --lane: var(--rosso); }
 [data-lane="editor"] { --lane: var(--lumen); }
 [data-lane="other"] { --lane: var(--mint); }
+[data-lane="community"] { --lane: var(--rosso); }
 
 [data-surface="poster"] { --surface: var(--ink); }
 [data-surface="bay"] { --surface: var(--carbon); }
@@ -197,6 +198,17 @@
   margin-top: 0.04em;
 }
 
+/* Stars flick in around EXPORT COMPLETE. */
+@keyframes star-flick {
+  0%, 30% { opacity: 0; transform: scale(0.4); }
+  45% { opacity: 1; transform: scale(1.15); }
+  60% { opacity: 0.5; }
+  100% { opacity: 1; transform: scale(1); }
+}
+.star-flick {
+  animation: star-flick 600ms steps(6, end) both;
+}
+
 /* Writing on a clapperboard: a blinking block cursor where supported. */
 .slate-input {
   caret-color: var(--lane);
@@ -204,6 +216,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .star-flick {
+    animation: none;
+  }
   .crop-draw path,
   .odometer-strip {
     transition: none;
