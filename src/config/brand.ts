@@ -35,6 +35,8 @@ export const brand = {
     },
   },
   // [ASK GOUTHAM] the brief spells him both "Gowtham" and "Goutham"; this follows his handle.
+  // Flip to true once he confirms the spelling (pnpm check:launch blocks until then).
+  founderConfirmed: false as boolean,
   founder: {
     fullName: 'GOWTHAM DAS THEKKINKATTIL',
     slateName: 'GOWTHAM DAS',

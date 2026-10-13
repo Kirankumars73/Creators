@@ -13,7 +13,7 @@
     "test:deployed": "playwright test -c playwright.deployed.config.ts",
     "check:bans": "node scripts/check-bans.mjs",
     "check:leaks": "node scripts/check-leaks.mjs",
-    "check:launch": "node scripts/check-launch.mjs",
+    "check:launch": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-launch.mjs",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm check:bans",
     "render:ml": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/render-ml-assets.mjs"
   },
