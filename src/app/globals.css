@@ -1,1 +1,162 @@
 @import "tailwindcss";
+
+/* Brief §4.1. Every color in the app resolves through one of these.
+   src/config/tokens.ts mirrors the hex values; a test keeps them equal. */
+:root {
+  /* base — ink, never cream */
+  --ink: #0A0A0B;
+  --carbon: #121215;
+  --graphite: #1E1E24;
+  --rule: #2E2E37;
+
+  /* type — neutral, never warm */
+  --chalk: #F2F3F5;
+  --chalk-dim: #9B9BA3;
+  --chalk-mute: #85858F;
+
+  /* poster accents */
+  --rosso: #E4261C;
+  --rosso-deep: #9E1009;
+  --mustard: #F2B705;
+
+  /* editing bay — lane colors (creator lane is --rosso) */
+  --lumen: #C6F24E;
+  --mint: #7FD4B8;
+
+  --focus: #7FD4B8;
+
+  /* contextual: set by [data-lane] / [data-surface] below */
+  --lane: var(--rosso);
+  --surface: var(--ink);
+
+  /* motion vocabulary, §10 */
+  --ease-cut: cubic-bezier(.85, 0, .15, 1);
+  --ease-pan: cubic-bezier(.33, 1, .68, 1);
+  --ease-lane: cubic-bezier(.76, 0, .24, 1);
+  --dur-cut: 140ms;
+  --dur-pan: 520ms;
+
+  color-scheme: dark;
+}
+
+[data-lane="creator"] { --lane: var(--rosso); }
+[data-lane="editor"] { --lane: var(--lumen); }
+[data-lane="other"] { --lane: var(--mint); }
+
+[data-surface="poster"] { --surface: var(--ink); }
+[data-surface="bay"] { --surface: var(--carbon); }
+
+@theme inline {
+  /* No default palette, radii or shadows: tokens only. */
+  --color-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+
+  --color-ink: var(--ink);
+  --color-carbon: var(--carbon);
+  --color-graphite: var(--graphite);
+  --color-rule: var(--rule);
+  --color-chalk: var(--chalk);
+  --color-chalk-dim: var(--chalk-dim);
+  --color-chalk-mute: var(--chalk-mute);
+  --color-rosso: var(--rosso);
+  --color-rosso-deep: var(--rosso-deep);
+  --color-mustard: var(--mustard);
+  --color-lumen: var(--lumen);
+  --color-mint: var(--mint);
+  --color-focus: var(--focus);
+  --color-lane: var(--lane);
+  --color-surface: var(--surface);
+
+  --radius-hairline: 2px;
+
+  --font-display: var(--font-anton), Impact, sans-serif;
+  --font-subhead: var(--font-archivo), system-ui, sans-serif;
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-ml: var(--font-anek), var(--font-geist-sans), sans-serif;
+
+  --ease-cut: var(--ease-cut);
+  --ease-pan: var(--ease-pan);
+  --ease-lane: var(--ease-lane);
+}
+
+/* Type scale, §4.2 */
+@utility text-hero {
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 13vw, 11rem);
+  line-height: 0.86;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+@utility text-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 7vw, 5.5rem);
+  line-height: 0.86;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+@utility text-subhead {
+  font-family: var(--font-subhead);
+  font-weight: 700;
+  font-stretch: 112%;
+  font-size: clamp(1.25rem, 2.6vw, 2rem);
+  line-height: 1.12;
+}
+
+@utility text-body {
+  font-family: var(--font-sans);
+  font-size: clamp(1rem, 1.05vw, 1.125rem);
+  line-height: 1.55;
+}
+
+@utility text-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@utility text-ml {
+  font-family: var(--font-ml);
+  line-height: 1.5;
+}
+
+/* Halation, §4.3 — red should burn slightly into the black. */
+@utility halation-rosso {
+  filter: drop-shadow(0 0 28px color-mix(in oklab, var(--rosso) 35%, transparent));
+}
+
+@utility halation-mustard {
+  filter: drop-shadow(0 0 28px color-mix(in oklab, var(--mustard) 35%, transparent));
+}
+
+@layer base {
+  html {
+    background: var(--ink);
+    color: var(--chalk);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100dvh;
+    background: var(--surface);
+    color: var(--chalk);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--mustard);
+    color: var(--ink);
+  }
+}
