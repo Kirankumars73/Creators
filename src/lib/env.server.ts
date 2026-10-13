@@ -58,3 +58,11 @@ export function getServerEnv(): ServerEnv {
   cached ??= parseServerEnv(process.env);
   return cached;
 }
+
+/** ADMIN_EMAILS alone — admin access must not depend on the WhatsApp links being valid. */
+export function adminEmailsFromEnv(raw: string | undefined = process.env.ADMIN_EMAILS): string[] {
+  return (raw ?? '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+}

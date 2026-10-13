@@ -27,10 +27,11 @@ test('/me sends signed-out visitors to /join with a real redirect', async ({ req
   expect(res.headers()['location']).toMatch(/\/join$/);
 });
 
-test('/admin is noindex', async ({ page }) => {
-  const res = await page.goto('/admin');
-  expect(res?.status()).toBe(200);
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
+test('/admin is a real 404 for anyone who is not an admin', async ({ request, page }) => {
+  expect((await request.get('/admin')).status()).toBe(404);
+  expect((await request.get('/admin/export')).status()).toBe(404);
+  await page.goto('/admin');
+  await expect(page.getByRole('heading', { name: /this frame isn’t in the film/i })).toBeVisible();
 });
 
 test('robots.txt keeps crawlers out of /admin and /me', async ({ request }) => {

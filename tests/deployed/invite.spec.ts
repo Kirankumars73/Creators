@@ -53,6 +53,11 @@ test.describe('signed in as the creator test account', () => {
     expect((await request.get('/api/pass/00000000-0000-4000-8000-000000000000')).status()).toBe(404);
   });
 
+  test('a signed-in creator is not an admin: /admin and its export are 404', async ({ request }) => {
+    expect((await request.get('/admin')).status()).toBe(404);
+    expect((await request.get('/admin/export')).status()).toBe(404);
+  });
+
   test('the signed-in /join page source carries no invite link', async ({ page }) => {
     const res = await page.goto('/join');
     expect(await res!.text()).not.toContain('chat.whatsapp.com');
