@@ -28,7 +28,7 @@ export function Scrubber() {
     const ro = new ResizeObserver(() => {
       const els = SECTIONS.map((s) => document.getElementById(s.id));
       tops.current = els.map((el) => (el ? el.getBoundingClientRect().top + window.scrollY : 0));
-      setFractions(clipFractions(els.map((el) => el?.offsetHeight ?? 0), 0.09));
+      setFractions(clipFractions(els.map((el) => el?.offsetHeight ?? 0), 0.1));
       // "Timecode" of a section = how many screens in it starts, at 25 frames a screen.
       setStartFrames(tops.current.map((top) => Math.round((top / window.innerHeight) * 25)));
       setMeasured(true);

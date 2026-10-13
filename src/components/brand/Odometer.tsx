@@ -25,7 +25,7 @@ export function Odometer({ value, digits, label, rollIn = true, className = '' }
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || !rollIn) return;
+    if (!el || !rollIn || typeof IntersectionObserver === 'undefined') return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const r = el.getBoundingClientRect();
     if (r.top < window.innerHeight && r.bottom > 0) return;

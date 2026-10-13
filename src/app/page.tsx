@@ -10,10 +10,10 @@ import { ScrollFilm } from '@/components/film/ScrollFilm';
 import { Scrubber } from '@/components/film/Scrubber';
 import { WhosInside } from '@/components/film/WhosInside';
 import { GateWeave } from '@/components/texture/GateWeave';
-import { getMemberCounts } from '@/lib/wall/cached';
+import { getMemberCounts, getMemberWall } from '@/lib/wall/cached';
 
 export default async function Home() {
-  const counts = await getMemberCounts();
+  const [counts, wall] = await Promise.all([getMemberCounts(), getMemberWall()]);
   return (
     <ScrollFilm>
       {/* Fixed layers sit outside <main>: the gate-weave transform would otherwise trap them. */}
@@ -25,7 +25,7 @@ export default async function Home() {
         <WhosInside />
         <CodeTeaser />
         <Inside />
-        <RollCall />
+        <RollCall wall={wall} counts={counts} />
         <JoinGate />
       </GateWeave>
       <EndCredits />

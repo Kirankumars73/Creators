@@ -3,6 +3,7 @@ import { Star } from '@/components/brand/Star';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { brand } from '@/config/brand';
 import { t } from '@/i18n/ml';
+import { CreditsDrift } from './CreditsDrift';
 
 const STARS = 7;
 
@@ -15,7 +16,7 @@ export function EndCredits() {
   ];
   return (
     <footer className="relative overflow-hidden">
-      <div className="flex flex-col items-center px-4 pb-20 pt-28 text-center md:pt-40">
+      <CreditsDrift className="flex flex-col items-center px-4 pb-20 pt-28 text-center md:pt-40">
         <Wordmark size="md" />
         <dl className="mt-16 flex flex-col gap-10">
           {credits.map((c) => (
@@ -46,23 +47,30 @@ export function EndCredits() {
         <p className={`mt-10 text-chalk-dim ${signoff.ml ? 'text-ml text-lg' : 'text-body'}`}>
           {signoff.ml ?? signoff.en}
         </p>
-      </div>
+      </CreditsDrift>
       <Marquee />
     </footer>
   );
 }
 
+/** KOOTAM ★ KOOTAM ★ … — two identical runs translated -50% on a 40s CSS loop (§6.9). */
 function Marquee() {
-  const run = Array.from({ length: 12 }, (_, i) => i);
+  const run = Array.from({ length: 10 }, (_, i) => i);
+  const half = (key: string) => (
+    <span key={key} className="flex shrink-0 items-center gap-6 pr-6">
+      {run.map((i) => (
+        <span key={i} className="flex items-center gap-6">
+          KOOTAM <Star size="0.6em" />
+        </span>
+      ))}
+    </span>
+  );
   return (
-    <div className="overflow-hidden bg-rosso py-3">
+    <div className="marquee overflow-hidden bg-rosso py-3">
       <span className="sr-only">Kootam</span>
-      <div aria-hidden="true" className="flex w-max gap-6 font-display text-[2rem] uppercase leading-none text-chalk">
-        {run.map((i) => (
-          <span key={i} className="flex items-center gap-6">
-            KOOTAM <Star size="0.6em" />
-          </span>
-        ))}
+      <div aria-hidden="true" className="marquee-track flex w-max font-display text-[2rem] uppercase leading-none text-chalk">
+        {half('a')}
+        {half('b')}
       </div>
     </div>
   );

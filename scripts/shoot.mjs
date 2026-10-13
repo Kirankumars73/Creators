@@ -28,7 +28,7 @@ for (const w of widthsArg.split(',').map(Number)) {
     const height = await page.evaluate(() => document.documentElement.scrollHeight);
     for (let y = 0, i = 0; y < height; y += 900, i++) {
       await page.evaluate((top) => window.scrollTo(0, top), y);
-      await page.waitForTimeout(250);
+      await page.waitForTimeout(900);
       await page.screenshot({ path: join(outdir, `${stem}-s${String(i).padStart(2, '0')}.png`) });
     }
   } else {

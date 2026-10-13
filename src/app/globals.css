@@ -303,6 +303,26 @@ html.js:not(.no-cold-open) .wipe {
   opacity: 0.09;
 }
 
+/* KOOTAM marquee (§6.9): the one long-running motion, so it keeps its compositor layer. */
+.marquee-track {
+  animation: marquee 40s linear infinite;
+  will-change: transform;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+
+/* New on the roll call: a mustard star that breathes. */
+.star-pulse {
+  animation: star-pulse 1.6s var(--ease-pan) infinite alternate;
+}
+@keyframes star-pulse {
+  from { opacity: 0.45; transform: scale(0.85); }
+}
+
 /* Reel cards (§6.1): quiet until the pointer is near. */
 .reel {
   transition: border-color 180ms var(--ease-cut), filter 180ms var(--ease-cut);
@@ -326,6 +346,10 @@ html.js:not(.no-cold-open) .wipe {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .star-pulse {
+    animation: none;
+  }
   .gate,
   .gate .gate-grain {
     transition: none;

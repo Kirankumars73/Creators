@@ -107,3 +107,22 @@ test.describe("WHO'S INSIDE and THE CODE (§6.4, §6.5)", () => {
     await expect.poll(() => frames.nth(1).evaluate((el) => getComputedStyle(el).filter)).not.toContain('blur(3px)');
   });
 });
+
+test.describe('the last reel (§6.6–§6.9)', () => {
+  test('roll call is honest when the database is unreachable', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('#roll-call')).toContainText('signal lost');
+  });
+
+  test('the join gate and the credits say what they should', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('#join h2')).toHaveText(/TAKE\s+YOUR\s+PLACE\./);
+    await expect(page.locator('footer')).toContainText('GOWTHAM DAS THEKKINKATTIL');
+    await expect(page.locator('footer .marquee')).toContainText('KOOTAM');
+  });
+
+  test('the four rituals are on the timeline', async ({ page }) => {
+    await page.goto('/');
+    for (const name of ['WEEKLY DROP', 'THE CUT ROOM', 'LOOKING FOR', 'GEAR & GRIEF']) await expect(page.locator('#inside')).toContainText(name);
+  });
+});

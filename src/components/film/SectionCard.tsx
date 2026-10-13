@@ -11,7 +11,7 @@ import { sectionTitle, type SectionId } from './sections';
  * §6.3 — the cut. As a section arrives, a rosso panel sweeps in left→right carrying its
  * title, holds 350ms, then wipes off upward. Not rendered at all under reduced motion.
  */
-export function SectionCard({ id }: { id: SectionId }) {
+export function SectionCard({ id, tone = 'rosso' }: { id: SectionId; tone?: 'rosso' | 'ink' }) {
   const film = useScrollFilm();
   const panel = useRef<HTMLDivElement>(null);
 
@@ -36,7 +36,7 @@ export function SectionCard({ id }: { id: SectionId }) {
       <div
         ref={panel}
         data-section-card=""
-        className="section-card flex h-full w-full items-center bg-rosso px-4 md:px-10"
+        className={`section-card flex h-full w-full items-center px-4 md:px-10 ${tone === 'ink' ? 'bg-ink' : 'bg-rosso'}`}
       >
         <p className="text-title text-chalk">{sectionTitle(id)}</p>
       </div>
