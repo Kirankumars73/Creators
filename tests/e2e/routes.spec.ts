@@ -21,13 +21,17 @@ test('the document is ink-dark from the first byte', async ({ page }) => {
   expect(bg).toBe('rgb(10, 10, 11)');
 });
 
-for (const path of ['/me', '/admin']) {
-  test(`${path} is noindex`, async ({ page }) => {
-    const res = await page.goto(path);
-    expect(res?.status()).toBe(200);
-    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
-  });
-}
+test('/me sends signed-out visitors to /join with a real redirect', async ({ request }) => {
+  const res = await request.get('/me', { maxRedirects: 0 });
+  expect([303, 307]).toContain(res.status());
+  expect(res.headers()['location']).toMatch(/\/join$/);
+});
+
+test('/admin is noindex', async ({ page }) => {
+  const res = await page.goto('/admin');
+  expect(res?.status()).toBe(200);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
+});
 
 test('robots.txt keeps crawlers out of /admin and /me', async ({ request }) => {
   const body = await (await request.get('/robots.txt')).text();
