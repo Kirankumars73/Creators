@@ -126,3 +126,13 @@ test.describe('the last reel (§6.6–§6.9)', () => {
     for (const name of ['WEEKLY DROP', 'THE CUT ROOM', 'LOOKING FOR', 'GEAR & GRIEF']) await expect(page.locator('#inside')).toContainText(name);
   });
 });
+
+test('the landing page never downloads the 200KB Malayalam font (performance)', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('[data-cold-open]')).toBeHidden();
+  await page.evaluate(() => document.fonts.ready);
+  const anek = await page.evaluate(() => [...document.fonts].filter((f) => /anek/i.test(f.family) && f.status !== 'unloaded').length);
+  expect(anek).toBe(0);
+  // …and the wordmark still shows കൂട്ടം, shaped by the pre-rendered image.
+  await expect(page.locator('footer [data-ml-mark]')).toBeVisible();
+});

@@ -1,6 +1,5 @@
 'use client';
 
-import { gsap } from 'gsap';
 import Image from 'next/image';
 import { useEffect, useRef } from 'react';
 import { CropMarks } from '@/components/brand/CropMarks';
@@ -9,8 +8,8 @@ import { REEL_STILLS } from '@/config/reels';
 import { useScrollFilm } from './ScrollFilm';
 
 const CARDS: { lane: Lane; speed: number; place: string }[] = [
-  { lane: 'creator', speed: 0.6, place: 'right-[44%] top-[6%] md:right-[36%] md:top-[14%]' },
-  { lane: 'editor', speed: 1.0, place: 'right-[22%] top-[13%] md:right-[19%] md:top-[30%]' },
+  { lane: 'creator', speed: 0.6, place: 'right-[44%] top-[6%] md:right-[27%] md:top-[14%]' },
+  { lane: 'editor', speed: 1.0, place: 'right-[22%] top-[13%] md:right-[14%] md:top-[32%]' },
   { lane: 'other', speed: 1.4, place: 'right-[-6%] top-[3%] md:right-[3%] md:top-[9%]' },
 ];
 
@@ -27,7 +26,7 @@ export function ReelCards() {
     const hero = el?.closest('section');
     if (!film.ready || film.reduced || !el || !hero) return;
     const cards = [...el.querySelectorAll<HTMLElement>('[data-reel]')];
-    const revert = film.add(() => {
+    const revert = film.add(({ gsap }) => {
       cards.forEach((card, i) => {
         gsap.to(card, {
           y: () => (1 - CARDS[i]!.speed) * hero.offsetHeight * 0.6,

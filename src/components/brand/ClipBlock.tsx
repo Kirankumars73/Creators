@@ -4,7 +4,10 @@ import type { Lane } from '@/config/brand';
 type Base = {
   label: string;
   lane?: Lane | 'neutral';
-  /** `false` dims the clip to 40%; omitted or `true` is full strength. */
+  /**
+   * `false` quiets the clip: darker fill and --chalk-mute text (4.54:1 on graphite). Never by
+   * opacity — a 40%-opacity label fails AA contrast (§11 outranks §6.2's "40%").
+   */
   active?: boolean;
   className?: string;
   children?: ReactNode;
@@ -18,16 +21,16 @@ type ClipBlockProps =
 export function ClipBlock(props: ClipBlockProps) {
   const { label, lane = 'neutral', active, className = '', children, as, ...rest } = props;
   const classes = [
-    'relative flex min-w-0 items-center gap-2 rounded-l-hairline border-l-[3px] bg-graphite px-3 py-2',
+    'group/clip relative flex min-w-0 items-center gap-2 rounded-l-hairline border-l-[3px] px-3 py-2',
     lane === 'neutral' ? 'border-chalk-mute' : 'border-lane',
-    active === false ? 'opacity-40' : 'opacity-100',
-    'transition-opacity duration-[var(--dur-cut)] ease-cut',
+    active === false ? 'bg-graphite/60' : 'bg-graphite',
+    'transition-colors duration-[var(--dur-cut)] ease-cut',
     className,
   ].join(' ');
   const laneAttr = lane === 'neutral' ? undefined : lane;
   const content = (
     <>
-      <span className="text-label truncate text-chalk">{label}</span>
+      <span className={`text-label truncate ${active === false ? 'text-chalk-mute' : 'text-chalk'}`}>{label}</span>
       {children}
     </>
   );

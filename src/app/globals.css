@@ -100,9 +100,10 @@
 }
 
 @utility text-subhead {
+  /* Archivo 700 as a static face: the wdth-axis variable (for §4.2's width 112) is 88KB vs
+     14KB and pushed mobile LCP past 2.5s. Swap back by restoring axes: ['wdth'] in fonts.ts. */
   font-family: var(--font-subhead);
   font-weight: 700;
-  font-stretch: 112%;
   font-size: clamp(1.25rem, 2.6vw, 2rem);
   line-height: 1.12;
 }
@@ -195,11 +196,10 @@
 }
 
 .wordmark-ml {
-  font-size: 0.8em;
-  font-weight: 700;
-  font-stretch: 125%;
-  line-height: 1.12;
-  margin-top: 0.04em;
+  /* The Malayalam line is the pre-rendered Anek mark (MlMark), sized by font-size. */
+  font-size: 0.86em;
+  line-height: 1;
+  margin-top: 0.06em;
 }
 
 /* Stars flick in around EXPORT COMPLETE. */
@@ -264,18 +264,26 @@ html:not(.js) [data-cold-open],
 @keyframes co-end { to { visibility: hidden; } }
 @keyframes quiet-in { from { opacity: 0; } }
 
-/* Hero word wipe (§6.1): each word rises in behind a clip edge, 55ms apart — never a fade.
-   Hidden only when JS is on; after the cold open's cut when it plays. */
-.js .wipe {
-  clip-path: inset(100% -0.1em -0.25em -0.1em);
+/* Hero word wipe (§6.1): an ink cover over each word shrinks upward (scaleY from the top),
+   revealing the word bottom-first, 55ms apart — never a fade. Transform-only (§10.1), and the
+   words themselves paint at first paint, so the headline is the LCP without waiting on it. */
+.wipe-cover {
+  display: none;
+}
+.js .wipe-cover {
+  display: block;
+  position: absolute;
+  inset: -0.08em -0.06em -0.14em;
+  background: var(--ink);
+  transform-origin: 50% 0%;
   animation: wipe-up 520ms var(--ease-pan) forwards;
   animation-delay: calc(var(--i, 0) * 55ms);
 }
-html.js:not(.no-cold-open) .wipe {
+html.js:not(.no-cold-open) .wipe-cover {
   animation-delay: calc(1180ms + var(--i, 0) * 55ms);
 }
 @keyframes wipe-up {
-  to { clip-path: inset(-0.25em -0.1em -0.25em -0.1em); }
+  to { transform: scaleY(0); }
 }
 
 /* Section title card (§6.3): parked off-frame until GSAP runs the cut. */
@@ -285,7 +293,7 @@ html.js:not(.no-cold-open) .wipe {
 
 /* WHO'S INSIDE gates (§6.4): rack focus between the two frames, frame-local grain. */
 .gate {
-  transition: filter 180ms var(--ease-cut);
+  transition: filter 180ms var(--ease-cut), transform 320ms var(--ease-pan);
 }
 .gate[data-state="soft"] {
   filter: blur(3px);
@@ -357,8 +365,10 @@ html.js:not(.no-cold-open) .wipe {
   .gate[data-state="soft"] {
     filter: none;
   }
+  .js .wipe-cover {
+    display: none;
+  }
   .js .wipe {
-    clip-path: none;
     animation: quiet-in 150ms linear both;
   }
   .star-flick {

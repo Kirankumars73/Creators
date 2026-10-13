@@ -1,5 +1,5 @@
 import { brand, type Lane } from '@/config/brand';
-import { t } from '@/i18n/ml';
+import { MlMark } from './MlMark';
 
 type WordmarkProps = {
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -20,18 +20,15 @@ const SIZES = {
  * never reading as a subtitle.
  */
 export function Wordmark({ size = 'md', lane, className = '' }: WordmarkProps) {
-  const ml = t('wordmark').ml;
+  const mark = <MlMark mlKey="wordmark" />;
   return (
     <span data-lane={lane} className={`inline-flex flex-col items-stretch ${SIZES[size]} ${className}`}>
       <span className="sr-only">{brand.name}</span>
       <span aria-hidden="true" className="font-display uppercase leading-[0.86] tracking-[-0.02em] text-chalk">
         {brand.wordmark.latin}
       </span>
-      <span
-        aria-hidden="true"
-        className={`wordmark-ml text-center ${ml ? 'font-ml' : 'font-display uppercase'} ${lane ? 'text-lane' : 'text-chalk'}`}
-      >
-        {ml ?? 'KOOTAM'}
+      <span aria-hidden="true" className={`wordmark-ml text-center ${lane ? 'text-lane' : 'text-chalk'}`}>
+        {mark ?? <span className="font-display uppercase">KOOTAM</span>}
       </span>
     </span>
   );

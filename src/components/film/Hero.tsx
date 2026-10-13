@@ -21,8 +21,9 @@ export function Hero({ counts }: { counts: MemberCounts | null }) {
             <span key={line} className="block">
               {line.split(' ').map((w, wi) => (
                 <span key={w}>
-                  <span data-wipe="" className="wipe inline-block" style={{ ['--i' as string]: word++ }}>
+                  <span data-wipe="" className="wipe relative inline-block" style={{ ['--i' as string]: word++ }}>
                     {w}
+                    <span aria-hidden="true" className="wipe-cover" />
                   </span>
                   {wi < line.split(' ').length - 1 ? ' ' : null}
                 </span>

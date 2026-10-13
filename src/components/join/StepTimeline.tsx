@@ -24,7 +24,7 @@ export function StepTimeline({ step, lane }: { step: JoinStep; lane: Lane | null
               aria-current={i === at ? 'step' : undefined}
               className="w-full"
             >
-              <span className="text-label hidden truncate text-chalk-dim sm:inline">{s.word}</span>
+              <span className={`text-label hidden truncate sm:inline ${i <= at ? 'text-chalk-dim' : 'text-chalk-mute'}`}>{s.word}</span>
               <span className="sr-only sm:hidden">{s.word}</span>
             </ClipBlock>
           </li>

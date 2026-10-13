@@ -9,12 +9,17 @@ import type { RenderTask } from '@/lib/join/render-progress';
 import { resolveStep, type JoinStep } from '@/lib/join/step';
 import type { MemberInput } from '@/lib/members/schema';
 import type { SubmitResult } from '@/lib/members/submit';
-import { DetailsForm } from './DetailsForm';
-import { LanePicker } from './LanePicker';
+import dynamic from 'next/dynamic';
 import { RenderBar } from './RenderBar';
-import { SavePassButton } from './SavePassButton';
-import { ExportSequence } from './Reveal';
 import { SignIn } from './SignIn';
+
+// Each step ships as its own chunk: a signed-out visitor downloads only the sign-in step.
+const LanePicker = dynamic(() => import('./LanePicker').then((m) => m.LanePicker));
+const DetailsForm = dynamic(() => import('./DetailsForm').then((m) => m.DetailsForm));
+const ExportSequence = dynamic(() => import('./Reveal').then((m) => m.ExportSequence), {
+  loading: () => <RenderBar progress={0} frames={0} />,
+});
+const SavePassButton = dynamic(() => import('./SavePassButton').then((m) => m.SavePassButton));
 import { StepTimeline } from './StepTimeline';
 
 export type JoinFlowProps = {

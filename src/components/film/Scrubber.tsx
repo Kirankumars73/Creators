@@ -1,6 +1,5 @@
 'use client';
 
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useEffect, useRef, useState } from 'react';
 import { ClipBlock } from '@/components/brand/ClipBlock';
 import { activeIndex, clipFractions } from '@/lib/film/scrub';
@@ -39,7 +38,7 @@ export function Scrubber() {
 
   useEffect(() => {
     if (!film.ready) return;
-    return film.add(() => {
+    return film.add(({ ScrollTrigger }) => {
       ScrollTrigger.create({
         start: 0,
         end: 'max',

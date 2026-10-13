@@ -1,6 +1,5 @@
 'use client';
 
-import { gsap } from 'gsap';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { withWillChange } from '@/lib/motion/will-change';
 import { useScrollFilm } from './ScrollFilm';
@@ -19,7 +18,7 @@ export function RevealOnScroll({ children, className }: { children: ReactNode; c
     const el = root.current;
     if (!film.ready || !el) return;
     const items = [...el.querySelectorAll<HTMLElement>('[data-reveal]')];
-    return film.add(() => {
+    return film.add(({ gsap }) => {
       for (const item of items) {
         const scrollTrigger = { trigger: item, start: 'top 88%', once: true };
         if (item.dataset.reveal === 'trim' && !film.reduced) {

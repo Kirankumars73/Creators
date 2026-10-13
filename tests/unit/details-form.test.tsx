@@ -95,3 +95,11 @@ describe('DetailsForm (§7 step 3)', () => {
     await waitFor(() => expect(screen.getByRole('textbox', { name: 'Instagram handle' })).toHaveAttribute('aria-invalid', 'true'));
   });
 });
+
+describe('DetailsForm — errors take you to the problem (WCAG 3.3.1 / 2.4.3)', () => {
+  test('a rejected submit moves focus to the first invalid field', async () => {
+    setup();
+    await userEvent.click(screen.getByRole('button', { name: /render my pass/i }));
+    await waitFor(() => expect(screen.getByRole('textbox', { name: 'Instagram handle' })).toHaveFocus());
+  });
+});

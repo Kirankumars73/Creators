@@ -1,77 +1,96 @@
 'use client';
 
-import { gsap } from 'gsap';
-import { CustomEase } from 'gsap/CustomEase';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Lenis from 'lenis';
-import { createContext, useContext, useEffect, useMemo, useRef, useSyncExternalStore, type ReactNode } from 'react';
+import type { gsap as Gsap } from 'gsap';
+import type { ScrollTrigger as ScrollTriggerType } from 'gsap/ScrollTrigger';
+import type Lenis from 'lenis';
+import { createContext, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { usePrefersReducedMotion } from '@/lib/motion/reduced-motion';
 import type { SectionId } from './sections';
+
+export type FilmEngine = { gsap: typeof Gsap; ScrollTrigger: typeof ScrollTriggerType };
 
 type Film = {
   /**
    * Register scroll-linked animations (§10.2). Returns their cleanup — return it from the
    * effect. Everything still registered is reverted when the page unmounts.
    */
-  add(setup: () => void): () => void;
+  add(setup: (engine: FilmEngine) => void): () => void;
   scrollTo(id: SectionId): void;
   reduced: boolean;
   /**
-   * False during server render and hydration, when `reduced` is only a guess. Register
-   * nothing until it's true: registering twice (guess, then truth) leaves `from` tweens
-   * animating 0 → 0 and duplicate triggers behind.
+   * False until the client is hydrated AND the motion engine has loaded. Register nothing
+   * before: registering twice (SSR guess, then truth) leaves `from` tweens animating 0 → 0.
    */
   ready: boolean;
 };
 
+const FilmContext = createContext<Film | null>(null);
 const subscribeNothing = () => () => {};
 
-const FilmContext = createContext<Film | null>(null);
-
-let registered = false;
-function register() {
-  if (registered) return;
+async function loadEngine(): Promise<FilmEngine> {
+  const [{ gsap }, { ScrollTrigger }, { CustomEase }] = await Promise.all([
+    import('gsap'),
+    import('gsap/ScrollTrigger'),
+    import('gsap/CustomEase'),
+  ]);
   gsap.registerPlugin(ScrollTrigger, CustomEase);
   CustomEase.create('cut', '.85,0,.15,1');
   CustomEase.create('pan', '.33,1,.68,1');
-  registered = true;
+  return { gsap, ScrollTrigger };
 }
 
 /**
- * The landing page's motion host: Lenis smooth scroll (off under reduced motion) driven by
- * GSAP's ticker, feeding ScrollTrigger; one gsap.context for every scroll-linked animation,
- * reverted when the page unmounts. GSAP and Lenis ship only with this route.
+ * The landing page's motion host. GSAP, ScrollTrigger and Lenis are fetched after hydration
+ * (dynamic import), so ~60KB of motion code stays out of the first paint. One registry of
+ * gsap contexts, reverted on unmount; Lenis smooth scroll off under reduced motion.
  */
 export function ScrollFilm({ children }: { children: ReactNode }) {
   const reduced = usePrefersReducedMotion();
-  const ready = useSyncExternalStore(subscribeNothing, () => true, () => false);
+  const hydrated = useSyncExternalStore(subscribeNothing, () => true, () => false);
+  const [engine, setEngine] = useState<FilmEngine | null>(null);
   const live = useRef(new Set<gsap.Context>());
   const lenis = useRef<Lenis | null>(null);
 
   useEffect(() => {
-    register();
-    if (!ready || reduced) return;
-    const l = new Lenis({ autoRaf: false });
-    lenis.current = l;
-    l.on('scroll', ScrollTrigger.update);
-    const tick = (time: number) => l.raf(time * 1000);
-    gsap.ticker.add(tick);
-    gsap.ticker.lagSmoothing(0);
+    let alive = true;
+    void loadEngine().then((e) => alive && setEngine(e));
     return () => {
-      gsap.ticker.remove(tick);
-      l.destroy();
-      lenis.current = null;
+      alive = false;
     };
-  }, [ready, reduced]);
+  }, []);
 
-  // Trigger positions are measured once; fonts swapping in or sections growing (the roll
-  // call filling up) move everything below. Re-measure when fonts land and when the page resizes.
   useEffect(() => {
-    register();
+    if (!engine || reduced) return;
+    let alive = true;
+    let stop = () => {};
+    void import('lenis').then(({ default: LenisCtor }) => {
+      if (!alive) return;
+      const l = new LenisCtor({ autoRaf: false });
+      lenis.current = l;
+      l.on('scroll', engine.ScrollTrigger.update);
+      const tick = (time: number) => l.raf(time * 1000);
+      engine.gsap.ticker.add(tick);
+      engine.gsap.ticker.lagSmoothing(0);
+      stop = () => {
+        engine.gsap.ticker.remove(tick);
+        l.destroy();
+        lenis.current = null;
+      };
+    });
+    return () => {
+      alive = false;
+      stop();
+    };
+  }, [engine, reduced]);
+
+  // Trigger positions are measured once; fonts swapping in or sections growing move
+  // everything below. Re-measure when fonts land and when the page resizes.
+  useEffect(() => {
+    if (!engine) return;
     let timer: ReturnType<typeof setTimeout>;
     const refresh = () => {
       clearTimeout(timer);
-      timer = setTimeout(() => ScrollTrigger.refresh(), 120);
+      timer = setTimeout(() => engine.ScrollTrigger.refresh(), 120);
     };
     void document.fonts?.ready.then(refresh);
     const ro = new ResizeObserver(refresh);
@@ -80,7 +99,7 @@ export function ScrollFilm({ children }: { children: ReactNode }) {
       clearTimeout(timer);
       ro.disconnect();
     };
-  }, []);
+  }, [engine]);
 
   useEffect(() => {
     const contexts = live.current;
@@ -90,13 +109,14 @@ export function ScrollFilm({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  const ready = hydrated && engine !== null;
   const film = useMemo<Film>(
     () => ({
       reduced,
       ready,
       add: (setup) => {
-        register();
-        const c = gsap.context(setup);
+        if (!engine) return () => {};
+        const c = engine.gsap.context(() => setup(engine));
         live.current.add(c);
         return () => {
           c.revert();
@@ -110,7 +130,7 @@ export function ScrollFilm({ children }: { children: ReactNode }) {
         else el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
       },
     }),
-    [reduced, ready],
+    [reduced, ready, engine],
   );
 
   return <FilmContext.Provider value={film}>{children}</FilmContext.Provider>;

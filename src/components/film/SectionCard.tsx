@@ -1,7 +1,5 @@
 'use client';
 
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useEffect, useRef } from 'react';
 import { withWillChange } from '@/lib/motion/will-change';
 import { useScrollFilm } from './ScrollFilm';
@@ -19,7 +17,7 @@ export function SectionCard({ id, tone = 'rosso' }: { id: SectionId; tone?: 'ros
     const el = panel.current;
     const section = el?.closest('section');
     if (!film.ready || film.reduced || !el || !section) return;
-    return film.add(() => {
+    return film.add(({ gsap, ScrollTrigger }) => {
       const tl = gsap.timeline({ paused: true });
       // x: 0 clears the parked CSS translateX(-100%), which GSAP would otherwise read as a px offset.
       tl.fromTo(el, { xPercent: -100, x: 0 }, { xPercent: 0, x: 0, duration: 0.3, ease: 'pan' })

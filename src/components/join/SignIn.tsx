@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { Button, buttonClasses } from '@/components/ui/Button';
 import { chromeIntentUrl, type InAppInfo } from '@/lib/join/in-app-browser';
-import { createBrowserSupabase } from '@/lib/supabase/browser';
 
 type SignInProps = {
   inApp: InAppInfo;
@@ -33,6 +32,8 @@ export function SignIn({ inApp, currentUrl, error = false }: SignInProps) {
   async function signIn() {
     setPending(true);
     setFailed(false);
+    // supabase-js is only fetched when someone actually taps the button.
+    const { createBrowserSupabase } = await import('@/lib/supabase/browser');
     const supabase = createBrowserSupabase();
     const result = supabase
       ? await supabase.auth.signInWithOAuth({

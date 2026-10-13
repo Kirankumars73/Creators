@@ -5,13 +5,16 @@
 // member pass place as an image.
 //
 // Re-run after editing src/i18n/ml.ts:  pnpm render:ml
-import { writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { chromium } from '@playwright/test';
 import { ML } from '../src/i18n/ml.ts';
 
 const OUT = 'src/assets/ml';
+// The same PNGs, served to browsers for decorative marks (wordmark, slate): pages that show
+// only those never download the 200KB Malayalam font.
+const PUBLIC_OUT = 'public/brand/ml';
 const FONT = pathToFileURL(join(process.cwd(), 'src/assets/fonts/AnekMalayalam-SemiBold.ttf')).href;
 const SIZE = 96; // CSS px; images are captured at 2x
 const CHALK = '#F2F3F5';
@@ -35,3 +38,5 @@ for (const [key, entry] of Object.entries(ML)) {
 }
 await browser.close();
 writeFileSync(join(OUT, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+mkdirSync(PUBLIC_OUT, { recursive: true });
+for (const key of Object.keys(manifest)) copyFileSync(join(OUT, `${key}.png`), join(PUBLIC_OUT, `${key}.png`));

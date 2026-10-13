@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { SlateStripes } from '@/components/brand/SlateStripes';
 import { brand } from '@/config/brand';
-import { t } from '@/i18n/ml';
+import { MlMark } from '@/components/brand/MlMark';
 import { formatTimecode } from '@/lib/timecode';
 
 const END_FRAME = 37; // 00:00:01:12 at 25fps (§6.0)
@@ -42,9 +42,8 @@ export function ColdOpen() {
   }, []);
 
   if (gone) return null;
-  const ml = t('wordmark').ml;
   const lines: [string, React.ReactNode][] = [
-    ['PROD.', <>CREATORS {ml ? <span className="font-ml normal-case">{ml}</span> : 'KOOTAM'}</>],
+    ['PROD.', <>CREATORS <MlMark mlKey="wordmark" className="text-[1.25em]" /></>],
     ['DIR.', brand.founder.slateName],
     ['SCENE', '01    TAKE 01'],
     ['ROLL', `${brand.region} / ${brand.year}`],

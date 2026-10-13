@@ -53,7 +53,7 @@ describe('JoinFlow — four steps, URL-reflected (§7)', () => {
 
   test('choosing CUT KOOTAM moves to details and writes it into the URL and the draft', async () => {
     render(<JoinFlow {...props()} />);
-    await userEvent.click(screen.getAllByRole('radio')[1]!);
+    await userEvent.click((await screen.findAllByRole('radio'))[1]!);
     await waitFor(() => expect(window.location.search).toBe('?step=details&lane=editor'), { timeout: 2000 });
     expect(JSON.parse(sessionStorage.getItem('ck:join-draft') ?? '{}')).toMatchObject({ lane: 'editor' });
     expect(await screen.findByRole('status')).toHaveTextContent('Step 3 of 4');
@@ -64,7 +64,7 @@ describe('JoinFlow — four steps, URL-reflected (§7)', () => {
       throw new Error('QuotaExceededError');
     });
     render(<JoinFlow {...props()} />);
-    await userEvent.click(screen.getAllByRole('radio')[0]!);
+    await userEvent.click((await screen.findAllByRole('radio'))[0]!);
     await waitFor(() => expect(window.location.search).toBe('?step=details&lane=creator'), { timeout: 2000 });
   });
 
@@ -98,10 +98,10 @@ describe('JoinFlow — four steps, URL-reflected (§7)', () => {
 
   test('browser Back from details returns to the lane picker', async () => {
     render(<JoinFlow {...props()} />);
-    await userEvent.click(screen.getAllByRole('radio')[1]!);
+    await userEvent.click((await screen.findAllByRole('radio'))[1]!);
     await waitFor(() => expect(window.location.search).toBe('?step=details&lane=editor'), { timeout: 2000 });
     window.history.back();
     await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Step 2 of 4'));
-    expect(screen.getAllByRole('radio')).toHaveLength(3);
+    expect(await screen.findAllByRole('radio')).toHaveLength(3);
   });
 });

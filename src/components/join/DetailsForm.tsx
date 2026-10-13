@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Combobox } from '@/components/ui/Combobox';
@@ -52,6 +52,13 @@ export function DetailsForm({ lane, otherText, user, draft, onDraft, onSubmit, o
   const [formError, setFormError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const inFlight = useRef(false);
+  const form = useRef<HTMLFormElement>(null);
+  const [focusErrors, setFocusErrors] = useState(0);
+
+  // After a rejected submit, take keyboard and screen-reader users to the first problem.
+  useEffect(() => {
+    if (focusErrors) form.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+  }, [focusErrors]);
 
   const handle = normalizeInstagram(instagram);
   const laneTags = lane === 'other' ? [] : TAGS[lane];
@@ -94,6 +101,7 @@ export function DetailsForm({ lane, otherText, user, draft, onDraft, onSubmit, o
         next[key] ??= MESSAGES[key] ?? issue.message;
       }
       setErrors(next);
+      setFocusErrors((n) => n + 1);
       return;
     }
 
@@ -107,6 +115,7 @@ export function DetailsForm({ lane, otherText, user, draft, onDraft, onSubmit, o
       }
       if (result.fieldErrors) {
         setErrors(Object.fromEntries(Object.keys(result.fieldErrors).map((k) => [k, MESSAGES[k] ?? FORM_ERRORS.invalid])));
+        setFocusErrors((n) => n + 1);
       }
       setFormError(FORM_ERRORS[result.error]);
     } catch {
@@ -118,7 +127,7 @@ export function DetailsForm({ lane, otherText, user, draft, onDraft, onSubmit, o
   }
 
   return (
-    <form noValidate onSubmit={submit} className="flex w-full max-w-xl flex-col gap-7">
+    <form ref={form} noValidate onSubmit={submit} className="flex w-full max-w-xl flex-col gap-7">
       <Field
         label="Display name"
         name="displayName"
