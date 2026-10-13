@@ -15,13 +15,18 @@ const VARIANTS: Record<Variant, string> = {
   bay: 'bg-lane text-ink',
 };
 
+/** Button styling for elements that can't be <Button>, e.g. an `intent://` anchor. */
+export function buttonClasses(variant: Variant = 'poster', className = ''): string {
+  return `${BASE} ${VARIANTS[variant]} ${className}`;
+}
+
 type Common = { variant?: Variant; children: ReactNode; className?: string };
 type ButtonProps =
   | (Common & { href: string } & Omit<ComponentPropsWithoutRef<typeof Link>, 'href' | 'className' | 'children'>)
   | (Common & { href?: undefined } & Omit<ComponentPropsWithoutRef<'button'>, 'className' | 'children'>);
 
 export function Button({ variant = 'poster', children, className = '', ...rest }: ButtonProps) {
-  const classes = `${BASE} ${VARIANTS[variant]} ${className}`;
+  const classes = buttonClasses(variant, className);
   const marks = variant === 'poster' ? <CropMarks draw tone="chalk" offset={6} /> : null;
   if ('href' in rest && rest.href !== undefined) {
     return (
