@@ -12,6 +12,7 @@ import type { SubmitResult } from '@/lib/members/submit';
 import { DetailsForm } from './DetailsForm';
 import { LanePicker } from './LanePicker';
 import { RenderBar } from './RenderBar';
+import { SavePassButton } from './SavePassButton';
 import { ExportSequence } from './Reveal';
 import { SignIn } from './SignIn';
 import { StepTimeline } from './StepTimeline';
@@ -65,6 +66,7 @@ export function JoinFlow({
   const [lane, setLane] = useState<Lane | null>(initial.lane ?? member?.role ?? null);
   const [flood, setFlood] = useState<Lane | null>(null);
   const [otherText, setOtherText] = useState('');
+  const [handle, setHandle] = useState<string | null>(member?.instagram ?? null);
   const [returning] = useState(initial.step === 'reveal');
   // Returning members start on the reveal: hand the render bar a factory so the request
   // starts in the browser when the bar mounts (never during the server render).
@@ -117,6 +119,7 @@ export function JoinFlow({
     // The row exists only now — and only now may the links be asked for.
     if (result.ok) {
       joined.current = true;
+      setHandle(input.instagram);
       setTask(fetchInvite());
     }
     return result;
@@ -163,7 +166,13 @@ export function JoinFlow({
 
       {step === 'reveal' ? (
         task ? (
-          <ExportSequence task={task} lane={revealLane} returning={returning} onRetry={() => setTask(fetchInvite())} />
+          <ExportSequence
+            task={task}
+            lane={revealLane}
+            returning={returning}
+            onRetry={() => setTask(fetchInvite())}
+            footer={<SavePassButton instagram={handle} />}
+          />
         ) : (
           <RenderBar progress={0} frames={0} />
         )
