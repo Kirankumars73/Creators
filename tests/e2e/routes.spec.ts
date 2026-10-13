@@ -1,0 +1,47 @@
+import { expect, test } from '@playwright/test';
+
+for (const path of ['/', '/code', '/join']) {
+  test(`${path} renders with exactly one h1`, async ({ page }) => {
+    const res = await page.goto(path);
+    expect(res?.status()).toBe(200);
+    await expect(page.locator('h1')).toHaveCount(1);
+  });
+}
+
+test('the home headline is his line from his bio', async ({ page }) => {
+  await page.goto('/');
+  const text = (await page.locator('h1').innerText()).replace(/\s+/g, ' ').trim();
+  expect(text).toBe("WE'D RATHER SHOW THAN TELL.");
+});
+
+test('the document is ink-dark from the first byte', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', '#0A0A0B');
+  const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  expect(bg).toBe('rgb(10, 10, 11)');
+});
+
+for (const path of ['/me', '/admin']) {
+  test(`${path} is noindex`, async ({ page }) => {
+    const res = await page.goto(path);
+    expect(res?.status()).toBe(200);
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
+  });
+}
+
+test('robots.txt keeps crawlers out of /admin and /me', async ({ request }) => {
+  const body = await (await request.get('/robots.txt')).text();
+  expect(body).toContain('Disallow: /admin');
+  expect(body).toContain('Disallow: /me');
+});
+
+test('sitemap lists the two public pages', async ({ request }) => {
+  const body = await (await request.get('/sitemap.xml')).text();
+  expect(body).toContain('<loc>http://localhost:3100/</loc>');
+  expect(body).toContain('<loc>http://localhost:3100/code</loc>');
+});
+
+test('/code carries all seven articles', async ({ page }) => {
+  await page.goto('/code');
+  await expect(page.locator('[data-article]')).toHaveCount(7);
+});
