@@ -155,6 +155,12 @@
     outline-offset: 2px;
   }
 
+  /* Mint on rosso is 2.62:1 — on rosso fields the ring is chalk over an ink ring (Departure 7). */
+  [data-on="rosso"] :focus-visible {
+    outline-color: var(--chalk);
+    box-shadow: 0 0 0 2px var(--ink);
+  }
+
   ::selection {
     background: var(--mustard);
     color: var(--ink);

@@ -3,7 +3,7 @@ import { sectionTitle } from './sections';
 
 export function JoinGate() {
   return (
-    <section id="join" className="relative bg-rosso px-4 py-28 text-chalk md:px-10 md:py-40">
+    <section id="join" data-on="rosso" className="relative bg-rosso px-4 py-28 text-chalk md:px-10 md:py-40">
       <p className="sr-only">{sectionTitle('join')}</p>
       <h2 className="text-hero">
         <span className="block">TAKE</span>
