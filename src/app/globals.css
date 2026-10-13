@@ -218,6 +218,10 @@ html:not(.js) [data-cold-open],
 .no-cold-open [data-cold-open] {
   display: none;
 }
+.cold-open {
+  /* The hard cap is CSS, counted from first paint — not from hydration, which can be slow. */
+  animation: co-end 1ms linear 1600ms forwards;
+}
 .cold-open .co-half {
   position: absolute;
   inset-inline: 0;
@@ -257,6 +261,7 @@ html:not(.js) [data-cold-open],
 @keyframes co-flash { 0%, 100% { opacity: 0.08; } }
 @keyframes co-gone { to { opacity: 0; } }
 @keyframes co-type { to { clip-path: inset(0 0 0 0); } }
+@keyframes co-end { to { visibility: hidden; } }
 
 /* Writing on a clapperboard: a blinking block cursor where supported. */
 .slate-input {

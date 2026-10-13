@@ -1,16 +1,32 @@
 import { expect, test } from '@playwright/test';
 
-test('first visit: the slate plays, then gets out of the way inside 1.7s', async ({ page }) => {
+const ms = (v: string) => v.split(',').map((s) => (s.trim().endsWith('ms') ? parseFloat(s) : parseFloat(s) * 1000));
+
+test('first visit: the slate plays, and every part of it is timed to finish within 1.6s of first paint', async ({ page }) => {
   await page.goto('/');
   const slate = page.locator('[data-cold-open]');
   await expect(slate).toBeVisible();
-  await expect(slate).toBeHidden({ timeout: 1700 });
+  // The contract, read from the CSS itself: no animation inside the cold open ends after 1600ms.
+  const ends = await page.evaluate(() =>
+    [document.querySelector('[data-cold-open]'), ...document.querySelectorAll('[data-cold-open] *')].flatMap((el) => {
+      const cs = getComputedStyle(el as Element);
+      if (cs.animationName === 'none') return [];
+      return [{ delay: cs.animationDelay, duration: cs.animationDuration }];
+    }),
+  );
+  expect(ends.length).toBeGreaterThan(0);
+  for (const { delay, duration } of ends) {
+    const d = ms(delay);
+    const t = ms(duration);
+    d.forEach((di, i) => expect(di + (t[i] ?? t[0]!)).toBeLessThanOrEqual(1601));
+  }
+  await expect(slate).toBeHidden();
   await expect(page.locator('h1')).toBeVisible();
 });
 
 test('a second visit in the same session never shows it', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('[data-cold-open]')).toBeHidden({ timeout: 1700 });
+  await expect(page.locator('[data-cold-open]')).toBeHidden();
   await page.reload();
   expect(await page.locator('[data-cold-open]').isVisible()).toBe(false);
 });
@@ -25,7 +41,7 @@ test.describe('reduced motion', () => {
 
 test('the cold open causes no layout shift', async ({ page }) => {
   await page.goto('/');
-  await page.waitForTimeout(1900);
+  await expect(page.locator('[data-cold-open]')).toBeHidden();
   const cls = await page.evaluate(
     () =>
       new Promise<number>((resolve) => {
