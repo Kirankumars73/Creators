@@ -1,0 +1,162 @@
+# Decisions log
+
+Every call the build made on Gowtham's and Kiran's behalf, in the order it was made, with what it costs if wrong. Generated from the execution ledger on 2026-10-14. The 13 departures from the brief that were approved up front are in the [plan](../superpowers/plans/2026-10-13-creators-kootam.md#departures-from-the-brief-for-sign-off-05).
+
+## Rulings
+
+- Setup: git init + brief move done at setup (from Task 1 Step 1), initial commit dfb8b4a on main (brief+plan only), all work on branch feat/creators-kootam — isolation without a worktree in a brand-new repo — cost if wrong: none, branch can be renamed.
+- Setup: no global git identity; set repo-local user.name=kiran, user.email=account email — authorship only — cost if wrong: amend author.
+- Pre-flight: T1 Step 2 create-next-app in place would refuse (.superpowers/ not on its allowed list) — scaffold in scratchpad and copy into repo — cost if wrong: none.
+- Task 1: Geist via next/font/google (scaffold default) instead of the `geist` npm package — same face, self-hosted, one less dep — cost if wrong: swap import.
+- Task 1: vite-tsconfig-paths dropped for Vite native resolve.tsconfigPaths; vitest config is .mts — silences two warnings — cost if wrong: none.
+- Task 1: kept scaffold defaults cacheComponents + partialPrefetching (Next 16.4 recommended); route-segment `revalidate` no longer exists → Task 24 uses `use cache` + cacheLife — cost if wrong: config flip.
+- Task 2: Tailwind default radii and shadows also reset (`--radius-*`/`--shadow-*: initial`, one `--radius-hairline: 2px`) so rounded-2xl / soft-shadow cards are impossible (§2.1) — cost if wrong: re-add a radius token.
+- Task 2: ml entry English fallbacks for codeFooter/footerSignoff invented as plain lines ("Kerala is small. Credit loudly." / "See you in the kootam.") pending Gowtham — cost if wrong: edit one file.
+- Task 3: usePrefersReducedMotion created here (src/lib/motion/reduced-motion.ts) instead of Task 21 — Odometer/visual primitives need it first; Task 21 consumes it — cost if wrong: none.
+- Task 3: Odometer server-renders the real value and only rolls when it enters view from off-screen or on a live change (never value→0 flash on screen) — no-JS/SEO correct — cost if wrong: headless full-page screenshots of below-fold counters show zeros.
+- Task 3: added scripts/shoot.mjs (Playwright screenshot + horizontal-overflow probe) for every visual verification step — cost if wrong: none.
+- Task 4: static §6 sections built as their final components in src/components/film/* (Hero, TheRoom, WhosInside, CodeTeaser, Inside, RollCall, JoinGate, EndCredits) so Phase 4 adds motion instead of rewriting — cost if wrong: none.
+- Task 4: Button (poster/ghost/ink/bay) created here, not Task 14 — CTAs needed for Phase 1; Task 14 extends — cost if wrong: none.
+- Task 4: lane copy (§6.4) moved into brand.rooms[lane].copy so landing + join picker share it — cost if wrong: none.
+- Task 4: SITE BY and contact credits are hidden while brand.siteBy/contact are null (no "[YOUR NAME]" ever ships); check:launch flags them — cost if wrong: none.
+- Task 4: rituals (§6.6) use the neutral clip edge, not lane colors — lane color is reserved for lane meaning (§4.1 hard rule) — cost if wrong: recolor.
+- Task 4: e2e noindex tests also assert 200 — they passed vacuously on Next 404s (which are noindex) — cost if wrong: none.
+- Task 4: JoinGate button label "Join the kootam" is provisional; Task 27 revisits with ux-copy — cost if wrong: one string.
+- Task 5: user instructed "don't stop after each phase — check it works, move on" → Phase 1 deploy deferred until Vercel login; all external steps (deploy, Supabase, Google OAuth, WA links, deployed tests, Lighthouse on prod, real phone) batched to the end; local work continues — overrides brief §0.2 deploy-before-Phase-2 per user — cost if wrong: Phase 1 URL reaches Gowtham later.
+- Task 6: members.tags made `not null default '{}'` (brief has it nullable) — app always writes an array, null tags add a branch everywhere — cost if wrong: drop not null.
+- Task 7: member_counts returns int columns (plan said bigint) — JSON-safe numbers through PostgREST and PGlite, 2B-member ceiling irrelevant — cost if wrong: none.
+- Task 7: member_wall caps max_rows at 500 server-side — an anon RPC caller can't ask for the whole table in one call — cost if wrong: raise cap.
+- Task 8: normalizeInstagram leaves non-Instagram links and post/reel URLs intact so validation rejects them (otherwise linktr.ee/x → "linktr.ee" passes the regex) — cost if wrong: none.
+- Task 8: display name / other-text lengths counted in code points (matches Postgres char_length), not UTF-16 units — cost if wrong: none.
+- Task 9: WA link format also accepts a trailing `?mode=…` query (WhatsApp now appends it on copy) — the plan regex would have rejected real links — cost if wrong: none.
+- Task 10: SignIn gets a `currentUrl` prop (page URL handed to Chrome/Safari) and offers copy-link on Android too (Chrome may be missing) — cost if wrong: none.
+- Task 10: supabasePublicConfig() returns null when Supabase env is absent; getSessionUser → null and proxy no-ops, so public/e2e builds run without Supabase (Review Focus 5) — cost if wrong: none.
+- Task 10: server UA detection + wiring SignIn into /join happens in Task 12, where /join is rebuilt — cost if wrong: none.
+- Task 11: MemberInsert type defined in members/types.ts here (plan put it in Task 12 row.ts) — repo needs it first — cost if wrong: none.
+- Task 11: insertMember returns {errorCode} instead of throwing so 23505 maps to "already in"; route returns 503 no-store on any thrown error (missing env, DB down) rather than leaking a stack — cost if wrong: none.
+- Task 12: added submitMemberCore (DI) + tests — the server action's guards (no session → no write, invalid → no write, 23505 → already in) are now tested, not just its helpers — cost if wrong: none.
+- Task 12: page reads use getOwnMember() through the user-scoped client (RLS returns only their row) instead of the service role — least privilege; service role stays for writes and /api/invite — cost if wrong: none.
+- Task 12: /join session read sits inside <Suspense> (Cache Components makes cookies() outside Suspense a build error); h1 lives in the static shell — cost if wrong: none.
+- Task 13: check:leaks also plants a service-role key sentinel and the admin email list, and scans .next/server/app for values in .html/.rsc/.body/.meta (incl. *.segment.rsc) — proven by a planted-leak probe (12 hits, exit 1) then removed — cost if wrong: none.
+- Task 13: live Supabase link/db push, Google provider, Vercel env + deploy, and pnpm test:deployed DEFERRED to the batched external list (user instruction: keep going); tests/deployed + playwright.deployed.config.ts written and typechecked, not yet run — cost if wrong: deployed-only bugs surface later.
+- Task 14: Button already existed from Task 4; this task adds Field/Checkbox/Combobox/TagSelect plus the [data-on="rosso"] focus-ring rule (chalk outline + ink ring) applied to JoinGate — cost if wrong: none.
+- Task 14: inputs drop the outline on focus; the 2px lane bar (≥3:1 on graphite for all three lanes) is the focus indicator, as §7 specifies — cost if wrong: add outline back.
+- Task 14: Combobox reconciles on blur (exact case-insensitive match is accepted, anything else reverts to the last choice) so the field never shows a value the form doesn't hold — cost if wrong: none.
+- Task 15: execution order 16 → 17 → 18 → 15 — JoinFlow composes LanePicker/DetailsForm/Reveal, so building it last avoids throwaway stubs; JoinDraft type is created in Task 17 (first consumer) and the hook + JoinFlow tests stay in Task 15 — cost if wrong: none.
+- Task 16: keyboard = arrows check, Space/Enter commit; pointer click commits directly (selection-follows-focus would fire the full-screen cut while browsing) — cost if wrong: none.
+- Task 16: the chosen frame hands off via shared layoutId to a fixed full-screen close-up (FLIP, transform-only) rather than resizing the radio itself; the OTHER slate input lives in that close-up, never inside role=radio — cost if wrong: none.
+- Task 16: in the picker on phones, frames sit two-up with the tagline instead of the full copy (full copy ≥768px and as each radio's description) — 9:16 full-width frames would be ~700px tall each — cost if wrong: none.
+- Task 16: visual check of the picker deferred to Task 15, where it first renders inside /join — cost if wrong: none.
+- Task 17: submit label "Render my pass" (verb-led, sets up the render bar) and per-field fix-it messages from ux-copy; acceptedCode is never drafted (consent is re-given each visit) — cost if wrong: string edits.
+- Task 17: double-submit guarded by a ref (not just disabled state) so two taps inside one render send once — cost if wrong: none.
+- Task 18: client fetchInvite + InviteClientResult live in src/lib/join/invite-client.ts (created here, first consumer); ExportSequence (render bar → reveal for a given task) added; the "submitMember before fetchInvite" order test moves to Task 15 (JoinFlow builds the task) — cost if wrong: none.
+- Task 18: chip 01 is the community and carries data-lane="community" (= --rosso, §4.0 table); WhatsApp buttons are Anton 24px so ink-on-rosso clears large-text contrast — cost if wrong: none.
+- Task 18: chip-01 state is a useSyncExternalStore over sessionStorage + in-memory fallback (no hydration mismatch, survives storage being blocked); tests reset it per test after a leak let one pass vacuously — cost if wrong: none.
+- P2-review: Minor 1 (redirectTo/currentUrl from build-time siteUrl → previews break, missing env sends prod users to localhost) re-graded Important — fix now.
+- P2-review: Minor 2 (proxy throws on malformed Supabase URL → /join, /api, /auth all 500) re-graded Important — fix now.
+- P2-review: Minor 5 (instagram.com/_u/<handle> stored as "_u"; "@ handle"; zero-width chars) re-graded Important — silently wrong public data — fix now.
+- P2-review: Minor 10 (Threads/TikTok/Snapchat + iOS no-Safari WebView not detected; Android lacks "⋮ → Open in Chrome" text) re-graded Important — Review Focus 1 is the top signup risk — fix now.
+- P2-review: Minor 8 (test:deployed silently skips signed-in checks when .auth/creator.json is missing) re-graded Important — a false-green on the §14 creator-never-gets-editors check — fix now; refresh-token reuse documented in the spec header.
+- P2-review: Minor 11 admin email trust (email/anon providers could let anyone claim an admin address) carried into Task 28: requireAdmin requires a Google identity + confirmed email; README Setup says disable Email/Anonymous providers — cost if wrong: admin takeover if a provider is enabled.
+- Task 15: steps sync with the native History API (pushState lane→details so Back returns to the picker; replaceState at reveal so Back never re-opens a submitted form) instead of router.replace — no server round-trip per step — cost if wrong: none.
+- Task 15: returning members get a task *factory* that the render bar starts on mount (the lint forbids sync setState in effects, and the request must never run during SSR) — cost if wrong: dev StrictMode double-fetch only.
+- Task 15: JoinFlow receives only {id, role, instagram} of an existing member — the email never reaches the browser — cost if wrong: none.
+- Task 15: DetailsForm mounts client-only (draft lives in sessionStorage; avoids hydration mismatch) — cost if wrong: details step has no SSR form markup.
+- Task 15: /join wrapper gets overflow-x: clip (body-level clip propagates to the viewport as hidden and still scrolls); halation on EXPORT COMPLETE follows the lane (new halation-lane) — cost if wrong: none.
+- Task 15: added dev-only /dev/join preview (fake actions, example.com links, 404 in production) for visual checks of every join step without Supabase — cost if wrong: none.
+- Task 19: Indic-script display names fall back to @handle as the pass headline (Satori would break them) — cost if wrong: Malayalam names not shown on the pass.
+- Task 19: /api/pass/me (session) added beside /api/pass/[id] — the join flow never learns the member id; me is private,no-store, by-id is public,max-age=300 — cost if wrong: none.
+- Task 19: font/ML assets live in src/assets and are force-included via outputFileTracingIncludes for /api/pass/[id] (fs reads from public/ are not guaranteed in Vercel functions) — cost if wrong: none.
+- Task 19: @next/next/no-img-element off for next/og renderer files only (Satori requires <img>) — cost if wrong: none.
+- Task 20: /me lane change is a plain native radio list + confirm (not the cinematic picker) — it is an account setting, and the copy states the old WhatsApp room is not left automatically — cost if wrong: restyle.
+- Task 20: signed-out /me redirects server-side (307 → /join); e2e asserts the redirect instead of noindex meta (a redirect response is never indexed; robots.txt also disallows /me) — cost if wrong: none.
+- Task 20: /me shows the pass via next/image unoptimized src=/api/pass/me (optimizer would fetch without the session cookie) — cost if wrong: none.
+- Task 21: Grain lives in the root layout (every page, incl. the Editing Bay); GateWeave renders <main> on the poster pages only (/ and /code) — form fields never twitch while someone types — cost if wrong: one wrapper.
+- Task 21: ScrollFilm exposes add(setup) into ONE lazily-created gsap.context (children effects run before the provider's, so it is created on first use) and reverts it on unmount; CustomEase registers cut/pan names — cost if wrong: none.
+- Task 22: the scrubber sits first in the DOM (before <main>) so keyboard users reach the navigation first, while it is fixed to the bottom visually; clip minimum width 9% (labels like "06 ROLL CALL" fit at 1440) — cost if wrong: none.
+- Task 22: section measurements come only from ResizeObserver callbacks (no sync setState in effects); a section "timecode" = screens from the top × 25 frames — cost if wrong: none.
+- Task 23: the cold open is pure CSS keyframes (transform/opacity; clip-path only on the 4 slate lines for the typing) with JS limited to the timecode and the 1.6s removal; the session flag is set when it starts (a mid-play reload never repeats it) — cost if wrong: none.
+- Task 23: scrubber clip row stays visibility:hidden until first ResizeObserver measurement — clips resizing from equal widths measured CLS 0.002 (sources: scrubber buttons) before any cold open existed — cost if wrong: none.
+- Task 23: <html suppressHydrationWarning> — the pre-paint script adds js/no-cold-open classes before hydration — cost if wrong: none.
+- Task 23: the cold open is pure CSS keyframes (transform/opacity; clip-path only on the 4 slate lines) and its 1.6s hard cap is a final CSS keyframe (visibility:hidden at 1600ms from first paint), so slow hydration can never extend it; JS only ticks the timecode, sets the session flag at start, and unmounts — cost if wrong: none.
+- Task 23: scrubber clip row stays visibility:hidden until first ResizeObserver measurement — measured CLS 0.002 from scrubber buttons resizing — cost if wrong: none.
+- Task 23: <html suppressHydrationWarning> (pre-paint script adds js/no-cold-open before hydration) — cost if wrong: none.
+- Task 23: e2e asserts the 1.6s cap from the computed CSS (every animation delay+duration ≤ 1600ms) instead of wall-clock between processes, and Playwright runs 4 workers locally (8 workers starved frames on this 16-thread box; 5/16 flaked, 0/16 after) — cost if wrong: slower e2e.
+- Task 24: counts/wall reads are "use cache" + cacheLife("minutes") functions (Cache Components removed route `revalidate`); a DI core (readMemberCounts/readMemberWall) is unit-tested and returns null on any failure — cost if wrong: none.
+- Task 24: hero words rise behind an upward wipe (clip-path inset(100% …) → inset(-0.25em …)) — the brief says "wipe-up" but its sample value inset(0 0 100% 0) reveals top-down; the stated motion wins; negative end insets keep Anton ascenders unclipped — cost if wrong: flip one keyframe.
+- Task 24: reel placeholders are dark carbon panels with a 3px lane edge + crop marks, not solid lane-colored fields — solid rosso/lime behind white Anton would break contrast; stills slot in via src/config/reels.ts ([ASK]) — cost if wrong: restyle.
+- Task 24: hero odometer hidden when the count is 0 or unknown (§6.7 "do not show 0 members") — cost if wrong: none.
+- Task 24: headline line/word spans carry real spaces so its text reads "WE'D RATHER SHOW THAN TELL." to screen readers (was "RATHERSHOW") — cost if wrong: none.
+- Task 25: ScrollFilm refreshes ScrollTrigger (debounced 120ms) when fonts are ready and whenever <body> resizes — trigger positions otherwise go stale as fonts swap and sections grow — cost if wrong: none.
+- Task 26: rack focus is played BETWEEN the two gates — at rest both sharp; hovering one snaps it to blur(0) + lane border + doubled frame grain while the other racks to blur(3px). Blurring both at rest (literal reading) would leave the lane copy unreadable until hovered — cost if wrong: one CSS rule.
+- Task 26: tilt uses motion springs at the §10 settle values (180/22), ±4°, fine pointers only and never under reduced motion; frame grain is a static feTurbulence SVG (no extra canvas) — cost if wrong: none.
+- Task 26: /code eyebrow renders only when a Malayalam line exists — its English fallback duplicated the title — cost if wrong: none.
+- Task 27: ROLL CALL has three honest states (populated / brief's exact empty line / "signal lost" when unreachable); chips carry a text lane tag (LANE 0n) besides the color (§11 never color-only) — cost if wrong: none.
+- Task 27: JOIN gate title card cuts in ink (tone prop) — a rosso card on the rosso field would be invisible; JoinGate/Hero headings carry real spaces between line spans — cost if wrong: none.
+- Task 27: credits "scroll slowly" as a scrub-linked drift (y 80→0) rather than a timed animation, so the 700ms ceiling holds; the 40s marquee is the brief's own exception — cost if wrong: none.
+- Task 27: Odometer skips its roll-in when IntersectionObserver is absent (jsdom, odd embedded browsers) — cost if wrong: none.
+- Task 27: scrubber clip floor raised to 10% ("06 ROLL CALL" still truncated at 9% on 1440) — cost if wrong: none.
+- Task 27: SITE BY / contact stay null (credit and link hidden) pending the user's answer — check:launch flags both — cost if wrong: none.
+- Task 28: admin = ADMIN_EMAILS ∩ confirmed email ∩ Google identity (carried from the Phase 2 review); ADMIN_EMAILS has its own reader so admin access never depends on the WA env — cost if wrong: none.
+- Task 28: the proxy answers /admin* with a real 404 (rewrite to an unowned path) before anything streams — a notFound() inside Suspense would stream 200 — the page, export route and every action re-check — cost if wrong: none.
+- Task 28: CSV export leaves out email (Instagram is the contact channel; data minimisation), carries a UTF-8 BOM so Excel shows Malayalam, and neutralises formula injection — cost if wrong: add a column.
+- Task 28: admin search keeps letters/digits/._- and spaces only (underscore kept — handles use it; in ilike it just matches one char) — the plan's test expectation that stripped "_" was wrong and was corrected — cost if wrong: none.
+- Task 28: branded app/not-found.tsx ("Cut. This frame isn’t in the film.") — cost if wrong: copy edit.
+- Task 29: favicon (32px) is the mustard star — the stacked wordmark is illegible at 32px; apple-icon (180px) carries the full two-script wordmark; twitter-image re-exports the OG poster per route — cost if wrong: swap a file.
+- Task 29: OG/apple-icon Malayalam uses the Chromium-rendered PNGs (Task 19 spike) via outputFileTracingIncludes on every image route — cost if wrong: none.
+- Task 30: inactive scrubber/step clips are quieted by color (chalk-mute 4.54:1, darker fill), not 40% opacity — axe flagged the opacity labels; §11 contrast outranks §6.2 — cost if wrong: none.
+- Task 30: details form moves focus to the first invalid field after a rejected submit (3.3.1/2.4.3) — RED→GREEN unit test — cost if wrong: none.
+- Task 30: Archivo is the static 700 face (14KB) instead of the wdth-axis variable (88KB) — dropped §4.2's width 112 to bring mobile LCP from 2.6s to 2.3s (§10 budget <2.5s); one-line revert noted in globals.css — cost if wrong: subheads 12% narrower than spec.
+- Task 31: next/og asset reads use a literal path per file (a variable path made Turbopack trace the whole project into each function — the build warning); unrendered Malayalam keys return null until a line is added — cost if wrong: none.
+- Task 31: brand.founderConfirmed added so the name spelling is a tracked launch blocker; check:launch also requires ADMIN_EMAILS and real WA links — cost if wrong: none.
+- Final: Minor "chip 02 title from client lane, link from DB" re-graded Important — mislabels the room on the alreadyMember path — fix.
+- Final: Minor "ScrollTrigger.refresh on every body resize (mobile URL bar)" re-graded Important — scrub jank on mid-range Android, the primary audience — fix (ignore small height-only changes; hero min-h-svh); Task 25 ruling revised.
+- Final: Minor "invite fetch has no timeout" re-graded Important — a hung request strands the user at 90% — fix.
+- Final: Minor "city combobox rejects Kochi/Trivandrum/Calicut…" re-graded Important — most Kerala users type the English city name; the field then clears — fix with an alias map.
+- Final: Minor "env values not trimmed / check:launch shallow" re-graded Important — a stray space turns every invite into a 503 on launch day — fix.
+- Final: Minor "no explicit service_role grants" re-graded Important — reversing the Phase 2 deferral as the reviewer recommends; if a project lacks default privileges every write fails — fix (migration 0003).
+- Final: Minor "by-id pass ignores show_on_wall" re-graded Important — privacy expectation of members who opted out — fix.
+- Final: Minor "scrubber click leaves focus on the clip" re-graded Important — keyboard users of the site's only navigation land back in the hero — fix.
+- Final: Minor "chip copy failure shows nothing" re-graded Important — the brief asks for a working copy fallback — fix.
+- Final: Minor "hard-coded Gowtham / Creators Kootam strings" re-graded Important — breaks the brand.ts-only rule while the name spelling is still unconfirmed — fix.
+- Final: Task 20 note corrected — the signed-out /me 307 holds without Supabase; with real auth the shell may flush first and the redirect becomes client-side (still works) — no code change.
+
+## Review fixes (each proven by a test that failed first)
+
+- P2-review: fixed open-redirect dot-segment bypass in safeNextPath (+ callback appends next to own origin) — next-path "dot-segment bypasses" ×4 RED→GREEN, suite 193/193.
+- P2-review: fixed silent server failures — invite-route "a server misconfiguration answers 503 no-store and is logged" + submit-member "logs the raw code" RED→GREEN; same console.error added to /api/me, join action, auth callback, join page reads; suite 193/193.
+- P2-review: fixed build-time origin — sign-in "Google sends people back to the origin they are actually on" + request-origin ×5 RED→GREEN (redirectTo = window.location.origin, in-app URL = requestOrigin(headers)); suite 193/193.
+- P2-review: fixed proxy crash on malformed Supabase URL — proxy "a malformed Supabase URL does not take /join down" RED→GREEN; suite 193/193.
+- P2-review: fixed handle normaliser (_u deep link, "@ handle", invisible chars) — member-schema ×3 RED→GREEN; suite 193/193.
+- P2-review: fixed in-app coverage (Threads, TikTok, Snapchat, bare iOS WebView; Android ⋮ hint) — in-app-browser ×4 + sign-in "Android also gets the menu route" RED→GREEN, Chrome-iOS negative case added; suite 193/193.
+- P2-review: fixed test:deployed silent skip — signed-in group now throws when .auth/creator.json is missing (observed: "Missing .auth/creator.json", exit 1) and writes rotated sessions back.
+- Final: fixed intro replaying / headline re-covered on client Back to / (F1) — e2e "coming Back to the home page never replays the intro" RED (5 covers visible) → GREEN; suite 297/297 unit, 59/59 e2e.
+- Final: fixed reveal 401/404 recovery buttons stuck on same-route Link (F2) — "recovery actions… full reload" ×2 + "expired sign-in… offers a way back in" RED→GREEN; suite 297/297.
+- Final: fixed SAVE MY PASS silently failing after a spent user gesture (F3) — prefetch on mount; non-Abort share errors download; revoke delayed — "fetched before the tap" + "share the browser refuses falls back" RED→GREEN; suite 297/297.
+- Final: fixed admin counts/export capped at 1,000 rows (F4) — exact head counts + fetchAllPages(.range) — "keeps asking until a short page" RED→GREEN; suite 297/297.
+- Final: fixed functions not pinned next to the database (F5) — vercel.json regions ["bom1"] + README — "pinned to Mumbai" RED→GREEN; suite 297/297.
+- Final: fixed chip 02 room label from the client lane (F6) — label follows links.laneKey — "client thinks creator, server says editors" RED→GREEN; suite 297/297.
+- Final: fixed ScrollTrigger refresh on every mobile URL-bar resize (F7) — shouldRefreshTriggers (width change or ≥150px height) + hero min-h-svh — ×4 RED→GREEN; suite 297/297.
+- Final: fixed invite fetch with no timeout (F8) — AbortSignal.timeout(15s) → retry state — "carries an abort signal" RED (after making the test non-vacuous) → GREEN; suite 297/297.
+- Final: fixed city field rejecting Kochi/Trivandrum/Calicut… (F9) — DISTRICT_ALIASES + Combobox aliases — ×2 RED→GREEN; suite 297/297.
+- Final: fixed untrimmed env values and shallow launch check (F10) — parseServerEnv trims; check:launch validates WA invite format, site URL (not localhost) and Supabase keys — ×4 RED→GREEN; suite 297/297.
+- Final: fixed reliance on default service_role privileges (F11) — migration 0003 explicit grants — PGlite "project without default grants… server can still write" RED→GREEN; suite 297/297.
+- Final: fixed by-id pass ignoring the wall opt-out (F12) — toPassData(row, {public}) — RED→GREEN; suite 297/297.
+- Final: fixed scrubber jump leaving focus on the clip (F13) — focus the section (preventScroll) — e2e RED→GREEN; suite 59/59 e2e.
+- Final: fixed chip copy failure showing nothing (F14) — manual-select input fallback — RED→GREEN; suite 297/297.
+- Final: fixed hard-coded brand strings (F15) — guard test over src/components RED→GREEN; suite 297/297.
+
+## Deferred minors (not fixed; your call)
+
+- Supabase Auth outage maps to "signed out" (401 instead of 503).
+- rate limit count-then-log can be raced by parallel requests (caller is already a member; links static).
+- display names allow control / bidi-override characters on the public wall.
+- avatar_url from user_metadata stored unvalidated (not rendered anywhere).
+- getOwnMember relies on RLS alone (no .eq user_id).
+- ~~service_role table access relies on Supabase default privileges (not granted explicitly in 0002).~~ — resolved in the final review pass (migration 0003).
+- flagged/removed members see a broken pass image on /me.
+- locked chip 02 copy ~3:1 (inactive UI component; WCAG exempts, but could dim by color).
+- display names made only of zero-width/bidi characters pass validation.
+- render bar starts after the member write, not on submit (button dims meanwhile).
+- in-app escape could drop package= (any default browser) and try x-safari-https:// on iOS 17+ — needs real devices.
+- reaching the reveal step moves focus nowhere (live region announces it).
