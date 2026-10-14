@@ -95,7 +95,17 @@ WhatsApp's official API has no way to add someone to a group, and its groups cap
   | `/code` | 98 | 100 | 100 | 100 | 2.0s | 0 |
   | `/join` | 98 | 100 | 100 | 100 | 2.1s | 0 |
 
-  Reports are in `docs/launch/`. To keep this:
+  **Live** (`creators-kootam.vercel.app`, Lighthouse 13.5, same settings, 2026-10-14):
+
+  | Page | Perf | A11y | BP | SEO | LCP | CLS |
+  |---|---|---|---|---|---|---|
+  | `/` | 90 (median of 4 runs, 89–91) | 100 | 100 | 100 | 2.7s | 0 |
+  | `/code` | 97 | 100 | 100 | 100 | 2.2s | 0 |
+  | `/join` | 95 | 100 | 100 | 100 | 2.2s | 0 |
+
+  Lighthouse's simulated LCP on `/` is pessimistic: a real Chromium run on the live site with 4× CPU and 150 ms / 1.6 Mbps throttling paints the LCP element (the TAKE YOUR PLACE button) at 0.94s, with or without the cold open. Most of the lost points are Speed Index — the 1.6s cold open (§6.0) holds visual completeness by design.
+
+  Reports are in `docs/launch/` (`lighthouse-live-*` for the live site). To keep this:
   - GSAP and Lenis load after hydration.
   - The hero wipe is transform-only.
   - Join steps and supabase-js load on demand.
@@ -112,9 +122,9 @@ WhatsApp's official API has no way to add someone to a group, and its groups cap
 |---|---|
 | `pnpm build` clean, 0 TS errors, 0 ESLint errors | ✅ |
 | All §8 tests pass, incl. the bundle grep (`pnpm check`, `pnpm check:leaks`) | ✅ locally |
-| Deployed, live URL, Google sign-in works on the deployed domain | ✅ deployed; live button reaches Google sign-in with the right callback · ⏳ full round trip with a real account |
-| A creator never receives the editors link, verified in the network response | ✅ unit + handler tests; ⏳ `pnpm test:deployed` on the live URL |
-| Lighthouse mobile ≥ 90 perf / ≥ 95 a11y | ✅ local production build (`docs/launch/`); ⏳ re-run on the live URL |
+| Deployed, live URL, Google sign-in works on the deployed domain | ✅ full round trip with a real Google account, then a completed join |
+| A creator never receives the editors link, verified in the network response | ✅ unit + handler tests; ✅ `pnpm test:deployed` on the live URL (5/6; the non-admin `/admin` check needs a non-admin test account) |
+| Lighthouse mobile ≥ 90 perf / ≥ 95 a11y | ✅ local production build; ✅ live URL — `/` 90 (median), `/code` 97, `/join` 95, a11y 100 (`docs/launch/`) |
 | Full flow on a real mid-range Android, including from the Instagram app | ⏳ |
 | `prefers-reduced-motion` walkthrough | ✅ screenshots of every section and join step; e2e asserts no running animations |
 | Keyboard-only walkthrough | ✅ e2e: scrubber first, visible focus everywhere, radiogroup arrows, combobox, focus moves to errors |
