@@ -1,3 +1,4 @@
+import { CraftArt } from '@/components/brand/CraftArt';
 import { CropMarks } from '@/components/brand/CropMarks';
 import { brand, type Lane } from '@/config/brand';
 
@@ -11,7 +12,10 @@ type LaneFrameProps = {
   className?: string;
 };
 
-/** A 9:16 film gate for the creators and editors rooms, or the mint slate for everyone else (§6.4). */
+/**
+ * A 9:16 film gate for the creators and editors rooms — showing its craft (a viewfinder, a
+ * timeline) behind the copy, never an empty frame — or the mint slate for everyone else (§6.4).
+ */
 export function LaneFrame({ lane, mode = 'static', selected = false, size = 'card', className = '' }: LaneFrameProps) {
   const room = brand.rooms[lane];
   const Title = mode === 'static' ? 'h3' : 'p';
@@ -23,7 +27,7 @@ export function LaneFrame({ lane, mode = 'static', selected = false, size = 'car
         data-lane="other"
         className={`relative flex h-full flex-col justify-center gap-3 border border-dashed bg-carbon p-5 md:p-6 ${
           selected ? 'border-lane' : 'border-mint'
-        } ${size === 'card' ? '-rotate-1' : ''} ${className}`}
+        } ${className}`}
       >
         <p className="text-label flex items-center gap-2 text-chalk-dim">
           <span aria-hidden="true" className="inline-block size-2 bg-lane" />
@@ -42,12 +46,20 @@ export function LaneFrame({ lane, mode = 'static', selected = false, size = 'car
         size === 'card' ? 'aspect-[9/16]' : 'h-full'
       } ${className}`}
     >
+      <CraftArt
+        craft={lane === 'creator' ? 'viewfinder' : 'timeline'}
+        labels={false}
+        className={`absolute inset-0 h-full w-full transition-opacity duration-[180ms] ${selected ? 'opacity-90' : 'opacity-60'}`}
+      />
+      {/* Clean ground for the label (top) and the title and copy (bottom); the craft shows between. */}
+      <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-carbon from-40% to-transparent" />
+      <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-carbon from-35% to-transparent" />
       <CropMarks offset={size === 'card' ? 6 : 0} tone={selected ? 'lane' : 'rule'} />
-      <p className="text-label flex items-center gap-2 text-chalk-dim">
+      <p className="text-label relative flex items-center gap-2 text-chalk-dim">
         <span aria-hidden="true" className="inline-block size-2 shrink-0 bg-lane" />
         {room.label}
       </p>
-      <div>
+      <div className="relative">
         <Title
           className={
             size === 'full'

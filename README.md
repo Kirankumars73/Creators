@@ -17,7 +17,7 @@ Next.js 16.4 (App Router, Cache Components) · React 19 · TypeScript strict · 
 |---|---|
 | `pnpm dev` | Local dev server. `/dev/specimen` and `/dev/join?step=lane\|details\|reveal` preview every primitive and join step without Supabase; both are 404 in production |
 | `pnpm check` | Lint, typecheck, unit and database tests (PGlite runs the real migrations and RLS), banned-style scan |
-| `pnpm test:e2e` | Playwright against a production build with no Supabase: routes, scroll film, keyboard, reduced motion, axe, reflow, touch targets, cold open, SEO |
+| `pnpm test:e2e` | Playwright against a production build with no Supabase: routes, scroll film, keyboard, reduced motion, axe, reflow, touch targets, SEO |
 | `pnpm check:leaks` | Builds with sentinel secrets and proves no WhatsApp link, service key or admin email reaches the browser bundle or the prerendered HTML/RSC |
 | `pnpm test:deployed` | Playwright against the live site (`BASE_URL=…`, needs `.auth/creator.json`; see the file header) |
 | `pnpm check:launch` | Lists every launch blocker still open, and exits 1 until there are none |
@@ -104,12 +104,12 @@ WhatsApp's official API has no way to add someone to a group, and its groups cap
 
   Reports are in `docs/launch/` (`lighthouse-live-*` for the live site). To keep this:
   - GSAP and Lenis load after hydration.
-  - The hero wipe is transform-only.
+  - The hero has no intro and no wipe: the headline and the button paint at first paint.
   - Join steps and supabase-js load on demand.
   - Archivo is the static 700 face. The brief's "width 112" variable costs 74 KB and pushed LCP to 2.6s; to restore it, put `axes: ['wdth']` back in `src/app/fonts.ts`.
 - **Motion.**
   - One registry of GSAP contexts lives in `ScrollFilm`. Nothing registers before `film.ready`; registering during hydration double-registers.
-  - Fixed layers render outside `<main>`, because the gate weave transforms it.
+  - Kept deliberately small (decided 2026-10-14, "a bit extra"): no cold-open slate, no section title-card wipes, no gate weave, no hover tilt/blur on the lane frames. What moves: the hero cards drifting with scroll, scroll reveals, the scrubber, the marquee.
   - Reduced motion is a designed mode, not a fallback.
 - **Skills.** `anthropic-skills:theme-factory` was not used: §4 of the brief fully specifies the tokens.
 

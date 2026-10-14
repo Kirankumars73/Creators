@@ -1,5 +1,4 @@
 import { CodeTeaser } from '@/components/film/CodeTeaser';
-import { ColdOpen } from '@/components/film/ColdOpen';
 import { EndCredits } from '@/components/film/EndCredits';
 import { Hero } from '@/components/film/Hero';
 import { Inside } from '@/components/film/Inside';
@@ -9,17 +8,14 @@ import { TheRoom } from '@/components/film/TheRoom';
 import { ScrollFilm } from '@/components/film/ScrollFilm';
 import { Scrubber } from '@/components/film/Scrubber';
 import { WhosInside } from '@/components/film/WhosInside';
-import { GateWeave } from '@/components/texture/GateWeave';
 import { getMemberCounts, getMemberWall } from '@/lib/wall/cached';
 
 export default async function Home() {
   const [counts, wall] = await Promise.all([getMemberCounts(), getMemberWall()]);
   return (
     <ScrollFilm>
-      {/* Fixed layers sit outside <main>: the gate-weave transform would otherwise trap them. */}
-      <ColdOpen />
       <Scrubber />
-      <GateWeave>
+      <main>
         <Hero counts={counts} />
         <TheRoom />
         <WhosInside />
@@ -27,7 +23,7 @@ export default async function Home() {
         <Inside />
         <RollCall wall={wall} counts={counts} />
         <JoinGate />
-      </GateWeave>
+      </main>
       <EndCredits />
       {/* Room for the scrubber so it never sits on the last line of the credits. */}
       <div aria-hidden="true" className="h-10 md:h-14" />

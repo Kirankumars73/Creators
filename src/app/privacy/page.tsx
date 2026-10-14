@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { GateWeave } from '@/components/texture/GateWeave';
 import { brand } from '@/config/brand';
 
 export const metadata: Metadata = {
@@ -38,7 +37,7 @@ export default function PrivacyPage() {
   ) : null;
 
   return (
-    <GateWeave className="px-4 pb-28 pt-10 md:px-10">
+    <main className="px-4 pb-28 pt-10 md:px-10">
       <Link href="/" className="text-label inline-flex min-h-11 items-center gap-2 text-chalk-dim hover:text-chalk">
         <span aria-hidden="true">←</span> {brand.name}
       </Link>
@@ -106,6 +105,6 @@ export default function PrivacyPage() {
       <Section title="Changes">
         <p>If this page changes, the date at the top changes with it.</p>
       </Section>
-    </GateWeave>
+    </main>
   );
 }

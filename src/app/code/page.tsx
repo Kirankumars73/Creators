@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Star } from '@/components/brand/Star';
-import { GateWeave } from '@/components/texture/GateWeave';
 import { brand } from '@/config/brand';
 import { CODE_ARTICLES } from '@/config/code';
 import { t } from '@/i18n/ml';
@@ -19,7 +18,7 @@ export default function CodePage() {
   const eyebrow = t('codeEyebrow');
   const footer = t('codeFooter');
   return (
-    <GateWeave className="px-4 pb-28 pt-10 md:px-10">
+    <main className="px-4 pb-28 pt-10 md:px-10">
       <Link href="/" className="text-label inline-flex min-h-11 items-center gap-2 text-chalk-dim hover:text-chalk">
         <span aria-hidden="true">←</span> {brand.name}
       </Link>
@@ -50,6 +49,6 @@ export default function CodePage() {
         <Star size={16} />
         <p className={footer.ml ? 'text-ml text-lg text-chalk' : 'text-body text-chalk-dim'}>{footer.ml ?? footer.en}</p>
       </footer>
-    </GateWeave>
+    </main>
   );
 }

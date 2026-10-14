@@ -7,7 +7,6 @@ async function axe(page: Page) {
 }
 
 async function settle(page: Page) {
-  await expect(page.locator('[data-cold-open]')).toBeHidden();
   // Walk the page so every scroll reveal has played, then come back up.
   await page.evaluate(async () => {
     for (let y = 0; y < document.body.scrollHeight; y += 500) {
@@ -38,7 +37,8 @@ test.describe('keyboard', () => {
 
   test('Tab reaches the section navigation first, then the hero calls to action, with a visible focus ring', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('[data-cold-open]')).toBeHidden();
+    // The scrubber stays invisible (unfocusable) until it has measured the page after hydration.
+    await expect(page.getByRole('button', { name: '01 COLD OPEN' })).toBeVisible();
     const seen: string[] = [];
     for (let i = 0; i < 10; i++) {
       await page.keyboard.press('Tab');

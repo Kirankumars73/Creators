@@ -8,7 +8,6 @@ import { ReelCards } from './ReelCards';
 const HEADLINE = ["WE'D RATHER", 'SHOW THAN', 'TELL.'] as const;
 
 export function Hero({ counts }: { counts: MemberCounts | null }) {
-  let word = 0;
   return (
     <section
       id="cold-open"
@@ -19,15 +18,7 @@ export function Hero({ counts }: { counts: MemberCounts | null }) {
         <h1 className="text-hero text-chalk">
           {HEADLINE.map((line, li) => (
             <span key={line} className="block">
-              {line.split(' ').map((w, wi) => (
-                <span key={w}>
-                  <span data-wipe="" className="wipe relative inline-block" style={{ ['--i' as string]: word++ }}>
-                    {w}
-                    <span aria-hidden="true" className="wipe-cover" />
-                  </span>
-                  {wi < line.split(' ').length - 1 ? ' ' : null}
-                </span>
-              ))}
+              {line}
               {li < HEADLINE.length - 1 ? ' ' : null}
             </span>
           ))}

@@ -1,6 +1,5 @@
 import { ClipBlock } from '@/components/brand/ClipBlock';
 import { RevealOnScroll } from './RevealOnScroll';
-import { SectionCard } from './SectionCard';
 import { sectionTitle } from './sections';
 
 // §6.6 — four rituals, laid out as clips on a stacked timeline.
@@ -13,8 +12,7 @@ const RITUALS = [
 
 export function Inside() {
   return (
-    <section id="inside" className="relative px-4 py-28 md:px-10 md:py-40">
-      <SectionCard id="inside" />
+    <section id="inside" className="relative px-4 py-20 md:px-10 md:py-28">
       <h2 className="text-label text-chalk-mute">{sectionTitle('inside')}</h2>
       <RevealOnScroll>
         <ol className="mt-12 flex flex-col border-y border-rule">

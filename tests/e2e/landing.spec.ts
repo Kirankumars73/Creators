@@ -20,35 +20,33 @@ test.describe('landing with Supabase unreachable (Review Focus 5)', () => {
   });
 });
 
-test.describe('reduced motion', () => {
-  test.use({ reducedMotion: 'reduce' });
-  test('the headline is fully visible without waiting on a wipe', async ({ page }) => {
-    await page.goto('/');
-    const clip = await page.locator('h1 [data-wipe]').first().evaluate((el) => getComputedStyle(el).clipPath);
-    expect(['none', 'auto', '']).toContain(clip);
-  });
+test('no intro and no wipe: the headline is simply there on first load', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('[data-cold-open]')).toHaveCount(0);
+  await expect(page.locator('h1 .wipe-cover')).toHaveCount(0);
+  await expect(page.locator('h1')).toBeVisible();
 });
 
-test.describe('section title cards (§6.3)', () => {
-  test('THE ROOM opens with its title card, which cuts away to the content', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.locator('[data-cold-open]')).toBeHidden();
-    const card = page.locator('#the-room [data-section-card]');
-    await expect(card).toHaveCount(1);
-    await expect(card).toContainText('02 — THE ROOM');
-    await page.locator('#the-room').scrollIntoViewIfNeeded();
-    await expect(card).toBeHidden({ timeout: 3000 });
-    await expect(page.getByText('So we made a room.')).toBeVisible();
-  });
+test('no full-screen section wipes: scrolling the whole page never covers it', async ({ page }) => {
+  await page.goto('/');
+  for (const id of ['the-room', 'whos-inside', 'the-code', 'inside', 'roll-call', 'join']) await page.locator(`#${id}`).scrollIntoViewIfNeeded();
+  await expect(page.locator('[data-section-card]')).toHaveCount(0);
+  await expect(page.getByText('So we made a room.')).toBeVisible();
+});
 
-  test.describe('reduced motion', () => {
-    test.use({ reducedMotion: 'reduce' });
-    test('no card at all, the words are simply there', async ({ page }) => {
-      await page.goto('/');
-      await expect(page.locator('#the-room')).toContainText('So we made a room.');
-      await expect(page.locator('[data-section-card]')).toHaveCount(0);
-    });
+test('the page holds still: nothing nudges <main> (no gate weave)', async ({ page }) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __mainAnims: number };
+    w.__mainAnims = 0;
+    const orig = Element.prototype.animate;
+    Element.prototype.animate = function (this: Element, ...args: Parameters<Element['animate']>) {
+      if (this.tagName === 'MAIN') w.__mainAnims++;
+      return orig.apply(this, args);
+    };
   });
+  await page.goto('/');
+  await page.waitForTimeout(7500);
+  expect(await page.evaluate(() => (window as unknown as { __mainAnims: number }).__mainAnims)).toBe(0);
 });
 
 test.describe('scroll reveals actually reveal (regression: hydration double-registration)', () => {
@@ -56,24 +54,12 @@ test.describe('scroll reveals actually reveal (regression: hydration double-regi
 
   test('THE ROOM lines end fully opaque once scrolled in', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('[data-cold-open]')).toBeHidden();
     await page.locator('#the-room').scrollIntoViewIfNeeded();
     await expect
       .poll(() => page.locator('#the-room [data-reveal]').evaluateAll((els) => els.map((e) => getComputedStyle(e).opacity)), { timeout: 3000 })
       .toEqual(['1', '1', '1', '1']);
   });
 
-  test('the title card waits for its section instead of firing at page load', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.locator('[data-cold-open]')).toBeHidden();
-    await page.waitForTimeout(600);
-    const card = page.locator('#the-room [data-section-card]');
-    expect(await card.evaluate((el) => getComputedStyle(el).display)).not.toBe('none');
-    await page.locator('#the-room').scrollIntoViewIfNeeded();
-    // It must actually cover the section mid-cut (regression: parked CSS transform read as px offset).
-    await expect.poll(() => card.evaluate((el) => Math.round(el.getBoundingClientRect().left)), { timeout: 1500, intervals: [50] }).toBe(0);
-    await expect.poll(() => card.evaluate((el) => getComputedStyle(el).display), { timeout: 3000 }).toBe('none');
-  });
 });
 
 test.describe("WHO'S INSIDE and THE CODE (§6.4, §6.5)", () => {
@@ -96,24 +82,21 @@ test.describe("WHO'S INSIDE and THE CODE (§6.4, §6.5)", () => {
     expect(overflow).toBeLessThanOrEqual(0);
   });
 
-  test('hovering a lane racks focus onto it and its lane color', async ({ page }) => {
+  test('the lane frames show their craft, stay still under the pointer, and nothing is tilted', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    await expect(page.locator('[data-cold-open]')).toBeHidden();
-    const frames = page.locator('#whos-inside [data-gate]');
-    await expect(frames).toHaveCount(2);
-    await frames.nth(1).hover();
-    await expect.poll(() => frames.nth(0).evaluate((el) => getComputedStyle(el).filter)).toContain('blur(3px)');
-    await expect.poll(() => frames.nth(1).evaluate((el) => getComputedStyle(el).filter)).not.toContain('blur(3px)');
+    const creator = page.locator('#whos-inside article[data-lane="creator"]');
+    const editor = page.locator('#whos-inside article[data-lane="editor"]');
+    await expect(creator.locator('svg[data-craft-art]')).toHaveCount(1);
+    await expect(editor.locator('svg[data-craft-art]')).toHaveCount(1);
+    await editor.hover();
+    await page.waitForTimeout(300);
+    for (const el of [creator, editor]) {
+      expect(await el.evaluate((e) => getComputedStyle(e.parentElement!).filter)).not.toContain('blur');
+      expect(await el.evaluate((e) => getComputedStyle(e.parentElement!).transform)).toBe('none');
+    }
+    expect(await page.locator('#whos-inside article[data-lane="other"]').evaluate((e) => getComputedStyle(e).transform)).toBe('none');
   });
-});
-
-test('the cold-open slate credits the community, not a person', async ({ page }) => {
-  await page.goto('/');
-  const slate = page.locator('[data-cold-open]');
-  await expect(slate).toContainText('PROD.');
-  await expect(slate).not.toContainText('DIR.');
-  await expect(slate).not.toContainText('GOWTHAM');
 });
 
 test('the hero cards show the craft, not a person: viewfinder, timeline, bars — and no photos', async ({ page }) => {
@@ -175,7 +158,6 @@ test.describe('the last reel (§6.6–§6.9)', () => {
 
 test('the landing page never downloads the 200KB Malayalam font (performance)', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('[data-cold-open]')).toBeHidden();
   await page.evaluate(() => document.fonts.ready);
   const anek = await page.evaluate(() => [...document.fonts].filter((f) => /anek/i.test(f.family) && f.status !== 'unloaded').length);
   expect(anek).toBe(0);

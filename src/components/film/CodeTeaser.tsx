@@ -2,13 +2,11 @@ import Link from 'next/link';
 import { Star } from '@/components/brand/Star';
 import { CODE_ARTICLES } from '@/config/code';
 import { RevealOnScroll } from './RevealOnScroll';
-import { SectionCard } from './SectionCard';
 import { sectionTitle } from './sections';
 
 export function CodeTeaser() {
   return (
-    <section id="the-code" className="relative px-4 py-28 md:px-10 md:py-40">
-      <SectionCard id="the-code" />
+    <section id="the-code" className="relative px-4 py-20 md:px-10 md:py-28">
       <h2 className="text-label text-chalk-mute">{sectionTitle('the-code')}</h2>
       <RevealOnScroll>
         <ol className="mt-12 flex max-w-4xl flex-col gap-10">
