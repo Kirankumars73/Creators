@@ -64,7 +64,8 @@ WhatsApp's official API has no way to add someone to a group, and its groups cap
 5. **Vercel:**
    - Run `pnpm dlx vercel login`, then `pnpm dlx vercel link`.
    - Add every `.env.example` key to Production and Preview.
-   - Run `pnpm dlx vercel deploy --prod`.
+   - The project is connected to GitHub (`Kirankumars73/Creators`): **every push to `main` builds and deploys production** on its own. Pushes to other branches get preview deployments; Preview has no Supabase or WhatsApp env yet, so sign-in and joining are off there.
+   - A manual deploy still works: `pnpm dlx vercel deploy --prod`.
    - Functions run in `bom1` (Mumbai), next to Supabase in `ap-south-1`; `vercel.json` pins this. Left on the default US region, every sign-in round trip would cross the world several times.
 6. **Verify on the live URL:** sign in as a test creator account (wall opt-out ticked), save `.auth/creator.json` (see `tests/deployed/invite.spec.ts`), and run `BASE_URL=<url> pnpm test:deployed`. Delete test accounts from production before launch.
 
