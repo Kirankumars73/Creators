@@ -12,8 +12,8 @@ describe('LanePicker — a real radiogroup (§11)', () => {
     expect(screen.getByRole('radiogroup', { name: 'Pick your lane' })).toBeInTheDocument();
     const radios = screen.getAllByRole('radio');
     expect(radios).toHaveLength(3);
-    expect(radios[0]).toHaveAccessibleName(/FRAME KOOTAM/);
-    expect(radios[1]).toHaveAccessibleName(/CUT KOOTAM/);
+    expect(radios[0]).toHaveAccessibleName(/CONTENT CREATORS/);
+    expect(radios[1]).toHaveAccessibleName(/EDITORS/);
     expect(radios[2]).toHaveAccessibleName(/SOMETHING ELSE/);
   });
 
@@ -33,7 +33,7 @@ describe('LanePicker — a real radiogroup (§11)', () => {
     expect(tabbable).toEqual(['-1', '0', '-1']);
   });
 
-  test('space on CUT KOOTAM commits the editor lane', async () => {
+  test('space on EDITORS commits the editor lane', async () => {
     const onCommit = vi.fn();
     render(<LanePicker value={null} onCommit={onCommit} />);
     screen.getAllByRole('radio')[1]!.focus();

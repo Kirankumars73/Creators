@@ -64,14 +64,14 @@ describe('POST /api/invite handler (§8)', () => {
     expect(await handleInvite(deps)).toEqual({ status: 404, body: { error: 'no_member' } });
   });
 
-  test('a creator gets community + FRAME KOOTAM and never the editors link (§8 test 3)', async () => {
+  test('a creator gets community + CONTENT CREATORS and never the editors link (§8 test 3)', async () => {
     const { deps } = fakeDeps();
     const res = await handleInvite(deps);
     expect(res).toEqual({ status: 200, body: { community: wa.community, lane: wa.creators, laneKey: 'creators' } });
     expect(JSON.stringify(res)).not.toContain('EDI');
   });
 
-  test('an editor gets CUT KOOTAM (§8 test 4)', async () => {
+  test('an editor gets EDITORS (§8 test 4)', async () => {
     const { deps } = fakeDeps({ getMemberByUserId: async () => member({ role: 'editor' }) });
     const res = await handleInvite(deps);
     expect(res.status).toBe(200);

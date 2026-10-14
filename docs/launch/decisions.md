@@ -126,7 +126,10 @@ Every call the build made on Gowtham's and Kiran's behalf, in the order it was m
 - Added `/privacy` (not in the brief): Google won't publish the sign-in app without a privacy policy URL. It describes exactly what the code collects; `pnpm check:launch` blocks until Gowtham has read it (`brand.privacyReviewed`).
 - Footer, by Kiran's call: no SITE BY credit (removed, not hidden); contact is `gowthamdas04@gmail.com`, shown as the link text; `© kiran@2003` is the last line, under the marquee. The A COMMUNITY BY / FOUNDED IN credits (brief §6.9) stay.
 - `ADMIN_EMAILS` = Kiran + Gowtham. The first address arrived as `@gmial.com`; set as `@gmail.com` (Kiran's account address), since the typo would have locked him out of `/admin`.
-- Open: the WhatsApp groups are named "Creators kootam(Content creators)" / "(Editors)", the site calls them FRAME KOOTAM / CUT KOOTAM. Suggested renaming the groups (the links survive a rename).
+- Room names follow Gowtham's WhatsApp groups ("Creators kootam(Content creators)" / "(Editors)"), by Kiran's call: the brief's FRAME KOOTAM / CUT KOOTAM became CONTENT CREATORS / EDITORS everywhere (`brand.rooms`), so the chip someone taps names the group they land in. Checked at 360px: lane picker, reveal chips and the pass all fit.
+- His name is spelled Gowtham (Kiran's call); `founderConfirmed` is true.
+- Footer sign-off: Kiran supplied നമോവാധം; shipped as നമോവാകം (namōvākam, the usual sign-off — the ധ spelling reads close to വധം, "killing"). Drawn from its pre-rendered image like the wordmark. `confirmed` stays false until Kiran confirms the spelling.
+- Kiran's own sign-up (made during the live test) deleted from production on his instruction, with its auth user and link reveals.
 
 ## Review fixes (each proven by a test that failed first)
 

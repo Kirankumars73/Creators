@@ -20,8 +20,10 @@ describe('findLaunchBlockers', () => {
   test('the shipped config is not launch-ready yet, and says exactly why', () => {
     const blockers = findLaunchBlockers({ ml: ML, articles: CODE_ARTICLES, brand, env: {}, stills: REEL_STILLS });
     expect(blockers).toEqual(
-      expect.arrayContaining(['ml:wordmark', 'ml:youreIn', 'code:04', 'code:07', 'brand:founder', 'reels:stills', 'env:WA_COMMUNITY_URL', 'env:ADMIN_EMAILS']),
+      expect.arrayContaining(['ml:wordmark', 'ml:youreIn', 'code:04', 'code:07', 'reels:stills', 'env:WA_COMMUNITY_URL', 'env:ADMIN_EMAILS']),
     );
+    // Decided 2026-10-14: his name is spelled Gowtham.
+    expect(blockers).not.toContain('brand:founder');
     // Decided 2026-10-14: no SITE BY credit; the contact is Gowtham's address.
     expect(blockers).not.toContain('brand:siteBy');
     expect(blockers).not.toContain('brand:contact');

@@ -27,7 +27,7 @@ describe('toPassData', () => {
 
   test('never carries the email', () => expect(Object.keys(toPassData(row)!)).not.toContain('email'));
 
-  test('names the room and lane', () => expect(toPassData(row)).toMatchObject({ roomName: 'CUT KOOTAM', laneLabel: 'LANE 02 · EDITORS', role: 'editor' }));
+  test('names the room and lane', () => expect(toPassData(row)).toMatchObject({ roomName: 'EDITORS', laneLabel: 'LANE 02 · EDITORS', role: 'editor' }));
 
   test('the join date is Kerala time', () => expect(toPassData(row)!.joined).toBe('14.10.2026'));
 

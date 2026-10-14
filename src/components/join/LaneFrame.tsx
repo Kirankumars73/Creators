@@ -11,7 +11,7 @@ type LaneFrameProps = {
   className?: string;
 };
 
-/** A 9:16 film gate for FRAME / CUT KOOTAM, or the mint slate for everyone else (§6.4). */
+/** A 9:16 film gate for the creators and editors rooms, or the mint slate for everyone else (§6.4). */
 export function LaneFrame({ lane, mode = 'static', selected = false, size = 'card', className = '' }: LaneFrameProps) {
   const room = brand.rooms[lane];
   const Title = mode === 'static' ? 'h3' : 'p';

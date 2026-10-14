@@ -16,5 +16,11 @@
     "width": 1053,
     "height": 125,
     "fontSize": 96
+  },
+  "footerSignoff": {
+    "text": "നമോവാകം",
+    "width": 552,
+    "height": 125,
+    "fontSize": 96
   }
 }

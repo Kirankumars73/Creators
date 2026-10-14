@@ -130,6 +130,10 @@ test.describe('the last reel (§6.6–§6.9)', () => {
     const last = footer.locator(':scope > :last-child');
     await expect(last).toHaveText('© kiran@2003');
     await expect(last).toHaveCSS('text-transform', 'none');
+    // The sign-off is his Malayalam line, drawn from its pre-rendered image (no font download).
+    const signoff = footer.locator('[data-ml-signoff] [data-ml-mark]');
+    await expect(signoff).toBeVisible();
+    await expect(signoff).toHaveText('നമോവാകം');
     // Below the marquee, and nothing in the page after it.
     expect(await footer.evaluate((f) => f.lastElementChild!.previousElementSibling!.classList.contains('marquee'))).toBe(true);
     const bottom = await page.evaluate(() => {
@@ -157,5 +161,5 @@ test('the landing page never downloads the 200KB Malayalam font (performance)', 
   const anek = await page.evaluate(() => [...document.fonts].filter((f) => /anek/i.test(f.family) && f.status !== 'unloaded').length);
   expect(anek).toBe(0);
   // …and the wordmark still shows കൂട്ടം, shaped by the pre-rendered image.
-  await expect(page.locator('footer [data-ml-mark]')).toBeVisible();
+  await expect(page.locator('footer [data-ml-mark]').filter({ hasText: 'കൂട്ടം' })).toBeVisible();
 });

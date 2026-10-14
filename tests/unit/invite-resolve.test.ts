@@ -21,7 +21,7 @@ const validRaw = {
 };
 
 describe('resolveInviteLinks', () => {
-  test('a creator gets the community and FRAME KOOTAM', () => {
+  test('a creator gets the community and CONTENT CREATORS', () => {
     expect(resolveInviteLinks('creator', wa)).toEqual({ community: wa.community, lane: wa.creators, laneKey: 'creators' });
   });
 
@@ -29,7 +29,7 @@ describe('resolveInviteLinks', () => {
     expect(JSON.stringify(resolveInviteLinks('creator', wa))).not.toContain('EDI');
   });
 
-  test('an editor gets CUT KOOTAM (§8 test 4)', () => {
+  test('an editor gets EDITORS (§8 test 4)', () => {
     expect(resolveInviteLinks('editor', wa)).toMatchObject({ lane: wa.editors, laneKey: 'editors' });
   });
 

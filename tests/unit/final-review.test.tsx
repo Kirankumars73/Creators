@@ -29,7 +29,7 @@ afterEach(() => {
 });
 
 describe('F6 — chip 02 names the room the server actually linked', () => {
-  test('client thinks creator, server says editors → CUT KOOTAM', () => {
+  test('client thinks creator, server says editors → EDITORS', () => {
     render(
       <Reveal
         result={{ status: 200, body: { community: 'https://chat.whatsapp.com/C', lane: 'https://chat.whatsapp.com/E', laneKey: 'editors' } }}
@@ -37,8 +37,8 @@ describe('F6 — chip 02 names the room the server actually linked', () => {
         returning
       />,
     );
-    expect(screen.getByRole('link', { name: /CUT KOOTAM/ })).toHaveAttribute('href', 'https://chat.whatsapp.com/E');
-    expect(screen.queryByRole('link', { name: /FRAME KOOTAM/ })).toBeNull();
+    expect(screen.getByRole('link', { name: /EDITORS/ })).toHaveAttribute('href', 'https://chat.whatsapp.com/E');
+    expect(screen.queryByRole('link', { name: /CONTENT CREATORS/ })).toBeNull();
   });
 });
 

@@ -10,17 +10,19 @@ export const brand = {
   description:
     'A room for the people who make the frames. Creators who shoot it. Editors who cut it. Kerala, 2026.',
   wordmark: { latin: 'CREATORS' },
+  // Room names match Gowtham's WhatsApp groups ("Creators kootam(Content creators)" /
+  // "Creators kootam(Editors)"), so the chip someone taps names the group they land in.
   rooms: {
     community: { name: 'CREATORS KOOTAM' },
     creator: {
-      name: 'FRAME KOOTAM',
+      name: 'CONTENT CREATORS',
       label: 'LANE 01 · CREATORS',
       short: 'LANE 01',
       tagline: 'The people who shoot it.',
       copy: "You shoot it. You style it. You post it. You've never had a room where the other people doing it are in the room.",
     },
     editor: {
-      name: 'CUT KOOTAM',
+      name: 'EDITORS',
       label: 'LANE 02 · EDITORS',
       short: 'LANE 02',
       tagline: 'The people who cut it.',
@@ -34,9 +36,8 @@ export const brand = {
       copy: "Writer, designer, DOP, sound, VFX, photographer, stylist, producer. Tell us what you do and we'll put you where you belong.",
     },
   },
-  // [ASK GOUTHAM] the brief spells him both "Gowtham" and "Goutham"; this follows his handle.
-  // Flip to true once he confirms the spelling (pnpm check:launch blocks until then).
-  founderConfirmed: false as boolean,
+  // The brief spells him both "Gowtham" and "Goutham"; confirmed 2026-10-14: Gowtham.
+  founderConfirmed: true as boolean,
   // [ASK GOUTHAM] /privacy speaks for him; flip once he has read and agreed with it.
   privacyReviewed: false as boolean,
   founder: {

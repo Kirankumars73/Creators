@@ -10,7 +10,7 @@ const entries = {
   youreIn: { ml: 'നിങ്ങൾ കൂട്ടത്തിലാണ്.', en: "You're in the kootam.", confirmed: false },
   codeEyebrow: { ml: null, en: 'THE CODE', confirmed: false },
   codeFooter: { ml: null, en: 'Kerala is small. Credit loudly.', confirmed: false },
-  footerSignoff: { ml: null, en: 'See you in the kootam.', confirmed: false },
+  footerSignoff: { ml: 'നമോവാകം', en: 'See you in the kootam.', confirmed: false },
 } satisfies Record<string, MlEntry>;
 
 export type MlKey = keyof typeof entries;

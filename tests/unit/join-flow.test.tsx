@@ -51,7 +51,7 @@ describe('JoinFlow — four steps, URL-reflected (§7)', () => {
     expect(current).toHaveTextContent('LANE');
   });
 
-  test('choosing CUT KOOTAM moves to details and writes it into the URL and the draft', async () => {
+  test('choosing EDITORS moves to details and writes it into the URL and the draft', async () => {
     render(<JoinFlow {...props()} />);
     await userEvent.click((await screen.findAllByRole('radio'))[1]!);
     await waitFor(() => expect(window.location.search).toBe('?step=details&lane=editor'), { timeout: 2000 });
@@ -92,7 +92,7 @@ describe('JoinFlow — four steps, URL-reflected (§7)', () => {
 
   test('a returning member lands on the condensed reveal with both links open', async () => {
     render(<JoinFlow {...props({ initial: { step: 'reveal', lane: null }, member: { id: 'm1', role: 'editor', instagram: 'the.gowtham_das' } })} />);
-    const two = await screen.findByRole('link', { name: /CUT KOOTAM/ }, { timeout: 3000 });
+    const two = await screen.findByRole('link', { name: /EDITORS/ }, { timeout: 3000 });
     expect(two).toHaveAttribute('href', 'https://chat.whatsapp.com/EDI');
   });
 

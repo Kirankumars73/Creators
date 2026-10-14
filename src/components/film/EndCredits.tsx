@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Star } from '@/components/brand/Star';
+import { MlMark } from '@/components/brand/MlMark';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { brand } from '@/config/brand';
 import { t } from '@/i18n/ml';
@@ -46,8 +47,9 @@ export function EndCredits() {
             </a>
           ) : null}
         </nav>
-        <p className={`mt-10 text-chalk-dim ${signoff.ml ? 'text-ml text-lg' : 'text-body'}`}>
-          {signoff.ml ?? signoff.en}
+        {/* Drawn from its pre-rendered image: the landing page never downloads the Malayalam font. */}
+        <p data-ml-signoff="" className="text-body mt-10 text-chalk-dim">
+          {signoff.ml ? <MlMark mlKey="footerSignoff" className="text-[1.75rem]" /> : signoff.en}
         </p>
       </CreditsDrift>
       <Marquee />

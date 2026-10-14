@@ -36,31 +36,31 @@ describe('Reveal — the two deliverables', () => {
 
   test('chip 02 stays locked until chip 01 is opened', async () => {
     render(<Reveal result={editorLinks} lane="editor" returning={false} />);
-    const two = chip(/CUT KOOTAM/);
+    const two = chip(/EDITORS/);
     expect(two).toHaveAttribute('aria-disabled', 'true');
     expect(two).not.toHaveAttribute('href');
     await userEvent.click(chip(/CREATORS KOOTAM/));
-    expect(chip(/CUT KOOTAM/)).toHaveAttribute('href', 'https://chat.whatsapp.com/EDI');
-    expect(chip(/CUT KOOTAM/)).not.toHaveAttribute('aria-disabled');
+    expect(chip(/EDITORS/)).toHaveAttribute('href', 'https://chat.whatsapp.com/EDI');
+    expect(chip(/EDITORS/)).not.toHaveAttribute('aria-disabled');
   });
 
   test('copying chip 01 also unlocks chip 02, and copies the community link', async () => {
     render(<Reveal result={editorLinks} lane="editor" returning={false} />);
-    expect(chip(/CUT KOOTAM/)).not.toHaveAttribute('href');
+    expect(chip(/EDITORS/)).not.toHaveAttribute('href');
     await userEvent.click(screen.getAllByRole('button', { name: /copy link/i })[0]!);
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith('https://chat.whatsapp.com/COMM');
-    expect(chip(/CUT KOOTAM/)).toHaveAttribute('href', 'https://chat.whatsapp.com/EDI');
+    expect(chip(/EDITORS/)).toHaveAttribute('href', 'https://chat.whatsapp.com/EDI');
   });
 
   test('coming back from WhatsApp keeps chip 02 unlocked (Review Focus 3)', () => {
     sessionStorage.setItem('ck:chip01', '1');
     render(<Reveal result={editorLinks} lane="editor" returning={false} />);
-    expect(chip(/CUT KOOTAM/)).toHaveAttribute('href', 'https://chat.whatsapp.com/EDI');
+    expect(chip(/EDITORS/)).toHaveAttribute('href', 'https://chat.whatsapp.com/EDI');
   });
 
   test('returning members get both links open', () => {
     render(<Reveal result={editorLinks} lane="editor" returning />);
-    expect(chip(/CUT KOOTAM/)).toHaveAttribute('href', 'https://chat.whatsapp.com/EDI');
+    expect(chip(/EDITORS/)).toHaveAttribute('href', 'https://chat.whatsapp.com/EDI');
   });
 
   test('links open in a new tab, safely', () => {

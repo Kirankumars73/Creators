@@ -56,7 +56,7 @@ WhatsApp's official API has no way to add someone to a group, and its groups cap
    - In Supabase → Authentication → URL configuration, set the Site URL to production. Allow `<prod>/auth/callback**`, `http://localhost:3000/**` and your Vercel preview pattern.
    - **Disable the Email and Anonymous providers.** Google is the only way in, and the admin check trusts the Google-verified email.
 4. **WhatsApp:**
-   - Gowtham creates the Community "Creators Kootam" and the linked groups "Frame Kootam" and "Cut Kootam".
+   - Gowtham created the Community "Creators Kootam" and the linked groups "Creators kootam(Content creators)" and "Creators kootam(Editors)". The site names the rooms CONTENT CREATORS and EDITORS to match (`brand.rooms`).
    - Put the three invite links in `WA_COMMUNITY_URL`, `WA_CREATORS_URL` and `WA_EDITORS_URL`. These are server env only, never `NEXT_PUBLIC_`.
    - `WA_OTHER_URL` stays empty until there is an "other" room; until then those members get the mint "we're building your room" note.
 5. **Vercel:**
@@ -75,7 +75,6 @@ WhatsApp's official API has no way to add someone to a group, and its groups cap
 | Item | Where |
 |---|---|
 | Confirm every Malayalam string, especially കൂട്ടം (wordmark), ക്രിയേറ്റേഴ്‌സ് കൂട്ടം (name) and നിങ്ങൾ കൂട്ടത്തിലാണ്. ("You're in the kootam."). Also supply the eyebrow, The Code foot line and the footer sign-off. Then run `pnpm render:ml` | `src/i18n/ml.ts` |
-| Spelling of his name: the brief has both "Gowtham" and "Goutham"; the site uses **Gowtham**, matching his handle | `src/config/brand.ts` (`founderConfirmed`) |
 | The Code articles 04–07 are drafts written in his voice; he approves or rewrites them. 01–03 are his, verbatim | `src/config/code.ts` |
 | 9–12 stills from his grid for the hero reel cards. Until then, dark lane-edged placeholder panels (never stock photos) | `public/reels/` + `src/config/reels.ts` |
 | Read and agree with `/privacy`, which speaks for him | `src/config/brand.ts` (`privacyReviewed`) |
