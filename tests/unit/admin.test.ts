@@ -21,6 +21,9 @@ describe('parseAdminQuery', () => {
   test('ignores junk and strips filter syntax from search', () =>
     expect(parseAdminQuery({ lane: 'admin', q: 'a%,(b)*', sort: 'x', view: 'y' })).toEqual({ lane: 'all', q: 'ab', sort: 'new', view: 'all' }));
   test('keeps what handles are made of', () => expect(parseAdminQuery({ q: 'the.gowtham_das' }).q).toBe('the.gowtham_das'));
+  test('keeps what emails are made of, so admins can search by email', () =>
+    expect(parseAdminQuery({ q: 'kiran+test@gmail.com' }).q).toBe('kiran+test@gmail.com'));
+  test('has a view for people who signed in but never joined', () => expect(parseAdminQuery({ view: 'notjoined' }).view).toBe('notjoined'));
 });
 
 describe('setMemberStatusCore — server actions are public endpoints', () => {

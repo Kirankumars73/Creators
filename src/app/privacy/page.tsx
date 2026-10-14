@@ -64,6 +64,9 @@ export default function PrivacyPage() {
           <strong className="text-chalk">When you open your links:</strong> a timestamped note that they were shown to you. It’s how we stop abuse (at most 10 requests in 10 minutes).
         </p>
         <p>
+          <strong className="text-chalk">When you signed up and last signed in</strong>, which the sign-in service records.
+        </p>
+        <p>
           <strong className="text-chalk">A sign-in cookie</strong> so you stay signed in. No analytics, no ads, no tracking pixels.
         </p>
       </Section>
@@ -77,9 +80,9 @@ export default function PrivacyPage() {
           <strong className="text-chalk">Everyone</strong>, only if you’re on the member wall: your display name, Instagram handle, lane and the date you joined. Untick “Show me on the member wall” and none of it is public.
         </p>
         <p>
-          <strong className="text-chalk">The admin ({brand.founder.shortName}):</strong> your name, handle, lane, city, tags, portfolio link and what you wrote. Your email is not shown in the admin table or its export.
+          <strong className="text-chalk">The admins ({brand.founder.shortName}, and the person who runs this site for him):</strong> your email address and the name on your Google account, plus your name, handle, lane, city, tags, portfolio link, what you wrote, when you joined and when you last signed in — in the admin panel and its export. That includes anyone who signed in but didn’t finish joining.
         </p>
-        <p>Your email stays with your account and is never shown publicly. Your member pass (name, handle, lane) is made for you to share — only you decide where it goes.</p>
+        <p>Your email is never shown publicly — only the admins see it. Your member pass (name, handle, lane) is made for you to share — only you decide where it goes.</p>
       </Section>
 
       <Section title="Where it lives">

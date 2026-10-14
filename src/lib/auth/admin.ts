@@ -19,7 +19,7 @@ export function isAdminUser(user: MaybeAdmin, allow: string[]): boolean {
   return viaGoogle && allow.includes(user.email.trim().toLowerCase());
 }
 
-export type AdminQuery = { lane: Lane | 'all'; q: string; sort: 'new' | 'old'; view: 'all' | 'other' };
+export type AdminQuery = { lane: Lane | 'all'; q: string; sort: 'new' | 'old'; view: 'all' | 'other' | 'notjoined' };
 
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? '';
 
@@ -27,10 +27,10 @@ export function parseAdminQuery(sp: Record<string, string | string[] | undefined
   const lane = one(sp.lane);
   return {
     lane: (LANES as readonly string[]).includes(lane) ? (lane as Lane) : 'all',
-    // Letters, digits, dot, underscore, space and hyphen only: nothing that means anything to PostgREST filters.
-    q: one(sp.q).replace(/[^\p{L}\p{M}\p{N}._ -]/gu, '').trim().slice(0, 60),
+    // What names, handles and emails are made of; nothing else (search runs in memory, never as a filter string).
+    q: one(sp.q).replace(/[^\p{L}\p{M}\p{N}._@+ -]/gu, '').trim().slice(0, 60),
     sort: one(sp.sort) === 'old' ? 'old' : 'new',
-    view: one(sp.view) === 'other' ? 'other' : 'all',
+    view: one(sp.view) === 'other' ? 'other' : one(sp.view) === 'notjoined' ? 'notjoined' : 'all',
   };
 }
 

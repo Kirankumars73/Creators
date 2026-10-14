@@ -1,46 +1,39 @@
 import 'server-only';
-import type { AdminQuery } from '@/lib/auth/admin';
-import { fetchAllPages } from './paging';
-import type { MemberRow, MemberStatus } from '@/lib/members/types';
+import { adminEmailsFromEnv } from '@/lib/env.server';
+import type { MemberStatus } from '@/lib/members/types';
 import { createAdminSupabase } from '@/lib/supabase/admin';
+import { fetchAllPages } from './paging';
+import { buildPeople, type AdminPerson, type AuthUserLite, type MemberLite } from './people';
 
-export type AdminMember = Omit<MemberRow, 'user_id' | 'email' | 'avatar_url' | 'accepted_code'>;
-const COLUMNS = 'id, display_name, instagram, role, role_other_text, city, tags, portfolio_url, show_on_wall, status, role_changes, created_at, updated_at';
+const MEMBER_COLUMNS = 'id, user_id, display_name, instagram, role, role_other_text, city, tags, portfolio_url, show_on_wall, status, created_at';
+const PER_PAGE = 1000;
 
-/** Every matching member — paged past the API's 1,000-row cap (the community holds 2,000). */
-export async function listMembers(q: AdminQuery): Promise<AdminMember[]> {
+/** Every Google sign-in, paged through the Auth admin API (the community holds 2,000). */
+async function listAuthUsers(): Promise<AuthUserLite[]> {
+  const admin = createAdminSupabase();
+  const out: AuthUserLite[] = [];
+  for (let page = 1; page <= 50; page++) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: PER_PAGE });
+    if (error) throw error;
+    out.push(...(data.users as AuthUserLite[]));
+    if (data.users.length < PER_PAGE) break;
+  }
+  return out;
+}
+
+async function listAllMembers(): Promise<MemberLite[]> {
   const admin = createAdminSupabase();
   return fetchAllPages(async (from, to) => {
-    let query = admin.from('members').select(COLUMNS).order('created_at', { ascending: q.sort === 'old' }).order('id').range(from, to);
-    if (q.view === 'other') query = query.eq('role', 'other');
-    else if (q.lane !== 'all') query = query.eq('role', q.lane);
-    // q is already stripped to letters/digits/._ - and spaces by parseAdminQuery.
-    if (q.q) query = query.or(`display_name.ilike.%${q.q}%,instagram.ilike.%${q.q}%`);
-    const { data, error } = await query;
+    const { data, error } = await admin.from('members').select(MEMBER_COLUMNS).order('created_at').order('id').range(from, to);
     if (error) throw error;
-    return (data ?? []) as AdminMember[];
+    return (data ?? []) as MemberLite[];
   });
 }
 
-/** Exact counts (head requests), never limited by a page of rows. */
-export async function statusCounts(): Promise<Record<MemberStatus, number> & { creators: number; editors: number; other: number }> {
-  const admin = createAdminSupabase();
-  const count = async (filters: Partial<Pick<MemberRow, 'status' | 'role'>>) => {
-    let query = admin.from('members').select('id', { count: 'exact', head: true });
-    for (const [col, value] of Object.entries(filters)) query = query.eq(col, value);
-    const { count: n, error } = await query;
-    if (error) throw error;
-    return n ?? 0;
-  };
-  const [active, flagged, removed, creators, editors, other] = await Promise.all([
-    count({ status: 'active' }),
-    count({ status: 'flagged' }),
-    count({ status: 'removed' }),
-    count({ status: 'active', role: 'creator' }),
-    count({ status: 'active', role: 'editor' }),
-    count({ status: 'active', role: 'other' }),
-  ]);
-  return { active, flagged, removed, creators, editors, other };
+/** Everyone who signed in, with their member record if they joined. Filter with `filterPeople`. */
+export async function listPeople(): Promise<AdminPerson[]> {
+  const [users, members] = await Promise.all([listAuthUsers(), listAllMembers()]);
+  return buildPeople(users, members, adminEmailsFromEnv());
 }
 
 export async function updateStatus(id: string, status: MemberStatus): Promise<void> {

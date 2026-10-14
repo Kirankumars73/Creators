@@ -56,6 +56,10 @@ test('/privacy exists, says what is collected, and is linked from the footer (Go
   expect(res?.status()).toBe(200);
   await expect(page.locator('h1')).toHaveCount(1);
   for (const phrase of ['Google', 'Instagram', 'Supabase', 'never post', 'delete']) await expect(page.locator('main')).toContainText(phrase);
+  // The admin panel lists everyone who signed in with their email: the page must say so.
+  await expect(page.locator('main')).toContainText('The admins');
+  await expect(page.locator('main')).toContainText('your email address');
+  await expect(page.locator('main')).not.toContainText('Your email is not shown');
   await page.goto('/');
   await expect(page.locator('footer').getByRole('link', { name: /privacy/i })).toHaveAttribute('href', '/privacy');
 });

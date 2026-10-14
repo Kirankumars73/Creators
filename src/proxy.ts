@@ -10,7 +10,8 @@ const notFound = (request: NextRequest) => NextResponse.rewrite(new URL('/__not-
 /**
  * Keeps the Supabase session cookie fresh on routes that read it, and answers /admin with a
  * true 404 for anyone who isn't an admin — before a byte of the page streams. (The page and
- * every admin action check again.) A broken Supabase config never takes pages down.
+ * every admin action check again.) Admins who land on /join — which is where Google sign-in
+ * returns everyone — go to the admin panel instead. A broken Supabase config never takes pages down.
  */
 export async function proxy(request: NextRequest) {
   const isAdminPath = request.nextUrl.pathname.startsWith('/admin');
@@ -31,7 +32,18 @@ export async function proxy(request: NextRequest) {
       },
     });
     const { data } = await supabase.auth.getUser();
-    if (isAdminPath && !isAdminUser(data.user, adminEmailsFromEnv())) return notFound(request);
+    const isAdmin = isAdminUser(data.user, adminEmailsFromEnv());
+    if (isAdminPath && !isAdmin) return notFound(request);
+    if (isAdmin && request.nextUrl.pathname.startsWith('/join')) {
+      const toAdmin = NextResponse.redirect(new URL('/admin', request.url));
+      // Carry any refreshed session cookies across the redirect, with the no-cache headers that guard them.
+      for (const cookie of response.cookies.getAll()) toAdmin.cookies.set(cookie);
+      for (const h of ['cache-control', 'expires', 'pragma']) {
+        const v = response.headers.get(h);
+        if (v) toAdmin.headers.set(h, v);
+      }
+      return toAdmin;
+    }
   } catch (err) {
     console.error('[proxy] session refresh skipped', err);
     return isAdminPath ? notFound(request) : NextResponse.next({ request });

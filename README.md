@@ -36,6 +36,8 @@ WhatsApp's official API has no way to add someone to a group, and its groups cap
 - The lane always comes from the database row, never from the request.
 - The links never appear in page source, the JS bundle, or any `NEXT_PUBLIC_*` variable. `pnpm check:leaks` enforces this.
 - `/admin` is a real 404 for anyone who isn't on `ADMIN_EMAILS` with a confirmed Google identity.
+- Admins never see the join flow: the proxy sends an admin who lands on `/join` (where Google sign-in returns everyone) to `/admin`.
+- The admin panel lists **everyone who signed in** — email, Google name, what they are (lane, "something else: …", or not joined yet; admins tagged), handle, city, tags, last sign-in, joined, status — with search by name, email or handle, a "Not joined yet" view, flag/remove/restore, and a CSV export of the same rows. `/dev/admin` previews it with sample people (404 in production).
 
 **Limits:**
 - A WhatsApp **Community** holds 1 announcements group plus up to 100 linked groups, and **2,000 members in total**. Plan a second community before that.
