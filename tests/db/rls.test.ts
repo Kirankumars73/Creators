@@ -88,3 +88,13 @@ describe('link_reveals is server-only', () => {
     });
   });
 });
+
+describe('F11 — server writes do not depend on Supabase default privileges', () => {
+  test('on a project where service_role has no default table grants, the server can still write members and reveals', async () => {
+    const bare = await createTestDb({ serviceRoleDefaults: false });
+    const u = await bare.addUser();
+    const row = await bare.asService((q) => insertRow(q, 'public.members', memberFixture(u.id)));
+    await expect(bare.asService((q) => insertRow(q, 'public.link_reveals', { member_id: row.id, link_key: 'community' }))).resolves.toBeTruthy();
+    await expect(bare.asService((q) => q(`update public.members set status = 'flagged' where id = $1`, [row.id]))).resolves.toBeTruthy();
+  });
+});

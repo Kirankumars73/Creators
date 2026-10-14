@@ -88,3 +88,11 @@ describe('parseServerEnv', () => {
     expect(parseServerEnv({ ...validRaw, ADMIN_EMAILS: ' A@x.com, b@y.com ,' }).adminEmails).toEqual(['a@x.com', 'b@y.com']);
   });
 });
+
+describe('parseServerEnv — pasted values (final review F10)', () => {
+  test('stray whitespace around links and keys is trimmed, not fatal', () => {
+    const env = parseServerEnv({ ...validRaw, WA_EDITORS_URL: '  https://chat.whatsapp.com/EDI \n', SUPABASE_SERVICE_ROLE_KEY: ' service-key ' });
+    expect(env.wa.editors).toBe('https://chat.whatsapp.com/EDI');
+    expect(env.serviceRoleKey).toBe('service-key');
+  });
+});

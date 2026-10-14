@@ -56,3 +56,16 @@ test('the cold open causes no layout shift', async ({ page }) => {
   );
   expect(cls).toBe(0);
 });
+
+test('coming Back to the home page never replays the intro or re-covers the headline (final review F1)', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('[data-cold-open]')).toBeHidden();
+  await page.getByRole('link', { name: /read the code/i }).first().click();
+  await expect(page).toHaveURL(/\/code$/);
+  await page.goBack();
+  await expect(page).toHaveURL(/\/$/);
+  await page.waitForTimeout(150);
+  expect(await page.locator('[data-cold-open]').isVisible()).toBe(false);
+  const covers = await page.locator('.wipe-cover').evaluateAll((els) => els.filter((e) => getComputedStyle(e).display !== 'none').length);
+  expect(covers).toBe(0);
+});

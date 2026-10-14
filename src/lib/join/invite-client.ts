@@ -5,7 +5,8 @@ export type InviteClientResult = { status: 200; body: InviteOk } | { status: num
 /** POST /api/invite from the browser. Status 0 means the network failed. */
 export async function fetchInvite(): Promise<InviteClientResult> {
   try {
-    const res = await fetch('/api/invite', { method: 'POST', cache: 'no-store' });
+    // 15s ceiling: a hung request lands in the retry state instead of a bar stuck at 90%.
+    const res = await fetch('/api/invite', { method: 'POST', cache: 'no-store', signal: AbortSignal.timeout(15_000) });
     const body = (await res.json().catch(() => ({}))) as Record<string, unknown>;
     if (res.status === 200) return { status: 200, body: body as InviteOk };
     return { status: res.status, error: typeof body.error === 'string' ? body.error : 'unknown' };

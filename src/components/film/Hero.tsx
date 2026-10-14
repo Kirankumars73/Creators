@@ -12,7 +12,7 @@ export function Hero({ counts }: { counts: MemberCounts | null }) {
   return (
     <section
       id="cold-open"
-      className="relative flex min-h-dvh flex-col justify-end overflow-hidden px-4 pb-28 pt-24 md:px-10 md:pb-32"
+      className="relative flex min-h-svh flex-col justify-end overflow-hidden px-4 pb-28 pt-24 md:px-10 md:pb-32"
     >
       <ReelCards />
       <div className="relative">

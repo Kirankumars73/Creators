@@ -16,9 +16,13 @@ const INDIC = /[ऀ-෿]/;
 
 const JOINED = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', day: '2-digit', month: '2-digit', year: 'numeric' });
 
-/** Public-safe fields for an active member's pass; never the email. */
-export function toPassData(row: MemberRow): PassData | null {
+/**
+ * Public-safe fields for an active member's pass; never the email. A `public` (by-id) request
+ * also respects the member-wall opt-out; members always get their own pass.
+ */
+export function toPassData(row: MemberRow, opts: { public?: boolean } = {}): PassData | null {
   if (row.status !== 'active') return null;
+  if (opts.public && !row.show_on_wall) return null;
   const room = brand.rooms[row.role];
   return {
     headline: INDIC.test(row.display_name) ? `@${row.instagram}` : row.display_name,

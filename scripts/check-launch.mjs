@@ -4,6 +4,8 @@
 import { pathToFileURL } from 'node:url';
 
 const WA_REQUIRED = ['WA_COMMUNITY_URL', 'WA_CREATORS_URL', 'WA_EDITORS_URL'];
+const WA_INVITE = /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+(\?[A-Za-z0-9=_&-]*)?$/;
+const REQUIRED = ['NEXT_PUBLIC_SITE_URL', 'NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY'];
 
 /** @returns {string[]} e.g. ['ml:wordmark', 'code:04', 'brand:siteBy', 'env:WA_COMMUNITY_URL'] */
 export function findLaunchBlockers({ ml, articles, brand, env, stills }) {
@@ -15,10 +17,14 @@ export function findLaunchBlockers({ ml, articles, brand, env, stills }) {
   if (!brand.founderConfirmed) out.push('brand:founder');
   if (!stills.length) out.push('reels:stills');
   for (const key of WA_REQUIRED) {
-    const v = env[key];
-    if (!v || /PENDING/i.test(v)) out.push(`env:${key}`);
+    const v = (env[key] ?? '').trim();
+    if (!WA_INVITE.test(v) || /PENDING/i.test(v)) out.push(`env:${key}`);
   }
   if (!(env.ADMIN_EMAILS ?? '').trim()) out.push('env:ADMIN_EMAILS');
+  for (const key of REQUIRED) {
+    const v = (env[key] ?? '').trim();
+    if (!v || (key === 'NEXT_PUBLIC_SITE_URL' && /localhost|127\.0\.0\.1/.test(v))) out.push(`env:${key}`);
+  }
   return out;
 }
 

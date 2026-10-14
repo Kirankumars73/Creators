@@ -19,6 +19,19 @@ export function ColdOpen() {
   const [gone, setGone] = useState(false);
   const timecode = useRef<HTMLSpanElement>(null);
 
+  // The intro (slate + headline wipe) happens once. Mark it done on <html> when its time is
+  // up — or the moment the visitor leaves the page — so a client-side return to `/` (Next keeps
+  // the route alive and re-shows it, which restarts CSS animations) never replays it.
+  useEffect(() => {
+    const html = document.documentElement;
+    const finish = () => html.classList.add('no-cold-open', 'intro-done');
+    const done = setTimeout(finish, html.classList.contains('no-cold-open') ? 900 : 2200);
+    return () => {
+      clearTimeout(done);
+      finish();
+    };
+  }, []);
+
   useEffect(() => {
     if (document.documentElement.classList.contains('no-cold-open')) return;
     try {

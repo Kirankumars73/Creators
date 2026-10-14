@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { brand, type Lane } from '@/config/brand';
 import { t } from '@/i18n/ml';
 import { useCommunityOpened, markCommunityOpened } from '@/lib/join/chip-store';
+import type { LaneKey } from '@/lib/invite/resolve';
 import { isInviteOk, type InviteClientResult } from '@/lib/join/invite-client';
 import { useRenderProgress, type RenderTask } from '@/lib/join/render-progress';
 import { usePrefersReducedMotion } from '@/lib/motion/reduced-motion';
@@ -19,6 +20,8 @@ type RevealProps = {
   /** Already a member before this visit: both chips open straight away. */
   returning: boolean;
   onRetry?(): void;
+  /** Recovery for 401/404: a full reload so the server re-resolves the step. */
+  onRecover?(url: string): void;
   /** Slot under the chips (SAVE MY PASS). */
   footer?: ReactNode;
 };
@@ -35,17 +38,24 @@ export function ExportSequence({
   lane,
   returning,
   onRetry,
+  onRecover,
   footer,
 }: Omit<RevealProps, 'result'> & { task: RenderTask<InviteClientResult> }) {
   const render = useRenderProgress(task);
   if (!render.done) return <RenderBar progress={render.progress} frames={render.frames} />;
   const result: InviteClientResult = render.result ?? { status: 0, error: 'network' };
-  return <Reveal result={result} lane={lane} returning={returning} onRetry={onRetry} footer={footer} />;
+  return <Reveal result={result} lane={lane} returning={returning} onRetry={onRetry} onRecover={onRecover} footer={footer} />;
 }
 
-export function Reveal({ result, lane, returning, onRetry, footer }: RevealProps) {
-  if (!isInviteOk(result)) return <RevealProblem status={result.status} onRetry={onRetry} />;
-  return <RevealOk links={result.body} lane={lane} returning={returning} footer={footer} />;
+// The server names the room it linked; the label must follow the link, not the client's guess.
+const LANE_OF: Record<LaneKey, Lane> = { creators: 'creator', editors: 'editor', other: 'other' };
+
+const hardReload = (url: string) => window.location.assign(url);
+
+export function Reveal({ result, lane, returning, onRetry, onRecover = hardReload, footer }: RevealProps) {
+  if (!isInviteOk(result)) return <RevealProblem status={result.status} onRetry={onRetry} onRecover={onRecover} />;
+  const linkedLane = result.body.laneKey ? LANE_OF[result.body.laneKey] : lane;
+  return <RevealOk links={result.body} lane={linkedLane} returning={returning} footer={footer} />;
 }
 
 function RevealOk({
@@ -146,19 +156,19 @@ const PROBLEMS: Record<number, { title: string; body: ReactNode; retry?: boolean
 };
 const NETWORK = { title: 'The links didn’t load.', body: 'Check your connection and try again.', retry: true };
 
-function RevealProblem({ status, onRetry }: { status: number; onRetry?(): void }) {
+function RevealProblem({ status, onRetry, onRecover }: { status: number; onRetry?(): void; onRecover(url: string): void }) {
   const p = PROBLEMS[status] ?? NETWORK;
   return (
     <div role="alert" className="flex flex-col items-start gap-4 border-l-[3px] border-rosso bg-graphite p-6">
       <h2 className="font-display text-[2rem] uppercase leading-none text-chalk">{p.title}</h2>
       <p className="text-body text-chalk">{p.body}</p>
       {status === 401 ? (
-        <Button href="/join" variant="ghost">
+        <Button variant="ghost" onClick={() => onRecover('/join')}>
           Sign in
         </Button>
       ) : null}
       {status === 404 ? (
-        <Button href="/join?step=lane" variant="ghost">
+        <Button variant="ghost" onClick={() => onRecover('/join?step=lane')}>
           Back to your lane
         </Button>
       ) : null}

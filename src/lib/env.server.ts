@@ -28,7 +28,9 @@ const schema = z.object({
 });
 
 export function parseServerEnv(raw: Record<string, string | undefined>): ServerEnv {
-  const r = schema.safeParse(raw);
+  // Values pasted into a dashboard pick up spaces and newlines; one would 503 every invite.
+  const trimmed = Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, typeof v === 'string' ? v.trim() : v]));
+  const r = schema.safeParse(trimmed);
   if (!r.success) {
     // Name the keys, never the values.
     const keys = [...new Set(r.error.issues.map((i) => String(i.path[0])))].join(', ');

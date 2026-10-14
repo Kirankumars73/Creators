@@ -16,7 +16,7 @@ export async function GET(_req: Request, ctx: RouteContext<'/api/pass/[id]'>) {
     let row: MemberRow | null = null;
     if (id === 'me') row = (await getSessionUser()) ? await getOwnMember() : null;
     else if (UUID.test(id)) row = await getMemberById(id);
-    const pass = row ? toPassData(row) : null;
+    const pass = row ? toPassData(row, { public: id !== 'me' }) : null;
     if (!pass) return new Response('Not found', { status: 404, headers: { 'Cache-Control': 'no-store' } });
     const cache = id === 'me' ? 'private, no-store' : 'public, max-age=300';
     return await passImage(pass, cache, new URL(siteUrl).host);

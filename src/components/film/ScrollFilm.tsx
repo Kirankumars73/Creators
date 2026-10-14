@@ -4,6 +4,7 @@ import type { gsap as Gsap } from 'gsap';
 import type { ScrollTrigger as ScrollTriggerType } from 'gsap/ScrollTrigger';
 import type Lenis from 'lenis';
 import { createContext, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
+import { shouldRefreshTriggers } from '@/lib/film/scrub';
 import { usePrefersReducedMotion } from '@/lib/motion/reduced-motion';
 import type { SectionId } from './sections';
 
@@ -93,7 +94,13 @@ export function ScrollFilm({ children }: { children: ReactNode }) {
       timer = setTimeout(() => engine.ScrollTrigger.refresh(), 120);
     };
     void document.fonts?.ready.then(refresh);
-    const ro = new ResizeObserver(refresh);
+    let last: { w: number; h: number } | null = null;
+    const ro = new ResizeObserver(([entry]) => {
+      const next = { w: Math.round(entry!.contentRect.width), h: Math.round(entry!.contentRect.height) };
+      if (!shouldRefreshTriggers(last, next)) return;
+      last = next;
+      refresh();
+    });
     ro.observe(document.body);
     return () => {
       clearTimeout(timer);
@@ -128,6 +135,9 @@ export function ScrollFilm({ children }: { children: ReactNode }) {
         if (!el) return;
         if (lenis.current) lenis.current.scrollTo(el, { duration: 0.62, easing: (t) => 1 - (1 - t) ** 3 });
         else el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+        // Keyboard and screen-reader users land in the section they chose.
+        el.setAttribute('tabindex', '-1');
+        el.focus({ preventScroll: true });
       },
     }),
     [reduced, ready, engine],

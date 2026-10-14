@@ -5,6 +5,8 @@ import { useId, useState, type KeyboardEvent } from 'react';
 type ComboboxProps = {
   label: string;
   options: readonly string[];
+  /** Other names an option answers to, e.g. Ernakulam ← Kochi. */
+  aliases?: Partial<Record<string, readonly string[]>>;
   value: string;
   onChange(value: string): void;
   error?: string;
@@ -12,7 +14,7 @@ type ComboboxProps = {
 };
 
 /** WAI-ARIA 1.2 combobox with a filtered listbox popup. */
-export function Combobox({ label, options, value, onChange, error, placeholder }: ComboboxProps) {
+export function Combobox({ label, options, aliases = {}, value, onChange, error, placeholder }: ComboboxProps) {
   const id = useId();
   const listId = `${id}-list`;
   const errId = `${id}-err`;
@@ -21,7 +23,8 @@ export function Combobox({ label, options, value, onChange, error, placeholder }
   const [active, setActive] = useState(-1);
 
   const q = query.trim().toLowerCase();
-  const filtered = q && query !== value ? options.filter((o) => o.toLowerCase().includes(q)) : options;
+  const names = (o: string) => [o, ...(aliases[o] ?? [])].map((n) => n.toLowerCase());
+  const filtered = q && query !== value ? options.filter((o) => names(o).some((n) => n.includes(q))) : options;
   const optionId = (i: number) => `${id}-opt-${i}`;
 
   function choose(option: string) {
@@ -33,7 +36,7 @@ export function Combobox({ label, options, value, onChange, error, placeholder }
 
   function reconcile() {
     // Leaving the field: accept an exact (case-insensitive) match, otherwise restore the last choice.
-    const exact = options.find((o) => o.toLowerCase() === q);
+    const exact = options.find((o) => names(o).includes(q));
     if (exact) choose(exact);
     else {
       setQuery(value);

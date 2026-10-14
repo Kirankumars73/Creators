@@ -8,7 +8,7 @@ import { Combobox } from '@/components/ui/Combobox';
 import { Field } from '@/components/ui/Field';
 import { TagSelect } from '@/components/ui/TagSelect';
 import type { Lane } from '@/config/brand';
-import { DISTRICTS, TAGS } from '@/config/join';
+import { DISTRICTS, DISTRICT_ALIASES, TAGS } from '@/config/join';
 import type { JoinDraft } from '@/lib/join/draft';
 import { INSTAGRAM_RE, memberInputSchema, normalizeInstagram, type MemberInput } from '@/lib/members/schema';
 import type { SubmitResult } from '@/lib/members/submit';
@@ -158,6 +158,7 @@ export function DetailsForm({ lane, otherText, user, draft, onDraft, onSubmit, o
       <Combobox
         label="City / district"
         options={DISTRICTS}
+        aliases={DISTRICT_ALIASES}
         value={city}
         onChange={(v) => {
           setCity(v);
@@ -225,6 +226,15 @@ export function DetailsForm({ lane, otherText, user, draft, onDraft, onSubmit, o
       {formError ? (
         <p role="alert" className="border-l-[3px] border-rosso bg-graphite px-4 py-3 font-mono text-sm text-chalk">
           {formError}
+          {formError === FORM_ERRORS.unauthenticated ? (
+            <>
+              {' '}
+              {/* A plain link: a full reload lets the server re-resolve the step. */}
+              <a href="/join" className="underline underline-offset-4">
+                Sign in again
+              </a>
+            </>
+          ) : null}
         </p>
       ) : null}
       <div>

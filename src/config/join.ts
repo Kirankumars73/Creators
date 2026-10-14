@@ -20,6 +20,25 @@ export const DISTRICTS = [
 
 export type District = (typeof DISTRICTS)[number];
 
+/** The names people actually type (old/English names, big towns) → the district they mean. */
+export const DISTRICT_ALIASES: Partial<Record<District, readonly string[]>> = {
+  Thiruvananthapuram: ['Trivandrum', 'TVM'],
+  Kollam: ['Quilon'],
+  Pathanamthitta: ['Thiruvalla', 'Tiruvalla', 'Adoor'],
+  Alappuzha: ['Alleppey', 'Cherthala'],
+  Kottayam: ['Pala'],
+  Idukki: ['Munnar', 'Thodupuzha'],
+  Ernakulam: ['Kochi', 'Cochin', 'Aluva', 'Kakkanad'],
+  Thrissur: ['Trichur', 'Guruvayur'],
+  Palakkad: ['Palghat'],
+  Malappuram: ['Manjeri', 'Tirur', 'Perinthalmanna'],
+  Kozhikode: ['Calicut', 'Vadakara'],
+  Wayanad: ['Kalpetta', 'Sulthan Bathery'],
+  Kannur: ['Cannanore', 'Thalassery', 'Tellicherry'],
+  Kasaragod: ['Kasargod', 'Kasaragode', 'Kanhangad'],
+  'Outside Kerala': ['Bangalore', 'Bengaluru', 'Chennai', 'Mumbai', 'Delhi', 'Hyderabad', 'Dubai', 'UAE', 'Abroad'],
+};
+
 export const TAGS = {
   creator: ['reels', 'fashion', 'food', 'travel', 'comedy', 'tech'],
   editor: ['premiere', 'after effects', 'davinci', 'capcut', 'final cut', 'color', 'sound', 'motion'],

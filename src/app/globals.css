@@ -161,6 +161,11 @@
     outline-offset: 2px;
   }
 
+  /* Sections focused by the scrubber are destinations, not controls. */
+  section[tabindex="-1"]:focus-visible {
+    outline: none;
+  }
+
   /* Mint on rosso is 2.62:1 — on rosso fields the ring is chalk over an ink ring (Departure 7). */
   [data-on="rosso"] :focus-visible {
     outline-color: var(--chalk);
@@ -281,6 +286,9 @@ html:not(.js) [data-cold-open],
 }
 html.js:not(.no-cold-open) .wipe-cover {
   animation-delay: calc(1180ms + var(--i, 0) * 55ms);
+}
+.intro-done .wipe-cover {
+  display: none;
 }
 @keyframes wipe-up {
   to { transform: scaleY(0); }

@@ -13,7 +13,7 @@ type LaneChangerProps = {
 
 const PROBLEMS: Record<ChangeReason, string> = {
   used: 'You’ve already used your one move.',
-  inactive: 'Your pass is on hold. Message Gowtham on Instagram.',
+  inactive: `Your pass is on hold. Message ${brand.founder.shortName} on Instagram.`,
   same: 'You’re already in that room.',
   invalid: 'Tell us what you do in 2 to 60 characters.',
   unauthenticated: 'Your sign-in expired. Sign in again.',

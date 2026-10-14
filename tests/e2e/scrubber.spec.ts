@@ -13,6 +13,8 @@ test.describe('the timeline scrubber is the navigation (§6.2)', () => {
     await expect.poll(async () => page.locator('#the-code').evaluate((el) => Math.round(el.getBoundingClientRect().top)), { timeout: 3000 }).toBeLessThanOrEqual(2);
     expect(await page.locator('#the-code').evaluate((el) => Math.round(el.getBoundingClientRect().top))).toBeGreaterThanOrEqual(-2);
     await expect(code).toHaveAttribute('aria-current', 'true');
+    // Keyboard users land in the section they chose, not back on the clip (final review F13).
+    expect(await page.evaluate(() => document.getElementById('the-code')!.contains(document.activeElement))).toBe(true);
   });
 
   test('the first clip is current at the top of the page', async ({ page }) => {

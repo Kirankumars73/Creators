@@ -10,6 +10,10 @@ const goodEnv = {
   WA_CREATORS_URL: 'https://chat.whatsapp.com/AbC2',
   WA_EDITORS_URL: 'https://chat.whatsapp.com/AbC3',
   ADMIN_EMAILS: 'gowtham@example.com',
+  NEXT_PUBLIC_SITE_URL: 'https://creatorskootam.in',
+  NEXT_PUBLIC_SUPABASE_URL: 'https://abc.supabase.co',
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: 'anon',
+  SUPABASE_SERVICE_ROLE_KEY: 'secret',
 };
 
 describe('findLaunchBlockers', () => {
@@ -36,4 +40,28 @@ describe('findLaunchBlockers', () => {
       }),
     ).toEqual([]);
   });
+});
+
+describe('findLaunchBlockers — env is checked for shape, not just presence (final review F10)', () => {
+  const base = { ml: {}, articles: [], brand: { siteBy: 'x', contact: 'x', founderConfirmed: true }, stills: ['/r.jpg'] };
+  const env = {
+    WA_COMMUNITY_URL: 'https://chat.whatsapp.com/AbC1',
+    WA_CREATORS_URL: 'https://chat.whatsapp.com/AbC2',
+    WA_EDITORS_URL: 'https://chat.whatsapp.com/AbC3',
+    ADMIN_EMAILS: 'a@b.c',
+    NEXT_PUBLIC_SITE_URL: 'https://creatorskootam.in',
+    NEXT_PUBLIC_SUPABASE_URL: 'https://abc.supabase.co',
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: 'anon',
+    SUPABASE_SERVICE_ROLE_KEY: 'secret',
+  };
+  test('a complete, well-formed env passes', () => expect(findLaunchBlockers({ ...base, env })).toEqual([]));
+  test('a link that is not a WhatsApp invite is a blocker', () =>
+    expect(findLaunchBlockers({ ...base, env: { ...env, WA_CREATORS_URL: 'https://wa.me/123' } })).toEqual(['env:WA_CREATORS_URL']));
+  test('site URL and Supabase keys are required', () =>
+    expect(findLaunchBlockers({ ...base, env: { ...env, NEXT_PUBLIC_SITE_URL: '', SUPABASE_SERVICE_ROLE_KEY: undefined } })).toEqual([
+      'env:NEXT_PUBLIC_SITE_URL',
+      'env:SUPABASE_SERVICE_ROLE_KEY',
+    ]));
+  test('a localhost site URL is not a launch URL', () =>
+    expect(findLaunchBlockers({ ...base, env: { ...env, NEXT_PUBLIC_SITE_URL: 'http://localhost:3000' } })).toEqual(['env:NEXT_PUBLIC_SITE_URL']));
 });

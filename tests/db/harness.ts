@@ -17,9 +17,12 @@ export type TestDb = {
 const MIGRATIONS = 'supabase/migrations';
 
 /** A fresh in-process Postgres with the Supabase shim and every migration applied in order. */
-export async function createTestDb(): Promise<TestDb> {
+export async function createTestDb(opts: { serviceRoleDefaults?: boolean } = {}): Promise<TestDb> {
   const pg = new PGlite();
-  await pg.exec(readFileSync(join(import.meta.dirname, 'supabase-shim.sql'), 'utf8'));
+  let shim = readFileSync(join(import.meta.dirname, 'supabase-shim.sql'), 'utf8');
+  // Simulate a project whose default privileges don't cover service_role.
+  if (opts.serviceRoleDefaults === false) shim = shim.replaceAll(', authenticated, service_role;', ', authenticated;');
+  await pg.exec(shim);
   for (const file of readdirSync(MIGRATIONS).filter((f) => f.endsWith('.sql')).sort()) {
     await pg.exec(readFileSync(join(MIGRATIONS, file), 'utf8'));
   }

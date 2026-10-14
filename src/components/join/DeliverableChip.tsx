@@ -22,17 +22,18 @@ const SETTLE = { type: 'spring', stiffness: 180, damping: 22 } as const;
 /** An exported file landing in the bin: one WhatsApp room, one button. */
 export function DeliverableChip({ index, title, body, href, locked, laneTag, order = 0, onOpen }: DeliverableChipProps) {
   const reduced = usePrefersReducedMotion();
-  const [copied, setCopied] = useState(false);
+  const [copy, setCopy] = useState<'idle' | 'copied' | 'manual'>('idle');
 
-  async function copy() {
+  async function copyLink() {
     if (!href) return;
     try {
       await navigator.clipboard.writeText(href);
-      setCopied(true);
-      onOpen?.();
+      setCopy('copied');
     } catch {
-      setCopied(false);
+      // No clipboard access: show the link to select by hand.
+      setCopy('manual');
     }
+    onOpen?.();
   }
 
   return (
@@ -57,11 +58,11 @@ export function DeliverableChip({ index, title, body, href, locked, laneTag, ord
       <div className="mt-5 flex flex-wrap items-center justify-end gap-3">
         <button
           type="button"
-          onClick={copy}
+          onClick={copyLink}
           disabled={locked}
           className="min-h-11 px-3 font-mono text-sm tracking-[0.08em] text-chalk-dim underline underline-offset-4 hover:text-chalk disabled:no-underline disabled:opacity-60"
         >
-          {copied ? 'Copied' : 'Copy link'}
+          {copy === 'copied' ? 'Copied' : 'Copy link'}
         </button>
         {locked || !href ? (
           <a
@@ -89,6 +90,15 @@ export function DeliverableChip({ index, title, body, href, locked, laneTag, ord
           </a>
         )}
       </div>
+      {copy === 'manual' && href ? (
+        <input
+          readOnly
+          value={href}
+          aria-label="Link to copy"
+          onFocus={(e) => e.currentTarget.select()}
+          className="mt-3 w-full border-0 border-b border-chalk-dim bg-carbon px-3 py-2 font-mono text-sm text-chalk"
+        />
+      ) : null}
     </motion.article>
   );
 }
