@@ -121,6 +121,29 @@ test.describe('the last reel (§6.6–§6.9)', () => {
     await expect(page.locator('footer .marquee')).toContainText('KOOTAM');
   });
 
+  test('the footer has the contact address, no SITE BY credit, and the copyright as its very last line', async ({ page }) => {
+    await page.goto('/');
+    const footer = page.locator('footer');
+    const contact = footer.getByRole('link', { name: 'gowthamdas04@gmail.com' });
+    await expect(contact).toHaveAttribute('href', 'mailto:gowthamdas04@gmail.com');
+    await expect(footer).not.toContainText('SITE BY');
+    const last = footer.locator(':scope > :last-child');
+    await expect(last).toHaveText('© kiran@2003');
+    await expect(last).toHaveCSS('text-transform', 'none');
+    // Below the marquee, and nothing in the page after it.
+    expect(await footer.evaluate((f) => f.lastElementChild!.previousElementSibling!.classList.contains('marquee'))).toBe(true);
+    const bottom = await page.evaluate(() => {
+      const els = [...document.body.querySelectorAll('*')].filter((el) => {
+        const r = el.getBoundingClientRect();
+        const cs = getComputedStyle(el);
+        return r.height > 0 && cs.position !== 'fixed' && cs.visibility !== 'hidden' && el.textContent?.trim();
+      });
+      return Math.max(...els.map((el) => el.getBoundingClientRect().bottom + window.scrollY));
+    });
+    const lastBottom = await last.evaluate((el) => el.getBoundingClientRect().bottom + window.scrollY);
+    expect(lastBottom).toBeGreaterThanOrEqual(bottom - 1);
+  });
+
   test('the four rituals are on the timeline', async ({ page }) => {
     await page.goto('/');
     for (const name of ['WEEKLY DROP', 'THE CUT ROOM', 'LOOKING FOR', 'GEAR & GRIEF']) await expect(page.locator('#inside')).toContainText(name);

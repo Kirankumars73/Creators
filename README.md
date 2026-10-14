@@ -77,10 +77,8 @@ WhatsApp's official API has no way to add someone to a group, and its groups cap
 | Confirm every Malayalam string, especially കൂട്ടം (wordmark), ക്രിയേറ്റേഴ്‌സ് കൂട്ടം (name) and നിങ്ങൾ കൂട്ടത്തിലാണ്. ("You're in the kootam."). Also supply the eyebrow, The Code foot line and the footer sign-off. Then run `pnpm render:ml` | `src/i18n/ml.ts` |
 | Spelling of his name: the brief has both "Gowtham" and "Goutham"; the site uses **Gowtham**, matching his handle | `src/config/brand.ts` (`founderConfirmed`) |
 | The Code articles 04–07 are drafts written in his voice; he approves or rewrites them. 01–03 are his, verbatim | `src/config/code.ts` |
-| The three WhatsApp invite links (groups, not Channels) | Vercel env |
 | 9–12 stills from his grid for the hero reel cards. Until then, dark lane-edged placeholder panels (never stock photos) | `public/reels/` + `src/config/reels.ts` |
-| Contact address for the footer, and the name for the "SITE BY" credit. Both are hidden while empty | `src/config/brand.ts` |
-| Admin email(s) | Vercel env `ADMIN_EMAILS` |
+| Read and agree with `/privacy`, which speaks for him | `src/config/brand.ts` (`privacyReviewed`) |
 
 ## Notes for whoever maintains this
 

@@ -12,7 +12,6 @@ export function EndCredits() {
   const credits = [
     { role: 'A COMMUNITY BY', name: brand.founder.fullName },
     { role: 'FOUNDED IN', name: brand.region },
-    ...(brand.siteBy ? [{ role: 'SITE BY', name: brand.siteBy }] : []),
   ];
   return (
     <footer className="relative overflow-hidden">
@@ -42,8 +41,8 @@ export function EndCredits() {
             Privacy
           </Link>
           {brand.contact ? (
-            <a href={`mailto:${brand.contact}`} className="text-label inline-flex min-h-11 items-center text-chalk-dim hover:text-chalk">
-              Contact
+            <a href={`mailto:${brand.contact}`} className="text-label inline-flex min-h-11 items-center normal-case text-chalk-dim hover:text-chalk">
+              {brand.contact}
             </a>
           ) : null}
         </nav>
@@ -52,6 +51,7 @@ export function EndCredits() {
         </p>
       </CreditsDrift>
       <Marquee />
+      <p className="py-5 text-center font-mono text-xs tracking-[0.14em] text-chalk-mute">{brand.copyright}</p>
     </footer>
   );
 }

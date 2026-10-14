@@ -7,12 +7,11 @@ const WA_REQUIRED = ['WA_COMMUNITY_URL', 'WA_CREATORS_URL', 'WA_EDITORS_URL'];
 const WA_INVITE = /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+(\?[A-Za-z0-9=_&-]*)?$/;
 const REQUIRED = ['NEXT_PUBLIC_SITE_URL', 'NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY'];
 
-/** @returns {string[]} e.g. ['ml:wordmark', 'code:04', 'brand:siteBy', 'env:WA_COMMUNITY_URL'] */
+/** @returns {string[]} e.g. ['ml:wordmark', 'code:04', 'brand:contact', 'env:WA_COMMUNITY_URL'] */
 export function findLaunchBlockers({ ml, articles, brand, env, stills }) {
   const out = [];
   for (const [key, entry] of Object.entries(ml)) if (!entry.confirmed) out.push(`ml:${key}`);
   for (const a of articles) if (a.draft) out.push(`code:${a.n}`);
-  if (!brand.siteBy) out.push('brand:siteBy');
   if (!brand.contact) out.push('brand:contact');
   if (!brand.founderConfirmed) out.push('brand:founder');
   if (brand.privacyReviewed === false) out.push('brand:privacy');
@@ -32,7 +31,6 @@ export function findLaunchBlockers({ ml, articles, brand, env, stills }) {
 const EXPLAIN = {
   ml: 'Malayalam string not yet confirmed by a native speaker (src/i18n/ml.ts; then pnpm render:ml)',
   code: 'The Code article is a draft — Gowtham approves or rewrites it (src/config/code.ts)',
-  'brand:siteBy': 'Name for the SITE BY credit (src/config/brand.ts)',
   'brand:contact': 'Contact address for the footer (src/config/brand.ts)',
   'brand:founder': 'Gowtham confirms the spelling of his name (src/config/brand.ts founderConfirmed)',
   'brand:privacy': 'Gowtham reads and agrees with /privacy, which speaks for him (src/config/brand.ts privacyReviewed)',

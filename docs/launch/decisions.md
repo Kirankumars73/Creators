@@ -121,6 +121,13 @@ Every call the build made on Gowtham's and Kiran's behalf, in the order it was m
 - Final: Minor "hard-coded Gowtham / Creators Kootam strings" re-graded Important — breaks the brand.ts-only rule while the name spelling is still unconfirmed — fix.
 - Final: Task 20 note corrected — the signed-out /me 307 holds without Supabase; with real auth the shell may flush first and the redirect becomes client-side (still works) — no code change.
 
+### After launch setup (2026-10-14)
+
+- Added `/privacy` (not in the brief): Google won't publish the sign-in app without a privacy policy URL. It describes exactly what the code collects; `pnpm check:launch` blocks until Gowtham has read it (`brand.privacyReviewed`).
+- Footer, by Kiran's call: no SITE BY credit (removed, not hidden); contact is `gowthamdas04@gmail.com`, shown as the link text; `© kiran@2003` is the last line, under the marquee. The A COMMUNITY BY / FOUNDED IN credits (brief §6.9) stay.
+- `ADMIN_EMAILS` = Kiran + Gowtham. The first address arrived as `@gmial.com`; set as `@gmail.com` (Kiran's account address), since the typo would have locked him out of `/admin`.
+- Open: the WhatsApp groups are named "Creators kootam(Content creators)" / "(Editors)", the site calls them FRAME KOOTAM / CUT KOOTAM. Suggested renaming the groups (the links survive a rename).
+
 ## Review fixes (each proven by a test that failed first)
 
 - P2-review: fixed open-redirect dot-segment bypass in safeNextPath (+ callback appends next to own origin) — next-path "dot-segment bypasses" ×4 RED→GREEN, suite 193/193.

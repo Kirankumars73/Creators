@@ -45,9 +45,9 @@ export const brand = {
     shortName: 'Gowtham',
     instagram: 'thegowthamdas',
   },
-  // [ASK] filled in before launch; `pnpm check:launch` fails while null.
-  siteBy: null as string | null,
-  contact: null as string | null,
+  // Footer contact (decided 2026-10-14; no SITE BY credit). Shown on the footer and /privacy.
+  contact: 'gowthamdas04@gmail.com' as string | null,
+  copyright: '© kiran@2003',
   instagramUrl: 'https://instagram.com/thegowthamdas',
   region: 'KERALA',
   year: 2026,
