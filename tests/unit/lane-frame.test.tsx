@@ -13,6 +13,10 @@ describe('LaneFrame', () => {
       expect(art).not.toBeNull();
       expect(art!.getAttribute('data-craft-art')).toBe(craft);
       expect(art!.getAttribute('aria-hidden')).toBe('true');
+      // The art lives on its own screen; the title and copy are never laid over it.
+      const monitor = art!.closest('[data-monitor]');
+      expect(monitor).not.toBeNull();
+      expect(monitor!.contains(container.querySelector('h3'))).toBe(false);
       unmount();
     }
   });

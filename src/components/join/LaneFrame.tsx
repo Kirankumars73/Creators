@@ -1,4 +1,4 @@
-import { CraftArt } from '@/components/brand/CraftArt';
+import { CraftScene } from '@/components/brand/CraftScene';
 import { CropMarks } from '@/components/brand/CropMarks';
 import { brand, type Lane } from '@/config/brand';
 
@@ -13,8 +13,9 @@ type LaneFrameProps = {
 };
 
 /**
- * A 9:16 film gate for the creators and editors rooms — showing its craft (a viewfinder, a
- * timeline) behind the copy, never an empty frame — or the mint slate for everyone else (§6.4).
+ * A lane card (§6.4). Creators and editors get a screen on top — the same backwater shot, seen
+ * through the camera or sitting above the edit — with the name and copy below it on solid
+ * ground. Everyone else gets the mint slate, topped with a strip of bars.
  */
 export function LaneFrame({ lane, mode = 'static', selected = false, size = 'card', className = '' }: LaneFrameProps) {
   const room = brand.rooms[lane];
@@ -25,10 +26,15 @@ export function LaneFrame({ lane, mode = 'static', selected = false, size = 'car
     return (
       <article
         data-lane="other"
-        className={`relative flex h-full flex-col justify-center gap-3 border border-dashed bg-carbon p-5 md:p-6 ${
+        className={`relative flex h-full flex-col justify-center gap-3 border border-dashed bg-carbon p-5 pt-7 md:p-6 md:pt-8 ${
           selected ? 'border-lane' : 'border-mint'
         } ${className}`}
       >
+        <span aria-hidden="true" className="absolute inset-x-0 top-0 flex h-1.5">
+          {BARS.map((b) => (
+            <span key={b} className={`flex-1 ${b}`} />
+          ))}
+        </span>
         <p className="text-label flex items-center gap-2 text-chalk-dim">
           <span aria-hidden="true" className="inline-block size-2 bg-lane" />
           {room.label}
@@ -42,36 +48,33 @@ export function LaneFrame({ lane, mode = 'static', selected = false, size = 'car
   return (
     <article
       data-lane={lane}
-      className={`relative flex flex-col justify-between border bg-carbon p-4 transition-colors duration-[180ms] ease-cut md:p-6 ${selected ? 'border-lane' : 'border-rule'} ${
-        size === 'card' ? 'aspect-[9/16]' : 'h-full'
+      className={`relative flex flex-col border bg-carbon transition-colors duration-[180ms] ease-cut ${selected ? 'border-lane' : 'border-rule'} ${
+        size === 'full' ? 'h-full' : ''
       } ${className}`}
     >
-      <CraftArt
-        craft={lane === 'creator' ? 'viewfinder' : 'timeline'}
-        labels={false}
-        className={`absolute inset-0 h-full w-full transition-opacity duration-[180ms] ${selected ? 'opacity-90' : 'opacity-60'}`}
-      />
-      {/* Clean ground for the label (top) and the title and copy (bottom); the craft shows between. */}
-      <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-carbon from-40% to-transparent" />
-      <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-carbon from-35% to-transparent" />
       <CropMarks offset={size === 'card' ? 6 : 0} tone={selected ? 'lane' : 'rule'} />
-      <p className="text-label relative flex items-center gap-2 text-chalk-dim">
-        <span aria-hidden="true" className="inline-block size-2 shrink-0 bg-lane" />
-        {room.label}
-      </p>
-      <div className="relative">
+      <div data-monitor="" className={`relative overflow-hidden border-b border-rule bg-ink ${size === 'full' ? 'min-h-0 flex-1' : 'aspect-[16/10]'}`}>
+        <CraftScene craft={lane === 'creator' ? 'viewfinder' : 'timeline'} className="absolute inset-0 h-full w-full" />
+      </div>
+      <div className={compact ? 'p-3 md:p-6' : 'p-5 md:p-7'}>
+        <p className="text-label flex items-center gap-2 text-chalk-dim">
+          <span aria-hidden="true" className="inline-block size-2 shrink-0 bg-lane" />
+          {room.label}
+        </p>
         <Title
           className={
             size === 'full'
-              ? 'text-hero text-lane'
-              : 'font-display text-[clamp(1.75rem,7vw,3.5rem)] uppercase leading-[0.86] tracking-[-0.02em] text-lane'
+              ? 'text-hero mt-3 text-lane'
+              : 'mt-3 font-display text-[clamp(1.5rem,6vw,3rem)] uppercase leading-[0.92] tracking-[-0.01em] text-lane'
           }
         >
           {room.name}
         </Title>
-        <p className={`text-body mt-4 text-chalk ${compact ? 'hidden md:block' : ''}`}>{room.copy}</p>
+        <p className={`text-body mt-3 text-chalk ${compact ? 'hidden md:block' : ''}`}>{room.copy}</p>
         {compact ? <p className="mt-2 font-mono text-[0.8125rem] leading-snug text-chalk-dim md:hidden">{room.tagline}</p> : null}
       </div>
     </article>
   );
 }
+
+const BARS = ['bg-chalk', 'bg-mustard', 'bg-mint', 'bg-lumen', 'bg-rosso-deep', 'bg-rosso', 'bg-graphite'];

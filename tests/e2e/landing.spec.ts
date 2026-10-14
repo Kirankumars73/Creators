@@ -20,6 +20,12 @@ test.describe('landing with Supabase unreachable (Review Focus 5)', () => {
   });
 });
 
+test('the headline lines have room to breathe (line-height at least 0.94 of the size)', async ({ page }) => {
+  await page.goto('/');
+  const [lh, fs] = await page.locator('h1').evaluate((el) => [parseFloat(getComputedStyle(el).lineHeight), parseFloat(getComputedStyle(el).fontSize)]);
+  expect(lh / fs).toBeGreaterThanOrEqual(0.94);
+});
+
 test('no intro and no wipe: the headline is simply there on first load', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('[data-cold-open]')).toHaveCount(0);
@@ -82,19 +88,23 @@ test.describe("WHO'S INSIDE and THE CODE (§6.4, §6.5)", () => {
     expect(overflow).toBeLessThanOrEqual(0);
   });
 
-  test('the lane frames show their craft, stay still under the pointer, and nothing is tilted', async ({ page }) => {
+  test('each lane is a compact card: its craft on a screen above the title, never behind the copy; nothing tilts', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    const creator = page.locator('#whos-inside article[data-lane="creator"]');
+    for (const lane of ['creator', 'editor']) {
+      const card = page.locator(`#whos-inside article[data-lane="${lane}"]`);
+      const art = card.locator('[data-monitor] svg[data-craft-art]');
+      await expect(art).toHaveCount(1);
+      const a = (await art.boundingBox())!;
+      const t = (await card.locator('h3').boundingBox())!;
+      const c = (await card.boundingBox())!;
+      expect(a.y + a.height, `${lane}: art sits above the title`).toBeLessThanOrEqual(t.y + 1);
+      expect(c.height / c.width, `${lane}: no tall empty gate`).toBeLessThan(1.4);
+    }
     const editor = page.locator('#whos-inside article[data-lane="editor"]');
-    await expect(creator.locator('svg[data-craft-art]')).toHaveCount(1);
-    await expect(editor.locator('svg[data-craft-art]')).toHaveCount(1);
     await editor.hover();
     await page.waitForTimeout(300);
-    for (const el of [creator, editor]) {
-      expect(await el.evaluate((e) => getComputedStyle(e.parentElement!).filter)).not.toContain('blur');
-      expect(await el.evaluate((e) => getComputedStyle(e.parentElement!).transform)).toBe('none');
-    }
+    expect(await editor.evaluate((e) => getComputedStyle(e).transform)).toBe('none');
     expect(await page.locator('#whos-inside article[data-lane="other"]').evaluate((e) => getComputedStyle(e).transform)).toBe('none');
   });
 });

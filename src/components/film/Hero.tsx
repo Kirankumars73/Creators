@@ -23,7 +23,7 @@ export function Hero({ counts }: { counts: MemberCounts | null }) {
             </span>
           ))}
         </h1>
-        <p className="text-body mt-6 max-w-[34ch] text-chalk-dim">{brand.description}</p>
+        <p className="text-body mt-8 max-w-[34ch] text-chalk-dim md:mt-10">{brand.description}</p>
         <div className="mt-10 flex flex-wrap gap-5">
           <Button href="/join" variant="poster">
             Take your place
