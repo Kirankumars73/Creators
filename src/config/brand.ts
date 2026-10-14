@@ -42,7 +42,6 @@ export const brand = {
   privacyReviewed: false as boolean,
   founder: {
     fullName: 'GOWTHAM DAS THEKKINKATTIL',
-    slateName: 'GOWTHAM DAS',
     shortName: 'Gowtham',
     instagram: 'thegowthamdas',
   },

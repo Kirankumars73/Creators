@@ -57,7 +57,6 @@ export function ColdOpen() {
   if (gone) return null;
   const lines: [string, React.ReactNode][] = [
     ['PROD.', <>CREATORS <MlMark mlKey="wordmark" className="text-[1.25em]" /></>],
-    ['DIR.', brand.founder.slateName],
     ['SCENE', '01    TAKE 01'],
     ['ROLL', `${brand.region} / ${brand.year}`],
   ];

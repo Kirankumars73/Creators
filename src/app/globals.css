@@ -343,15 +343,22 @@ html.js:not(.no-cold-open) .wipe-cover {
 .reel {
   transition: border-color 180ms var(--ease-cut), filter 180ms var(--ease-cut);
 }
-.reel .reel-still {
+.reel .reel-craft {
   filter: saturate(0.35);
   transition: filter 180ms var(--ease-cut);
+}
+.reel .reel-rec {
+  animation: rec-blink 1s steps(1, end) infinite;
+}
+@keyframes rec-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .reel .reel-rec { animation: none; }
 }
 .reel[data-near] {
   border-color: var(--lane);
   filter: drop-shadow(0 0 28px color-mix(in oklab, var(--lane) 35%, transparent));
 }
-.reel[data-near] .reel-still {
+.reel[data-near] .reel-craft {
   filter: saturate(1);
 }
 

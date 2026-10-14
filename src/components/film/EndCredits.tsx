@@ -10,10 +10,8 @@ const STARS = 7;
 
 export function EndCredits() {
   const signoff = t('footerSignoff');
-  const credits = [
-    { role: 'A COMMUNITY BY', name: brand.founder.fullName },
-    { role: 'FOUNDED IN', name: brand.region },
-  ];
+  // The community's site, not a page about its founder (decided 2026-10-14): no founder credit.
+  const credits = [{ role: 'FOUNDED IN', name: brand.region }];
   return (
     <footer className="relative overflow-hidden">
       <CreditsDrift className="flex flex-col items-center px-4 pb-20 pt-28 text-center md:pt-40">

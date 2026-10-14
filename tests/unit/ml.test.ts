@@ -6,9 +6,12 @@ describe('malayalam strings', () => {
     for (const entry of Object.values(ML)) expect(entry.en.trim().length).toBeGreaterThan(0);
   });
 
-  test('nothing ships as confirmed until Gowtham signs off', () => {
-    expect(unconfirmedMlKeys()).toContain('wordmark');
-    expect(unconfirmedMlKeys()).toHaveLength(Object.keys(ML).length);
+  test('every line is settled by a native speaker (Kiran, 2026-10-14)', () => {
+    expect(unconfirmedMlKeys()).toEqual([]);
+  });
+
+  test('the footer sign-off is exactly as Kiran wrote it — do not "correct" it', () => {
+    expect(ML.footerSignoff.ml).toBe('നമോവാധം');
   });
 
   test('t() returns the Malayalam and English pair', () => {
@@ -19,7 +22,7 @@ describe('malayalam strings', () => {
     expect(ML.name.ml).toBe('ക്രിയേറ്റേഴ്‌സ് കൂട്ടം');
   });
 
-  test('strings not yet supplied fall back to English only', () => {
+  test('lines kept in English by choice have no Malayalam', () => {
     expect(t('codeFooter').ml).toBeNull();
   });
 });

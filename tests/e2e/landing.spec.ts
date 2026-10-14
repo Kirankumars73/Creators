@@ -108,6 +108,23 @@ test.describe("WHO'S INSIDE and THE CODE (§6.4, §6.5)", () => {
   });
 });
 
+test('the cold-open slate credits the community, not a person', async ({ page }) => {
+  await page.goto('/');
+  const slate = page.locator('[data-cold-open]');
+  await expect(slate).toContainText('PROD.');
+  await expect(slate).not.toContainText('DIR.');
+  await expect(slate).not.toContainText('GOWTHAM');
+});
+
+test('the hero cards show the craft, not a person: viewfinder, timeline, bars — and no photos', async ({ page }) => {
+  await page.goto('/');
+  const cards = page.locator('#cold-open [data-reel]');
+  await expect(cards).toHaveCount(3);
+  await expect(cards.locator('img')).toHaveCount(0);
+  expect(await cards.evaluateAll((els) => els.map((el) => el.getAttribute('data-craft')))).toEqual(['viewfinder', 'timeline', 'bars']);
+  for (const svg of await cards.locator('svg[data-craft-art]').all()) expect(await svg.boundingBox()).not.toBeNull();
+});
+
 test.describe('the last reel (§6.6–§6.9)', () => {
   test('roll call is honest when the database is unreachable', async ({ page }) => {
     await page.goto('/');
@@ -117,7 +134,9 @@ test.describe('the last reel (§6.6–§6.9)', () => {
   test('the join gate and the credits say what they should', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('#join h2')).toHaveText(/TAKE\s+YOUR\s+PLACE\./);
-    await expect(page.locator('footer')).toContainText('GOWTHAM DAS THEKKINKATTIL');
+    // The community's site, not a page about its founder: no founder credit in the footer or on the slate.
+    await expect(page.locator('footer')).not.toContainText('GOWTHAM DAS');
+    await expect(page.locator('footer')).toContainText('FOUNDED IN');
     await expect(page.locator('footer .marquee')).toContainText('KOOTAM');
   });
 
@@ -133,7 +152,7 @@ test.describe('the last reel (§6.6–§6.9)', () => {
     // The sign-off is his Malayalam line, drawn from its pre-rendered image (no font download).
     const signoff = footer.locator('[data-ml-signoff] [data-ml-mark]');
     await expect(signoff).toBeVisible();
-    await expect(signoff).toHaveText('നമോവാകം');
+    await expect(signoff).toHaveText('നമോവാധം');
     // Below the marquee, and nothing in the page after it.
     expect(await footer.evaluate((f) => f.lastElementChild!.previousElementSibling!.classList.contains('marquee'))).toBe(true);
     const bottom = await page.evaluate(() => {

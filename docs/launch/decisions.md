@@ -128,7 +128,9 @@ Every call the build made on Gowtham's and Kiran's behalf, in the order it was m
 - `ADMIN_EMAILS` = Kiran + Gowtham. The first address arrived as `@gmial.com`; set as `@gmail.com` (Kiran's account address), since the typo would have locked him out of `/admin`.
 - Room names follow Gowtham's WhatsApp groups ("Creators kootam(Content creators)" / "(Editors)"), by Kiran's call: the brief's FRAME KOOTAM / CUT KOOTAM became CONTENT CREATORS / EDITORS everywhere (`brand.rooms`), so the chip someone taps names the group they land in. Checked at 360px: lane picker, reveal chips and the pass all fit.
 - His name is spelled Gowtham (Kiran's call); `founderConfirmed` is true.
-- Footer sign-off: Kiran supplied നമോവാധം; shipped as നമോവാകം (namōvākam, the usual sign-off — the ധ spelling reads close to വധം, "killing"). Drawn from its pre-rendered image like the wordmark. `confirmed` stays false until Kiran confirms the spelling.
+- Footer sign-off is നമോവാധം, exactly as Kiran wrote it (I first suggested നമോവാകം; he confirmed his spelling). Drawn from its pre-rendered image like the wordmark; a unit test pins the exact string.
+- Malayalam settled by Kiran (native speaker): കൂട്ടം, ക്രിയേറ്റേഴ്‌സ് കൂട്ടം and നിങ്ങൾ കൂട്ടത്തിലാണ്. stay; the /code eyebrow and foot line stay English ("don't make it cringy"). `pnpm check:launch` no longer lists any Malayalam item.
+- Not a fan page (Kiran, for Gowtham, who doesn't want promotion): the hero reel cards show the craft instead of his photos — a viewfinder (creators), an edit timeline (editors), bars and tone (everyone else) — drawn inline as SVG, so the hero makes no image requests. `src/config/reels.ts` and the `reels:stills` launch item are gone. The founder credits went too: no "DIR. GOWTHAM DAS" on the cold-open slate, no "A COMMUNITY BY" in the footer. Kept, because they are how members reach a person: /privacy naming who runs the site, the "message Gowtham on Instagram" help lines, and the footer Instagram link.
 - Kiran's own sign-up (made during the live test) deleted from production on his instruction, with its auth user and link reveals.
 
 ## Review fixes (each proven by a test that failed first)
