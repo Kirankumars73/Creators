@@ -5,6 +5,8 @@ A WhatsApp community for Kerala's content creators and video editors, by Gowtham
 - **Spec:** [`docs/BUILD_BRIEF.md`](docs/BUILD_BRIEF.md)
 - **Plan:** [`docs/superpowers/plans/2026-10-13-creators-kootam.md`](docs/superpowers/plans/2026-10-13-creators-kootam.md), which includes the 13 approved departures from the brief.
 
+**Live:** https://creators-kootam.vercel.app (Vercel project `creators-kootam`, functions in `bom1`). Sign-in and the WhatsApp hand-off switch on once Supabase, Google and the invite links are configured (see Setup).
+
 ## Stack
 
 Next.js 16.4 (App Router, Cache Components) · React 19 · TypeScript strict · Supabase (Postgres, Auth, RLS) · Vercel · Tailwind 4 · zod · motion (join flow only) · GSAP + Lenis (landing only, lazy-loaded) · Vitest + PGlite · Playwright · axe-core.

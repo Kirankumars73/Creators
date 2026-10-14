@@ -1,0 +1,10 @@
+# Never upload local-only state.
+.env*
+!.env.example
+.auth
+.superpowers
+.next
+node_modules
+test-results
+playwright-report
+docs/launch/*.json
