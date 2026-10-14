@@ -17,6 +17,17 @@ export default defineConfig({
     url: `http://localhost:${PORT}`,
     reuseExistingServer: false,
     timeout: 300_000,
-    env: { NEXT_PUBLIC_SITE_URL: `http://localhost:${PORT}` },
+    // Blank (not unset): Next never lets .env.local override a variable that is already defined.
+    env: {
+      NEXT_PUBLIC_SITE_URL: `http://localhost:${PORT}`,
+      NEXT_PUBLIC_SUPABASE_URL: '',
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: '',
+      SUPABASE_SERVICE_ROLE_KEY: '',
+      WA_COMMUNITY_URL: '',
+      WA_CREATORS_URL: '',
+      WA_EDITORS_URL: '',
+      WA_OTHER_URL: '',
+      ADMIN_EMAILS: '',
+    },
   },
 });

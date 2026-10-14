@@ -38,6 +38,9 @@ export function EndCredits() {
           <Link href="/code" className="text-label inline-flex min-h-11 items-center text-chalk-dim hover:text-chalk">
             The Code
           </Link>
+          <Link href="/privacy" className="text-label inline-flex min-h-11 items-center text-chalk-dim hover:text-chalk">
+            Privacy
+          </Link>
           {brand.contact ? (
             <a href={`mailto:${brand.contact}`} className="text-label inline-flex min-h-11 items-center text-chalk-dim hover:text-chalk">
               Contact

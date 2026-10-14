@@ -22,10 +22,7 @@ export default function MePage() {
 }
 
 async function MeServer() {
-  const user = await getSessionUser().catch((err: unknown) => {
-    console.error('[me] session read failed', err);
-    return null;
-  });
+  const user = await getSessionUser();
   if (!user) redirect('/join');
   const member = await getOwnMember().catch((err: unknown) => {
     console.error('[me] member read failed', err);

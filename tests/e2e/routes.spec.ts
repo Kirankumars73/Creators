@@ -50,3 +50,12 @@ test('/code carries all seven articles', async ({ page }) => {
   await page.goto('/code');
   await expect(page.locator('[data-article]')).toHaveCount(7);
 });
+
+test('/privacy exists, says what is collected, and is linked from the footer (Google OAuth needs it)', async ({ page }) => {
+  const res = await page.goto('/privacy');
+  expect(res?.status()).toBe(200);
+  await expect(page.locator('h1')).toHaveCount(1);
+  for (const phrase of ['Google', 'Instagram', 'Supabase', 'never post', 'delete']) await expect(page.locator('main')).toContainText(phrase);
+  await page.goto('/');
+  await expect(page.locator('footer').getByRole('link', { name: /privacy/i })).toHaveAttribute('href', '/privacy');
+});

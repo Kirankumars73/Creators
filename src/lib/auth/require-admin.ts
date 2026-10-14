@@ -8,8 +8,13 @@ import { isAdminUser } from './admin';
 export async function getAdminEmail(): Promise<string | null> {
   if (!supabasePublicConfig()) return null;
   const supabase = await createServerSupabase();
-  const { data } = await supabase.auth.getUser();
-  return isAdminUser(data.user, adminEmailsFromEnv()) ? data.user!.email! : null;
+  try {
+    const { data } = await supabase.auth.getUser();
+    return isAdminUser(data.user, adminEmailsFromEnv()) ? data.user!.email! : null;
+  } catch (err) {
+    console.error('[admin] getUser failed', err);
+    return null;
+  }
 }
 
 export async function requireAdmin(): Promise<string> {

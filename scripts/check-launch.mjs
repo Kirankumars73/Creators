@@ -15,6 +15,7 @@ export function findLaunchBlockers({ ml, articles, brand, env, stills }) {
   if (!brand.siteBy) out.push('brand:siteBy');
   if (!brand.contact) out.push('brand:contact');
   if (!brand.founderConfirmed) out.push('brand:founder');
+  if (brand.privacyReviewed === false) out.push('brand:privacy');
   if (!stills.length) out.push('reels:stills');
   for (const key of WA_REQUIRED) {
     const v = (env[key] ?? '').trim();
@@ -34,6 +35,7 @@ const EXPLAIN = {
   'brand:siteBy': 'Name for the SITE BY credit (src/config/brand.ts)',
   'brand:contact': 'Contact address for the footer (src/config/brand.ts)',
   'brand:founder': 'Gowtham confirms the spelling of his name (src/config/brand.ts founderConfirmed)',
+  'brand:privacy': 'Gowtham reads and agrees with /privacy, which speaks for him (src/config/brand.ts privacyReviewed)',
   'reels:stills': '9–12 stills from his grid for the hero reel cards (public/reels + src/config/reels.ts)',
   env: 'Production env value missing or a placeholder',
 };

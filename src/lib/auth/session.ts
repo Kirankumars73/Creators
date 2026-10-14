@@ -20,11 +20,20 @@ export function toSessionUser(user: User): SessionUser | null {
   };
 }
 
-/** The signed-in user, verified with the Auth server (not just a cookie read). */
+/**
+ * The signed-in user, verified with the Auth server (not just a cookie read).
+ * Only Supabase's own failures are caught: `cookies()` must stay uncaught so Next can
+ * postpone the read while prerendering a static shell.
+ */
 export async function getSessionUser(): Promise<SessionUser | null> {
   if (!supabasePublicConfig()) return null;
   const supabase = await createServerSupabase();
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) return null;
-  return toSessionUser(data.user);
+  try {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) return null;
+    return toSessionUser(data.user);
+  } catch (err) {
+    console.error('[auth] getUser failed', err);
+    return null;
+  }
 }

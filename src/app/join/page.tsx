@@ -29,10 +29,7 @@ async function JoinStepServer({ searchParams }: { searchParams: PageProps<'/join
   const sp = await searchParams;
   const h = await headers();
   const ua = h.get('user-agent') ?? '';
-  const user = await getSessionUser().catch((err: unknown) => {
-    console.error('[join] session read failed', err);
-    return null;
-  });
+  const user = await getSessionUser();
   const member = user
     ? await getOwnMember().catch((err: unknown) => {
         console.error('[join] member read failed', err);

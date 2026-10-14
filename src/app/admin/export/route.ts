@@ -7,7 +7,7 @@ const COLUMNS = ['display_name', 'instagram', 'role', 'role_other_text', 'city',
 
 // Email stays out of the export: Instagram is how the room reaches people.
 export async function GET(req: Request) {
-  if (!(await getAdminEmail().catch(() => null))) return new Response('Not found', { status: 404 });
+  if (!(await getAdminEmail())) return new Response('Not found', { status: 404 });
   const q = parseAdminQuery(Object.fromEntries(new URL(req.url).searchParams));
   try {
     const rows = await listMembers(q);

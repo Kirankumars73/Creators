@@ -65,3 +65,8 @@ describe('findLaunchBlockers — env is checked for shape, not just presence (fi
   test('a localhost site URL is not a launch URL', () =>
     expect(findLaunchBlockers({ ...base, env: { ...env, NEXT_PUBLIC_SITE_URL: 'http://localhost:3000' } })).toEqual(['env:NEXT_PUBLIC_SITE_URL']));
 });
+
+describe('findLaunchBlockers — the privacy page speaks for Gowtham', () => {
+  test('it blocks launch until he has read it', () =>
+    expect(findLaunchBlockers({ ml: {}, articles: [], brand: { siteBy: 'x', contact: 'x', founderConfirmed: true, privacyReviewed: false }, env: {}, stills: [] })).toContain('brand:privacy'));
+});

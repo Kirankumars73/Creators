@@ -38,7 +38,7 @@ function href(q: AdminQuery, patch: Partial<AdminQuery>, base = '/admin') {
 }
 
 async function AdminBoard({ searchParams }: { searchParams: PageProps<'/admin'>['searchParams'] }) {
-  if (!(await getAdminEmail().catch(() => null))) notFound();
+  if (!(await getAdminEmail())) notFound();
   const q = parseAdminQuery(await searchParams);
   const [members, counts] = await Promise.all([listMembers(q), statusCounts()]);
   const tallies = [
