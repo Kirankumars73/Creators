@@ -5,7 +5,7 @@ A WhatsApp community for Kerala's content creators and video editors, by Gowtham
 - **Spec:** [`docs/BUILD_BRIEF.md`](docs/BUILD_BRIEF.md)
 - **Plan:** [`docs/superpowers/plans/2026-10-13-creators-kootam.md`](docs/superpowers/plans/2026-10-13-creators-kootam.md), which includes the 13 approved departures from the brief.
 
-**Live:** https://creators-kootam.vercel.app (Vercel project `creators-kootam`, functions in `bom1`). Sign-in and the WhatsApp hand-off switch on once Supabase, Google and the invite links are configured (see Setup).
+**Live:** https://creators-kootam.vercel.app (Vercel project `creators-kootam`, functions in `bom1`). Supabase project `creators-kootam` (ref `jbldqvkthpbzjmfyyegm`, Mumbai) and Google sign-in are connected; the WhatsApp hand-off switches on once the invite links are in Vercel env (see Setup).
 
 ## Stack
 
@@ -114,7 +114,7 @@ WhatsApp's official API has no way to add someone to a group, and its groups cap
 |---|---|
 | `pnpm build` clean, 0 TS errors, 0 ESLint errors | ✅ |
 | All §8 tests pass, incl. the bundle grep (`pnpm check`, `pnpm check:leaks`) | ✅ locally |
-| Deployed, live URL, Google sign-in works on the deployed domain | ⏳ waiting on Vercel / Supabase / Google accounts |
+| Deployed, live URL, Google sign-in works on the deployed domain | ✅ deployed; live button reaches Google sign-in with the right callback · ⏳ full round trip with a real account |
 | A creator never receives the editors link, verified in the network response | ✅ unit + handler tests; ⏳ `pnpm test:deployed` on the live URL |
 | Lighthouse mobile ≥ 90 perf / ≥ 95 a11y | ✅ local production build (`docs/launch/`); ⏳ re-run on the live URL |
 | Full flow on a real mid-range Android, including from the Instagram app | ⏳ |
