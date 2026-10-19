@@ -2,12 +2,13 @@ import { brand, type Lane } from '@/config/brand';
 import { MlMark } from './MlMark';
 
 type WordmarkProps = {
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   lane?: Lane;
   className?: string;
 };
 
 const SIZES = {
+  xs: 'text-[1.125rem]',
   sm: 'text-[1.5rem]',
   md: 'text-[2.75rem]',
   lg: 'text-[4.5rem]',

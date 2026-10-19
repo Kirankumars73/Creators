@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-for (const path of ['/', '/code', '/join']) {
+for (const path of ['/', '/creators', '/code', '/join']) {
   test(`${path} renders with exactly one h1`, async ({ page }) => {
     const res = await page.goto(path);
     expect(res?.status()).toBe(200);
@@ -10,8 +10,8 @@ for (const path of ['/', '/code', '/join']) {
 
 test('the home headline is his line from his bio', async ({ page }) => {
   await page.goto('/');
-  const text = (await page.locator('h1').innerText()).replace(/\s+/g, ' ').trim();
-  expect(text).toBe("WE'D RATHER SHOW THAN TELL.");
+  // The letters are aria-hidden spans (they react to the pointer); the name is the sentence, once.
+  await expect(page.getByRole('heading', { level: 1 })).toHaveAccessibleName("WE'D RATHER SHOW THAN TELL.");
 });
 
 test('the document is ink-dark from the first byte', async ({ page }) => {
@@ -40,9 +40,10 @@ test('robots.txt keeps crawlers out of /admin and /me', async ({ request }) => {
   expect(body).toContain('Disallow: /me');
 });
 
-test('sitemap lists the two public pages', async ({ request }) => {
+test('sitemap lists the public pages', async ({ request }) => {
   const body = await (await request.get('/sitemap.xml')).text();
   expect(body).toContain('<loc>http://localhost:3100/</loc>');
+  expect(body).toContain('<loc>http://localhost:3100/creators</loc>');
   expect(body).toContain('<loc>http://localhost:3100/code</loc>');
 });
 

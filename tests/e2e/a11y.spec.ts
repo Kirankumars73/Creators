@@ -22,7 +22,7 @@ for (const reduced of [false, true]) {
   test.describe(reduced ? 'axe — reduced motion' : 'axe — default motion', () => {
     test.use({ reducedMotion: reduced ? 'reduce' : 'no-preference' });
 
-    for (const path of ['/', '/code', '/join', '/admin']) {
+    for (const path of ['/', '/creators', '/code', '/join', '/admin']) {
       test(`${path} has no WCAG 2.1 A/AA violations`, async ({ page }) => {
         await page.goto(path);
         if (path === '/') await settle(page);
@@ -35,30 +35,39 @@ for (const reduced of [false, true]) {
 test.describe('keyboard', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
-  test('Tab reaches the section navigation first, then the hero calls to action, with a visible focus ring', async ({ page }) => {
+  test('Tab goes skip link → home → main nav → sign in / join → hero calls to action, always with a visible focus ring', async ({ page }) => {
     await page.goto('/');
-    // The scrubber stays invisible (unfocusable) until it has measured the page after hydration.
-    await expect(page.getByRole('button', { name: '01 COLD OPEN' })).toBeVisible();
     const seen: string[] = [];
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 11; i++) {
       await page.keyboard.press('Tab');
       const info = await page.evaluate(() => {
         const el = document.activeElement as HTMLElement;
         const cs = getComputedStyle(el);
-        return { name: (el.innerText || el.getAttribute('aria-label') || '').trim(), outline: cs.outlineStyle, width: cs.outlineWidth };
+        return { name: (el.getAttribute('aria-label') || el.innerText || '').trim(), outline: cs.outlineStyle, width: cs.outlineWidth };
       });
       expect(info.outline, `focus ring on "${info.name}"`).not.toBe('none');
       seen.push(info.name);
     }
-    expect(seen.slice(0, 7)).toEqual(['01 COLD OPEN', '02 THE ROOM', "03 WHO'S INSIDE", '04 THE CODE', '05 INSIDE', '06 ROLL CALL', '07 JOIN']);
-    expect(seen).toContain('TAKE YOUR PLACE');
+    expect(seen.slice(0, 9).map((s) => s.toUpperCase())).toEqual([
+      'SKIP TO CONTENT',
+      'CREATORS KOOTAM — HOME',
+      'WHO IT’S FOR',
+      'HOW IT WORKS',
+      'FOR BRANDS',
+      'DIRECTORY',
+      'THE CODE',
+      'SIGN IN',
+      'JOIN',
+    ]);
+    expect(seen[9]).toMatch(/JOIN AS A CREATOR/i);
+    expect(seen[10]).toMatch(/I’M A BRAND/i);
   });
 });
 
 test.describe('reflow and touch targets on a phone', () => {
   test.use({ viewport: { width: 320, height: 640 } });
 
-  for (const path of ['/', '/code', '/join']) {
+  for (const path of ['/', '/creators', '/code', '/join']) {
     test(`${path} reflows at 320px with no sideways scroll (1.4.10)`, async ({ page }) => {
       await page.goto(path);
       expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);

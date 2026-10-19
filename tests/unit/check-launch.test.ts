@@ -74,3 +74,11 @@ describe('findLaunchBlockers — the privacy page speaks for Gowtham', () => {
   test('it blocks launch until he has read it', () =>
     expect(findLaunchBlockers({ ml: {}, articles: [], brand: { contact: 'x', founderConfirmed: true, privacyReviewed: false }, env: {} })).toContain('brand:privacy'));
 });
+
+describe('the redesigned landing page speaks for Gowtham too', () => {
+  test('it blocks launch until he has read the copy, the FAQ and the brief promises', () =>
+    expect(findLaunchBlockers({ ml: {}, articles: [], brand: { contact: 'x', founderConfirmed: true, landingReviewed: false }, env: {} })).toContain('brand:landing'));
+
+  test('once read, it is no longer a blocker', () =>
+    expect(findLaunchBlockers({ ml: {}, articles: [], brand: { contact: 'x', founderConfirmed: true, landingReviewed: true }, env: {} })).not.toContain('brand:landing'));
+});

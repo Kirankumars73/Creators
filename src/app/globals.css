@@ -37,6 +37,8 @@
   --dur-pan: 520ms;
 
   color-scheme: dark;
+  /* Lets <details> answers animate to height: auto (FAQ). Ignored where unsupported. */
+  interpolate-size: allow-keywords;
 }
 
 [data-lane="creator"] { --lane: var(--rosso); }
@@ -95,7 +97,8 @@
 @utility text-title {
   font-family: var(--font-display);
   font-size: clamp(2.25rem, 7vw, 5.5rem);
-  line-height: 0.86;
+  /* 0.94, like the hero: stacked lines (one of them hollow) must not touch. */
+  line-height: 0.94;
   letter-spacing: -0.02em;
   text-transform: uppercase;
 }
@@ -143,6 +146,8 @@
 
 @layer base {
   html {
+    /* Anchored sections land below the fixed nav, not under it. */
+    scroll-padding-top: 5rem;
     background: var(--ink);
     color: var(--chalk);
     -webkit-text-size-adjust: 100%;
@@ -239,45 +244,312 @@
   from { opacity: 0.45; transform: scale(0.85); }
 }
 
-/* Reel cards (§6.1): quiet until the pointer is near. */
-.reel {
-  transition: border-color 180ms var(--ease-cut), filter 180ms var(--ease-cut);
-}
-.reel .reel-craft {
-  filter: saturate(0.35);
-  transition: filter 180ms var(--ease-cut);
-}
-.reel .reel-rec {
-  animation: rec-blink 1s steps(1, end) infinite;
-}
-@keyframes rec-blink { 50% { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) {
-  .reel .reel-rec { animation: none; }
-}
-.reel[data-near] {
-  border-color: var(--lane);
-  filter: drop-shadow(0 0 28px color-mix(in oklab, var(--lane) 35%, transparent));
-}
-.reel[data-near] .reel-craft {
-  filter: saturate(1);
-}
-
 /* Writing on a clapperboard: a blinking block cursor where supported. */
 .slate-input {
   caret-color: var(--lane);
   caret-shape: block;
 }
 
+/* ==========================================================================
+   Redesign (2026-10-20): the effects layer. Animista-style keyframes (slide-in-blurred,
+   text-focus-in, swing) written by hand; pointer effects are driven by PointerFx.tsx.
+   ========================================================================== */
+
+/* Hollow poster type: outlined, no fill. */
+.text-hollow {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--chalk);
+}
+.text-hollow-rosso {
+  color: transparent;
+  -webkit-text-stroke: 2px var(--rosso);
+}
+.text-hollow-chalk {
+  color: transparent;
+  -webkit-text-stroke: 2px var(--chalk);
+}
+
+/* Hero headline letters lift and burn rosso near the pointer (--p, 0..1, from ProximityHeadline). */
+.proximity-letter {
+  --p: 0;
+  transform-origin: 50% 100%;
+  transform: translateY(calc(var(--p) * -0.06em)) scaleY(calc(1 + var(--p) * 0.14));
+  color: color-mix(in oklab, var(--rosso) calc(var(--p) * 100%), var(--chalk));
+  transition: transform 160ms var(--ease-pan), color 160ms var(--ease-pan);
+}
+.text-hollow-rosso .proximity-letter {
+  color: color-mix(in oklab, var(--rosso) calc(var(--p) * 100%), transparent);
+}
+
+/* Hero copy rises in (slide-in-blurred-bottom). Never the h1: it is the LCP element. */
+.hero-rise {
+  animation: rise 700ms var(--ease-pan) both;
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px); filter: blur(6px); }
+}
+.threads-in {
+  animation: fade-in 1400ms ease-out both;
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+
+/* CircularText */
+.circular-spin {
+  animation: spin 22s linear infinite;
+}
+@keyframes spin {
+  to { rotate: 360deg; }
+}
+
+/* HeroStack: a fanned deck; the front card drops away and comes back at the back. */
+.hero-stack {
+  perspective: 1200px;
+}
+.stack-card {
+  transition: transform 600ms var(--ease-pan), opacity 400ms ease, filter 600ms ease;
+  box-shadow: 0 30px 60px -20px var(--ink);
+}
+.stack-card[data-pos="0"] { transform: translate(0, 0) rotate(-3deg); }
+.stack-card[data-pos="1"] { transform: translate(28px, -26px) rotate(3deg) scale(0.95); filter: brightness(0.6); }
+.stack-card[data-pos="2"] { transform: translate(56px, -52px) rotate(8deg) scale(0.9); filter: brightness(0.38); }
+.stack-card[data-drop] {
+  transform: translate(-40px, 120%) rotate(-16deg);
+  opacity: 0;
+  transition: transform 520ms var(--ease-lane), opacity 420ms ease 100ms;
+}
+
+/* Spotlight cards: a lane-coloured light under the pointer and a glowing border segment. */
+.spot {
+  position: relative;
+  isolation: isolate;
+}
+.spot::before,
+.spot::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+.spot::before {
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), color-mix(in oklab, var(--lane) 16%, transparent), transparent 62%);
+}
+.spot::after {
+  inset: -1px;
+  z-index: 1;
+  padding: 1px;
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), var(--lane), transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.spot:hover::before,
+.spot:hover::after,
+.spot:focus-within::before,
+.spot:focus-visible::before {
+  opacity: 1;
+}
+
+/* Lane cards: the craft is grey until you look at it. */
+.lane-art {
+  filter: saturate(0.35) brightness(0.85);
+  transition: filter 300ms var(--ease-pan);
+}
+.group:hover .lane-art,
+.group:focus-within .lane-art {
+  filter: none;
+}
+.rec-dot {
+  animation: rec-blink 1s steps(1, end) infinite;
+}
+@keyframes rec-blink { 50% { opacity: 0; } }
+
+/* How it works: pinned horizontal track on wide screens (HowItWorks sets data-pinned). */
+.how-wrap[data-pinned] {
+  overflow: hidden;
+}
+.how-wrap[data-pinned] .how-track {
+  display: flex;
+  width: max-content;
+}
+.how-wrap[data-pinned] .how-track > li {
+  width: 21rem;
+  height: 22rem;
+  flex-shrink: 0;
+}
+.how-wrap:not([data-pinned]) .how-ruler {
+  display: none;
+}
+.ruler {
+  background:
+    repeating-linear-gradient(90deg, var(--rule) 0 1px, transparent 1px 64px) top / 100% 100% no-repeat,
+    repeating-linear-gradient(90deg, var(--rule) 0 1px, transparent 1px 16px) top / 100% 40% no-repeat;
+}
+
+/* Bento: posts slide in as the card scrolls into view (CSS scroll-driven, no JS). */
+@supports (animation-timeline: view()) {
+  .bento-post {
+    animation: post-in linear both;
+    animation-timeline: view();
+    animation-range: entry 10% entry 70%;
+  }
+}
+@keyframes post-in {
+  from { opacity: 0; transform: translateX(32px); }
+}
+.cut-wave {
+  transform-origin: 50% 50%;
+}
+.spot:hover .cut-wave {
+  animation: wave 900ms ease-in-out infinite alternate;
+}
+@keyframes wave {
+  to { transform: scaleY(0.4); }
+}
+
+/* Hub: light travelling each beam into the room. */
+.hub-beam {
+  stroke-dasharray: 12 88;
+  animation: beam 3.2s linear infinite;
+}
+@keyframes beam {
+  from { stroke-dashoffset: 100; }
+  to { stroke-dashoffset: 0; }
+}
+.hub-grid {
+  background-image:
+    linear-gradient(var(--rule) 1px, transparent 1px),
+    linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 60% 70% at 35% 50%, black, transparent 75%);
+  opacity: 0.5;
+}
+
+/* The pass: a holographic sheen that follows the pointer. */
+.holo-sheen {
+  background:
+    radial-gradient(260px circle at var(--mx, 30%) var(--my, 20%), color-mix(in oklab, var(--chalk) 20%, transparent), transparent 62%),
+    linear-gradient(125deg, transparent 28%, color-mix(in oklab, var(--lane) 26%, transparent) 42%, color-mix(in oklab, var(--mustard) 22%, transparent) 52%, color-mix(in oklab, var(--mint) 22%, transparent) 60%, transparent 74%);
+  mix-blend-mode: screen;
+  opacity: 0.35;
+  transition: opacity 300ms ease;
+}
+.holo-pass:hover .holo-sheen {
+  opacity: 0.95;
+}
+.holo-pass {
+  filter: drop-shadow(0 30px 50px color-mix(in oklab, var(--lane) 22%, transparent));
+}
+
+.brands-glow {
+  background:
+    radial-gradient(ellipse 50% 60% at 90% 0%, color-mix(in oklab, var(--rosso) 16%, transparent), transparent 70%),
+    radial-gradient(ellipse 40% 50% at 0% 100%, color-mix(in oklab, var(--mustard) 9%, transparent), transparent 70%);
+}
+.final-stripes {
+  background-image: repeating-linear-gradient(-45deg, var(--ink) 0 18px, transparent 18px 36px);
+}
+
+/* FAQ: answers slide open where ::details-content is supported. */
+.faq::details-content {
+  block-size: 0;
+  overflow: clip;
+  transition: block-size 320ms var(--ease-pan), content-visibility 320ms allow-discrete;
+}
+.faq[open]::details-content {
+  block-size: auto;
+}
+.faq-icon-v {
+  transition: transform 240ms var(--ease-pan);
+}
+.faq[open] .faq-icon-v {
+  transform: scaleY(0);
+}
+.faq summary:hover .faq-icon {
+  border-color: var(--rosso);
+}
+
+/* The "ready to start?" dock. */
+.start-dock {
+  transform: translateY(calc(100% + 2rem));
+  opacity: 0;
+  transition: transform 420ms var(--ease-pan), opacity 300ms ease;
+}
+.start-dock[data-shown] {
+  transform: none;
+  opacity: 1;
+}
+
+/* Nav: links underline-wipe on hover; the scroll hairline is a scroll-driven animation. */
+.nav-link {
+  background: linear-gradient(var(--rosso), var(--rosso)) 12px calc(100% - 10px) / 0 2px no-repeat;
+  transition: background-size 240ms var(--ease-pan), color 160ms;
+}
+.nav-link:hover {
+  background-size: calc(100% - 24px) 2px;
+}
+.scroll-progress {
+  transform: scaleX(0);
+}
+@supports (animation-timeline: scroll()) {
+  .scroll-progress {
+    animation: progress linear both;
+    animation-timeline: scroll(root);
+  }
+}
+@keyframes progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* Mobile menu: the panel wipes down, links stagger in (StaggeredMenu). */
+.menu-in {
+  animation: menu-in 420ms var(--ease-lane) both;
+}
+@keyframes menu-in {
+  from { clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(0); }
+}
+.menu-link {
+  animation: menu-link 460ms var(--ease-pan) both;
+}
+@keyframes menu-link {
+  from { opacity: 0; transform: translateY(24px); }
+}
+
+/* Reduced motion is a designed mode: everything above holds still. */
 @media (prefers-reduced-motion: reduce) {
   .marquee-track,
-  .star-pulse {
+  .star-pulse,
+  .star-flick,
+  .hero-rise,
+  .threads-in,
+  .circular-spin,
+  .rec-dot,
+  .bento-post,
+  .spot:hover .cut-wave,
+  .menu-in,
+  .menu-link,
+  .scroll-progress {
     animation: none;
   }
-  .star-flick {
+  .hub-beam {
     animation: none;
+    opacity: 0;
   }
   .crop-draw path,
-  .odometer-strip {
+  .odometer-strip,
+  .proximity-letter,
+  .stack-card,
+  .start-dock,
+  .faq::details-content,
+  .faq-icon-v,
+  .spot::before,
+  .spot::after {
     transition: none;
   }
 }

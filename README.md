@@ -5,6 +5,8 @@ A WhatsApp community for Kerala's content creators and video editors, by Gowtham
 - **Spec:** [`docs/BUILD_BRIEF.md`](docs/BUILD_BRIEF.md)
 - **Plan:** [`docs/superpowers/plans/2026-10-13-creators-kootam.md`](docs/superpowers/plans/2026-10-13-creators-kootam.md), which includes the 13 approved departures from the brief.
 
+**Redesign (branch `redesign/creative-v2`, 2026-10-20):** the landing page follows the information architecture of creator-platform sites like linkflueverse.in — nav, hero with live stats, who it's for, how it works, inside the room, one room / every craft, the member pass, a brand-brief form, the directory, The Code, FAQ, final call to action, a "ready to start?" dock — in this site's own Poster × Editing Bay language, with effects after React Bits, Animista, 21st.dev and Uiverse (credited in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)). New: `/creators` (the public directory), brand briefs (form → `brand_briefs` table → `/admin`). No invented numbers: the only live figure is the member count, and the empty states say so. **Before merging to `main`, apply migration `0004_brand_briefs.sql` to production** (`pnpm dlx supabase db push`); until then the brief form falls back to "email us" and `/admin` says the briefs are unavailable, but nothing else breaks.
+
 **Live:** https://creators-kootam.vercel.app (Vercel project `creators-kootam`, functions in `bom1`). Supabase project `creators-kootam` (ref `jbldqvkthpbzjmfyyegm`, Mumbai) and Google sign-in are connected; the WhatsApp hand-off switches on once the invite links are in Vercel env (see Setup).
 
 ## Stack
@@ -47,12 +49,16 @@ WhatsApp's official API has no way to add someone to a group, and its groups cap
 - On Android it offers an "Open in Chrome" button (an `intent://` link).
 - On iPhone it shows the ••• → "Open in external browser" instruction, with a copy-link fallback.
 
+## Brand briefs
+
+The "For brands" section on `/` is a public form (no sign-in). A server action validates it with zod and inserts with the service role; `brand_briefs` has RLS on and no grants for `anon`/`authenticated`, so the public key can never read brand contacts. Two cheap bot guards answer bots with a fake success: a hidden honeypot field, and a client-side timestamp (a form finished in under 3s wasn't typed by a person). If the database is unreachable, the form says so and offers the contact email instead. Briefs appear at the bottom of `/admin` with a reply-by-email link; `/dev/admin` previews them.
+
 ## Setup
 
 1. Run `pnpm install`, then copy `.env.example` to `.env.local`.
 2. **Supabase:**
    - Create a project in region `ap-south-1` (Mumbai).
-   - Run `pnpm dlx supabase login`, then `pnpm dlx supabase link --project-ref <ref>`, then `pnpm dlx supabase db push`. The last command applies `supabase/migrations/*`.
+   - Run `pnpm dlx supabase login`, then `pnpm dlx supabase link --project-ref <ref>`, then `pnpm dlx supabase db push`. The last command applies `supabase/migrations/*` — including `0004_brand_briefs.sql`, which the brand-brief form needs.
 3. **Google sign-in:**
    - In Google Cloud, create an OAuth client (Web) with redirect URI `https://<ref>.supabase.co/auth/v1/callback`. Paste its id and secret into Supabase → Authentication → Providers → Google.
    - In Supabase → Authentication → URL configuration, set the Site URL to production. Allow `<prod>/auth/callback**`, `http://localhost:3000/**` and your Vercel preview pattern.
@@ -79,6 +85,7 @@ WhatsApp's official API has no way to add someone to a group, and its groups cap
 |---|---|
 | The Code articles 04–07 are drafts written in his voice; he approves or rewrites them. 01–03 are his, verbatim | `src/config/code.ts` |
 | Read and agree with `/privacy`, which speaks for him | `src/config/brand.ts` (`privacyReviewed`) |
+| Read the redesigned landing copy: "free to join", the FAQ answers, and how brand briefs are handled | `src/config/landing.ts`, then `src/config/brand.ts` (`landingReviewed`) |
 
 ## Notes for whoever maintains this
 
@@ -112,8 +119,15 @@ WhatsApp's official API has no way to add someone to a group, and its groups cap
   - Archivo is the static 700 face. The brief's "width 112" variable costs 74 KB and pushed LCP to 2.6s; to restore it, put `axes: ['wdth']` back in `src/app/fonts.ts`.
 - **Motion.**
   - One registry of GSAP contexts lives in `ScrollFilm`. Nothing registers before `film.ready`; registering during hydration double-registers.
-  - Kept deliberately small (decided 2026-10-14, "a bit extra"): no cold-open slate, no section title-card wipes, no gate weave, no hover tilt/blur on the lane frames. What moves: the hero cards drifting with scroll, scroll reveals, the scrubber, the marquee.
+  - Redesign (2026-10-20) — what moves, and how it stays cheap:
+    - **Hero:** React Bits *Threads* (WebGL2, `src/components/fx/Threads.tsx`), loaded with `next/dynamic` after hydration and paused off screen. Headline letters react to the pointer (transforms only; the `<h1>` paints at first paint). The lane-card stack swaps every 3.2s and pauses on hover, off screen and in hidden tabs.
+    - **One pointer listener** (`PointerFx`) drives every spotlight, tilt and magnet on the page; fine pointers only.
+    - **CSS-only where possible:** the scroll-progress hairline and bento posts use scroll-driven animations; the Code cards stack with `position: sticky`; the FAQ is native `<details>`.
+    - **GSAP (via `ScrollFilm`):** the manifesto's one-shot word reveal and the pinned, horizontally scrubbed "how it works" timeline (wide screens only).
+    - Same-page anchor links glide through Lenis; the fixed nav is cleared with `scroll-padding-top`, which Lenis honours too.
+  - The timeline scrubber was replaced by the top nav and the dock; the old cold-open/wipe/weave decisions still stand.
   - Reduced motion is a designed mode, not a fallback.
+- **Redesign performance** (2026-10-20, local production build; Lighthouse was not re-run): a real Chromium run with 4× CPU and 150 ms / 1.6 Mbps throttling paints LCP at ~1.02s on `/` (3 runs, 1.020–1.028s; was 0.94s), CLS 0. The WebGL hero and the effects load after hydration, so they cost ~80 ms of LCP.
 - **Skills.** `anthropic-skills:theme-factory` was not used: §4 of the brief fully specifies the tokens.
 
 ## Launch verification (§14 Definition of Done)

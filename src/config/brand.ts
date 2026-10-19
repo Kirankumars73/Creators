@@ -40,6 +40,9 @@ export const brand = {
   founderConfirmed: true as boolean,
   // [ASK GOUTHAM] /privacy speaks for him; flip once he has read and agreed with it.
   privacyReviewed: false as boolean,
+  // [ASK GOUTHAM] The redesigned landing page (src/config/landing.ts) promises things for him —
+  // free to join, how brand briefs are handled, the FAQ answers. Flip once he has read it.
+  landingReviewed: false as boolean,
   founder: {
     fullName: 'GOWTHAM DAS THEKKINKATTIL',
     shortName: 'Gowtham',

@@ -6,7 +6,7 @@ import type Lenis from 'lenis';
 import { createContext, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { shouldRefreshTriggers } from '@/lib/film/scrub';
 import { usePrefersReducedMotion } from '@/lib/motion/reduced-motion';
-import type { SectionId } from './sections';
+import type { SectionId } from '@/config/landing';
 
 export type FilmEngine = { gsap: typeof Gsap; ScrollTrigger: typeof ScrollTriggerType };
 
@@ -16,7 +16,7 @@ type Film = {
    * effect. Everything still registered is reverted when the page unmounts.
    */
   add(setup: (engine: FilmEngine) => void): () => void;
-  scrollTo(id: SectionId): void;
+  scrollTo(id: SectionId | string): void;
   reduced: boolean;
   /**
    * False until the client is hydrated AND the motion engine has loaded. Register nothing
@@ -133,7 +133,8 @@ export function ScrollFilm({ children }: { children: ReactNode }) {
       scrollTo: (id) => {
         const el = document.getElementById(id);
         if (!el) return;
-        if (lenis.current) lenis.current.scrollTo(el, { duration: 0.62, easing: (t) => 1 - (1 - t) ** 3 });
+        // Both paths stop below the fixed nav: Lenis reads scroll-padding-top too.
+        if (lenis.current) lenis.current.scrollTo(el, { duration: 0.9, easing: (t) => 1 - (1 - t) ** 3 });
         else el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
         // Keyboard and screen-reader users land in the section they chose.
         el.setAttribute('tabindex', '-1');
@@ -142,6 +143,24 @@ export function ScrollFilm({ children }: { children: ReactNode }) {
     }),
     [reduced, ready, engine],
   );
+
+  // Same-page anchor links ("/#how") glide through the film instead of jumping under Lenis.
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const a = e.target instanceof Element ? e.target.closest<HTMLAnchorElement>('a[href*="#"]') : null;
+      if (!a || a.origin !== location.origin || a.pathname !== location.pathname || !a.hash) return;
+      const id = decodeURIComponent(a.hash.slice(1));
+      if (!document.getElementById(id)) return;
+      // preventDefault alone: next/link then skips its own navigation, and the link's other
+      // click handlers (the mobile menu closing itself) still run.
+      e.preventDefault();
+      history.pushState(null, '', a.hash);
+      film.scrollTo(id);
+    };
+    document.addEventListener('click', onClick, true);
+    return () => document.removeEventListener('click', onClick, true);
+  }, [film]);
 
   return <FilmContext.Provider value={film}>{children}</FilmContext.Provider>;
 }
