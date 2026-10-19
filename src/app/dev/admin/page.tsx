@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { AdminPanel } from '@/components/admin/AdminPanel';
+import { BriefList } from '@/components/admin/BriefList';
 import { buildPeople, type AuthUserLite, type MemberLite } from '@/lib/admin/people';
 import { parseAdminQuery } from '@/lib/auth/admin';
 
@@ -23,6 +24,11 @@ const MEMBERS: MemberLite[] = [
   m({ id: 'm4', user_id: 'u4', display_name: 'Meera', instagram: 'meera.writes', role: 'other', role_other_text: 'Scriptwriter', city: 'Kozhikode', created_at: '2026-10-14T08:03:00Z' }),
 ];
 
+const BRIEFS = [
+  { id: 'b1', brand: 'Malabar Café', contact_name: 'Anjali Menon', email: 'anjali@example.com', phone: '+91 98470 12345', brief: 'Launch week in Kozhikode.\nTwo reels and a story. Paid + barter.', status: 'new' as const, created_at: '2026-10-19T10:00:00Z' },
+  { id: 'b2', brand: 'Thread & Loom', contact_name: 'Sam', email: 'sam@example.com', phone: null, brief: null, status: 'new' as const, created_at: '2026-10-18T15:30:00Z' },
+];
+
 // Dev-only: the admin panel with sample people (no Supabase, no real accounts). 404 in production.
 export default function DevAdmin({ searchParams }: PageProps<'/dev/admin'>) {
   if (process.env.NODE_ENV === 'production') notFound();
@@ -39,5 +45,10 @@ export default function DevAdmin({ searchParams }: PageProps<'/dev/admin'>) {
 }
 
 async function Board({ searchParams }: { searchParams: PageProps<'/dev/admin'>['searchParams'] }) {
-  return <AdminPanel people={buildPeople(USERS, MEMBERS, ['admin@example.com'])} q={parseAdminQuery(await searchParams)} />;
+  return (
+    <>
+      <AdminPanel people={buildPeople(USERS, MEMBERS, ['admin@example.com'])} q={parseAdminQuery(await searchParams)} />
+      <BriefList briefs={BRIEFS} />
+    </>
+  );
 }
