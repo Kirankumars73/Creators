@@ -3,11 +3,13 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { PhotoPanel } from '@/components/me/PhotoPanel';
+import { confirmCrop, stubCropDecoding } from '../support/crop';
 
 const setPhotoPublic = vi.fn(async (value: boolean) => ({ ok: true as const, value }));
 const fetchMock = vi.fn();
 
 beforeEach(() => {
+  stubCropDecoding();
   vi.stubGlobal('fetch', fetchMock);
   fetchMock.mockReset();
   fetchMock.mockResolvedValue(new Response('{"ok":true}', { status: 200 }));
@@ -37,6 +39,7 @@ describe('PhotoPanel (/me)', () => {
   test('uploading posts the file to /api/photo/me and then shows the photo', async () => {
     render(<PhotoPanel {...base} />);
     await userEvent.upload(screen.getByLabelText('Upload a photo'), file());
+    await confirmCrop();
     await waitFor(() => expect(fetchMock).toHaveBeenCalled());
     const [url, init] = fetchMock.mock.calls[0]!;
     expect(url).toBe('/api/photo/me');
@@ -58,6 +61,7 @@ describe('PhotoPanel (/me)', () => {
     fetchMock.mockResolvedValue(new Response('{"error":"not_an_image"}', { status: 415 }));
     render(<PhotoPanel {...base} />);
     await userEvent.upload(screen.getByLabelText('Upload a photo'), file());
+    await confirmCrop();
     expect(await screen.findByText(/jpeg, png or webp/i)).toBeInTheDocument();
     expect(screen.queryByRole('img', { name: 'Your photo' })).toBeNull();
   });

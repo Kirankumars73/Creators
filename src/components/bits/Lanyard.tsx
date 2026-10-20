@@ -14,7 +14,8 @@ import './Lanyard.css';
 type Orientation = 'portrait' | 'landscape';
 type Finish = 'glossy' | 'matte' | 'holographic' | 'metallic';
 type Metal = 'graphite' | 'silver' | 'gold';
-type Anchor = 'left' | 'center' | 'right';
+// Local: also a number, 0 to 1 across the view, so the host can hang it exactly over a column.
+type Anchor = 'left' | 'center' | 'right' | number;
 type ImageFit = 'cover' | 'contain';
 type Rgb = [number, number, number];
 type Point = { clientX: number; clientY: number };
@@ -1099,7 +1100,7 @@ const Lanyard = ({
       foilUniforms.foilKey.value.set(-2.5, 4, 6).normalize().transformDirection(camera.matrixWorldInverse);
       foilUniforms.foilFill.value.set(3, -1, 4).normalize().transformDirection(camera.matrixWorldInverse);
       foilUniforms.foilTop.value.set(0.5, 4.5, 8).normalize().transformDirection(camera.matrixWorldInverse);
-      const anchorX = ((ANCHORS[s.anchor] ?? 0.5) - 0.5) * viewWidth;
+      const anchorX = (((typeof s.anchor === 'number' ? s.anchor : ANCHORS[s.anchor]) ?? 0.5) - 0.5) * viewWidth;
       const anchorY = viewHeight / 2 + 0.2;
       const cardTop = viewHeight / 2 - viewHeight * mix(0.12, 0.42, clamp(s.strapLength, 0, 1));
       const hangTop = cardTop + (layout.hangY - layout.height / 2);

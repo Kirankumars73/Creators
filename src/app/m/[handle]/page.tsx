@@ -29,10 +29,12 @@ export async function generateMetadata({ params }: PageProps<'/m/[handle]'>): Pr
 /** A member's page: the static shell renders at once; the profile streams in by handle. */
 export default function MemberPage({ params }: PageProps<'/m/[handle]'>) {
   return (
-    <div data-surface="wall" className="limewash min-h-dvh overflow-x-clip text-chalk">
+    <div data-surface="wall" className="limewash relative min-h-dvh overflow-x-clip text-chalk">
       <SiteNav />
-      <main id="main" className="mx-auto max-w-[90rem] px-4 pb-24 pt-28 md:px-10 md:pt-36">
-        <Link href="/creators" className="wall-link inline-flex min-h-11 items-center font-semibold text-chalk">
+      {/* The hanging badge is drawn into this layer (components/cards/HangingBadge): full window width, from the very top, behind the content. */}
+      <div id="badge-layer" aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[44rem] md:h-[56rem]" />
+      <main id="main" className="pointer-events-none relative z-10 mx-auto max-w-[90rem] px-4 pb-24 pt-28 md:px-10 md:pt-36">
+        <Link href="/creators" className="wall-link pointer-events-auto inline-flex min-h-11 items-center font-semibold text-chalk">
           All members
         </Link>
         <Suspense fallback={<p className="mt-10 text-chalk-mute">Loading…</p>}>

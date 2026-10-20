@@ -2,6 +2,7 @@
 
 import { useId, useRef, useState } from 'react';
 import type { PhotoReason, PhotoResult } from '@/lib/photos/actions';
+import { PhotoCropper } from '@/components/photos/PhotoCropper';
 import { photoProblemText, shrinkPhoto } from '@/lib/photos/client';
 import { refreshSession } from '@/lib/session/store';
 
@@ -26,6 +27,8 @@ export function PhotoPanel({ hasPhoto: initialHas, photoPublic: initialPublic, o
   const [version, setVersion] = useState(0);
   const [busy, setBusy] = useState<null | 'upload' | 'google' | 'remove' | 'switch'>(null);
   const [problem, setProblem] = useState<string | null>(null);
+  // A picked file waits here while they frame it; nothing is sent until they confirm.
+  const [framing, setFraming] = useState<File | null>(null);
 
   async function call(kind: 'upload' | 'google' | 'remove', init: RequestInit) {
     setBusy(kind);
@@ -53,12 +56,16 @@ export function PhotoPanel({ hasPhoto: initialHas, photoPublic: initialPublic, o
     }
   }
 
-  async function onFile(file: File | undefined) {
-    if (!file) return;
-    const form = new FormData();
-    form.append('file', await shrinkPhoto(file), 'photo.jpg');
-    await call('upload', { method: 'POST', body: form });
+  function onFile(file: File | undefined) {
     if (input.current) input.current.value = ''; // picking the same file again should still fire
+    if (file) setFraming(file);
+  }
+
+  async function upload(cropped: File) {
+    setFraming(null);
+    const form = new FormData();
+    form.append('file', await shrinkPhoto(cropped), 'photo.jpg');
+    await call('upload', { method: 'POST', body: form });
   }
 
   async function toggle() {
@@ -78,6 +85,7 @@ export function PhotoPanel({ hasPhoto: initialHas, photoPublic: initialPublic, o
   }
 
   return (
+    <>
     <section aria-labelledby={`${id}-h`} className="flex flex-col gap-5 bg-carbon p-6 shadow-[0_14px_30px_-22px_var(--print)] md:p-8">
       <h2 id={`${id}-h`} className="font-display text-[2rem] uppercase leading-none text-chalk">
         Your photo
@@ -113,7 +121,7 @@ export function PhotoPanel({ hasPhoto: initialHas, photoPublic: initialPublic, o
             className="sr-only"
             aria-label="Upload a photo"
             disabled={busy !== null}
-            onChange={(e) => void onFile(e.target.files?.[0])}
+            onChange={(e) => onFile(e.target.files?.[0])}
           />
           {hasGoogle ? (
             <button
@@ -174,5 +182,7 @@ export function PhotoPanel({ hasPhoto: initialHas, photoPublic: initialPublic, o
         {problem}
       </p>
     </section>
+      {framing ? <PhotoCropper file={framing} onDone={(f) => void upload(f)} onCancel={() => setFraming(null)} /> : null}
+    </>
   );
 }

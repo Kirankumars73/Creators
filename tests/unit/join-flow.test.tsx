@@ -6,6 +6,7 @@ import { JoinFlow } from '@/components/join/JoinFlow';
 import { resetCommunityOpened } from '@/lib/join/chip-store';
 import type { InviteClientResult } from '@/lib/join/invite-client';
 import type { SubmitResult } from '@/lib/members/submit';
+import { confirmCrop, stubCropDecoding } from '../support/crop';
 
 const noInApp = { inApp: false, app: null, platform: 'other' } as const;
 const okInvite: InviteClientResult = {
@@ -92,6 +93,7 @@ describe('JoinFlow — four steps, URL-reflected (§7)', () => {
 
   describe('the photo picked while joining', () => {
     beforeEach(() => {
+      stubCropDecoding();
       URL.createObjectURL = vi.fn(() => 'blob:preview');
       URL.revokeObjectURL = vi.fn();
     });
@@ -102,6 +104,7 @@ describe('JoinFlow — four steps, URL-reflected (§7)', () => {
       await userEvent.type(screen.getByRole('combobox', { name: 'City / district' }), 'Ernakulam');
       await userEvent.tab();
       await userEvent.upload(screen.getByLabelText('Add a photo'), new File([new Uint8Array(900)], 'me.jpg', { type: 'image/jpeg' }));
+      await confirmCrop();
       if (tick.show) await userEvent.click(screen.getByRole('checkbox', { name: /show my photo/i }));
       await userEvent.click(screen.getByRole('checkbox', { name: /read the code/i }));
       await userEvent.click(screen.getByRole('button', { name: /render my pass/i }));
