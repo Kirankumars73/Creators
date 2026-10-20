@@ -1,11 +1,6 @@
-import { formatTimecode } from '@/lib/timecode';
-
-const CELLS = 20;
-
-/** §7 step 4 — a render bar, not a spinner. */
-export function RenderBar({ progress, frames }: { progress: number; frames: number }) {
+/** A progress bar, not a spinner: the pass "renders" while the invite request is out. */
+export function RenderBar({ progress }: { progress: number; frames?: number }) {
   const pct = Math.round(progress * 100);
-  const filled = Math.round(progress * CELLS);
   return (
     <div
       role="progressbar"
@@ -13,17 +8,17 @@ export function RenderBar({ progress, frames }: { progress: number; frames: numb
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={pct}
-      className="flex flex-col gap-3 font-mono text-sm text-chalk md:text-base"
+      className="flex max-w-xl flex-col gap-3"
     >
-      <p className="tracking-[0.14em]">RENDERING YOUR PASS ...</p>
-      <p aria-hidden="true" className="flex flex-wrap items-center gap-x-6 gap-y-1 tabular-nums">
-        <span>
-          [<span className="text-lane">{'█'.repeat(filled)}</span>
-          <span className="text-chalk-mute">{'░'.repeat(CELLS - filled)}</span>]
+      <p className="flex items-baseline justify-between text-lg font-semibold text-chalk">
+        Making your pass
+        <span aria-hidden="true" className="tabular-nums text-chalk-dim">
+          {pct}%
         </span>
-        <span>{String(pct).padStart(3, ' ')}%</span>
-        <span className="text-chalk-dim">{formatTimecode(frames)}</span>
       </p>
+      <div aria-hidden="true" className="h-3 w-full overflow-hidden rounded-full bg-graphite">
+        <div className="h-full rounded-full bg-lane transition-[width] duration-200 ease-out" style={{ width: `${pct}%` }} />
+      </div>
     </div>
   );
 }

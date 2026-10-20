@@ -40,7 +40,7 @@ export function LaneFrame({ lane, mode = 'static', selected = false, size = 'car
           {room.label}
         </p>
         <Title className="font-display text-[1.75rem] uppercase leading-none text-lane md:text-[2.25rem]">{room.name}?</Title>
-        <p className="font-mono text-sm leading-relaxed text-chalk">{room.copy}</p>
+        <p className="font-sans text-sm leading-relaxed text-chalk">{room.copy}</p>
       </article>
     );
   }
@@ -71,7 +71,7 @@ export function LaneFrame({ lane, mode = 'static', selected = false, size = 'car
           {room.name}
         </Title>
         <p className={`text-body mt-3 text-chalk ${compact ? 'hidden md:block' : ''}`}>{room.copy}</p>
-        {compact ? <p className="mt-2 font-mono text-[0.8125rem] leading-snug text-chalk-dim md:hidden">{room.tagline}</p> : null}
+        {compact ? <p className="mt-2 text-[0.875rem] font-medium leading-snug text-chalk-dim md:hidden">{room.tagline}</p> : null}
       </div>
     </article>
   );

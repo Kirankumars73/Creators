@@ -65,11 +65,11 @@ export function SavePassButton({ instagram }: { instagram: string | null }) {
         Save my pass
       </Button>
       {state === 'failed' ? (
-        <p role="alert" className="font-mono text-sm text-chalk">
+        <p role="alert" className="font-sans text-sm text-chalk">
           Couldn’t render your pass. Try again in a moment.
         </p>
       ) : (
-        <p className="font-mono text-[0.8125rem] text-chalk-dim">Story-sized. Post it, tag the room.</p>
+        <p className="text-[0.875rem] font-medium text-chalk-dim">Story-sized. Post it, tag the room.</p>
       )}
     </div>
   );

@@ -14,10 +14,27 @@ test('the home headline is his line from his bio', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toHaveAccessibleName("WE'D RATHER SHOW THAN TELL.");
 });
 
-test('admin (the edit suite) stays ink-dark from the first byte', async ({ page }) => {
-  await page.goto('/admin');
-  const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  expect(bg).toBe('rgb(10, 10, 11)');
+test('the 404 is the wall too — with the nav, the footer and a way home', async ({ page }) => {
+  await page.goto('/no-such-page');
+  await expect(page.getByRole('heading', { name: /this frame isn’t in the film/i })).toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Main' })).toBeVisible();
+  await expect(page.locator('footer')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Back to the start' })).toHaveAttribute('href', '/');
+  expect(await page.evaluate(() => getComputedStyle(document.querySelector('[data-surface="wall"]')!).backgroundColor)).toBe('rgb(238, 242, 248)');
+});
+
+test('form labels are plain sentence case, not tracked mono caps (join details, via the dev preview)', async ({ page }) => {
+  await page.goto('/join');
+  const label = await page.evaluate(() => {
+    const el = document.createElement('span');
+    el.className = 'text-label';
+    document.body.append(el);
+    const cs = getComputedStyle(el);
+    return { transform: cs.textTransform, spacing: cs.letterSpacing, family: cs.fontFamily };
+  });
+  expect(label.transform).toBe('none');
+  expect(label.spacing).toBe('normal');
+  expect(label.family).not.toMatch(/mono/i);
 });
 
 for (const path of ['/', '/creators', '/code', '/privacy', '/join']) {

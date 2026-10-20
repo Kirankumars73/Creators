@@ -56,7 +56,7 @@ export function SignIn({ inApp, currentUrl, error = false, configured = true }: 
   return (
     <div className="flex flex-col items-start gap-5">
       {failed ? (
-        <p role="alert" className="border-l-[3px] border-rosso bg-graphite px-4 py-3 font-mono text-sm text-chalk">
+        <p role="alert" className="border-l-[3px] border-rosso bg-graphite px-4 py-3 font-sans text-sm text-chalk">
           Sign-in didn’t go through. Nothing was saved. Try again.
         </p>
       ) : null}
@@ -64,7 +64,7 @@ export function SignIn({ inApp, currentUrl, error = false, configured = true }: 
         <GoogleMark />
         Continue with Google
       </Button>
-      <p className="max-w-sm font-mono text-[0.8125rem] leading-relaxed text-chalk-dim">{PRIVACY}</p>
+      <p className="max-w-sm text-[0.875rem] font-medium leading-relaxed text-chalk-dim">{PRIVACY}</p>
     </div>
   );
 }
@@ -86,14 +86,14 @@ function NotConfigured() {
   const live = `${brand.liveUrl}/join`;
   return (
     <div role="status" className="flex max-w-md flex-col items-start gap-4 border-l-[3px] border-mustard bg-graphite px-5 py-4">
-      <p className="font-mono text-sm text-chalk">Sign-in isn’t set up on this copy of the site.</p>
+      <p className="font-sans text-sm text-chalk">Sign-in isn’t set up on this copy of the site.</p>
       <p className="text-body text-chalk-dim">
         Join on{' '}
         <a href={live} className="inline-flex min-h-11 items-center text-chalk underline underline-offset-4">
           {brand.liveUrl.replace(/^https:\/\//, '')}
         </a>
       </p>
-      <p className="font-mono text-xs leading-relaxed text-chalk-mute">Running it yourself? Add the Supabase values to .env.local — see the README.</p>
+      <p className="font-sans text-xs leading-relaxed text-chalk-mute">Running it yourself? Add the Supabase values to .env.local — see the README.</p>
     </div>
   );
 }
@@ -120,7 +120,7 @@ function InAppEscape({ inApp, currentUrl }: { inApp: InAppInfo; currentUrl: stri
         </p>
       )}
       <CopyLink url={currentUrl} browser={browser} />
-      <p className="max-w-sm font-mono text-[0.8125rem] leading-relaxed text-chalk-dim">{PRIVACY}</p>
+      <p className="max-w-sm text-[0.875rem] font-medium leading-relaxed text-chalk-dim">{PRIVACY}</p>
     </div>
   );
 }
@@ -140,7 +140,7 @@ function CopyLink({ url, browser }: { url: string; browser: string }) {
       <Button variant="ghost" onClick={copy}>
         Copy link
       </Button>
-      <p aria-live="polite" className="font-mono text-sm text-chalk-dim">
+      <p aria-live="polite" className="font-sans text-sm text-chalk-dim">
         {state === 'copied' ? `Link copied. Paste it into ${browser}.` : null}
       </p>
       {state === 'manual' ? (
@@ -149,7 +149,7 @@ function CopyLink({ url, browser }: { url: string; browser: string }) {
           value={url}
           aria-label="Page link"
           onFocus={(e) => e.currentTarget.select()}
-          className="w-full max-w-md border-b border-chalk-dim bg-graphite px-3 py-2 font-mono text-sm text-chalk"
+          className="w-full max-w-md border-b border-chalk-dim bg-graphite px-3 py-2 font-sans text-sm text-chalk"
         />
       ) : null}
     </div>

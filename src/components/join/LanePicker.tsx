@@ -141,10 +141,10 @@ export function LanePicker({ value, onCommit, onFlood, initialOtherText = '' }: 
                   aria-invalid={otherError ? true : undefined}
                   aria-describedby={otherError ? `${hintId}-other-err` : undefined}
                   placeholder="DOP, photographer, writer…"
-                  className="slate-input min-h-14 w-full border-0 border-b-2 border-lane bg-graphite px-4 font-mono text-xl uppercase tracking-[0.08em] text-chalk outline-none placeholder:text-chalk-mute"
+                  className="slate-input min-h-14 w-full border-0 border-b-2 border-lane bg-graphite px-4 font-sans text-xl text-chalk outline-none placeholder:text-chalk-mute"
                 />
                 {otherError ? (
-                  <p id={`${hintId}-other-err`} className="border-l-2 border-rosso pl-2 font-mono text-[0.8125rem] text-chalk">
+                  <p id={`${hintId}-other-err`} className="border-l-2 border-rosso pl-2 text-[0.875rem] font-medium text-chalk">
                     {otherError}
                   </p>
                 ) : null}

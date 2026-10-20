@@ -49,7 +49,7 @@ export function DeliverableChip({ index, title, body, href, locked, laneTag, ord
       <div className="flex items-start justify-between gap-4">
         <p className="flex items-center gap-3">
           <Star size={14} />
-          <span className="font-mono text-sm tracking-[0.14em] text-chalk-dim">{index}</span>
+          <span className="font-sans text-sm text-chalk-dim">{index}</span>
           <span className="font-display text-[1.75rem] uppercase leading-none text-chalk">{title}</span>
         </p>
         {laneTag ? <span className="text-label border border-lane px-2 py-1 text-chalk">{laneTag}</span> : null}
@@ -60,7 +60,7 @@ export function DeliverableChip({ index, title, body, href, locked, laneTag, ord
           type="button"
           onClick={copyLink}
           disabled={locked}
-          className="min-h-11 px-3 font-mono text-sm tracking-[0.08em] text-chalk-dim underline underline-offset-4 hover:text-chalk disabled:no-underline disabled:opacity-60"
+          className="min-h-11 px-3 font-sans text-sm text-chalk-dim underline underline-offset-4 hover:text-chalk disabled:no-underline disabled:opacity-60"
         >
           {copy === 'copied' ? 'Copied' : 'Copy link'}
         </button>
@@ -96,7 +96,7 @@ export function DeliverableChip({ index, title, body, href, locked, laneTag, ord
           value={href}
           aria-label="Link to copy"
           onFocus={(e) => e.currentTarget.select()}
-          className="mt-3 w-full border-0 border-b border-chalk-dim bg-carbon px-3 py-2 font-mono text-sm text-chalk"
+          className="mt-3 w-full border-0 border-b border-chalk-dim bg-carbon px-3 py-2 font-sans text-sm text-chalk"
         />
       ) : null}
     </motion.article>

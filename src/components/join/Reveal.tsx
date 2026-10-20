@@ -133,14 +133,14 @@ function RevealOk({
             animate={{ opacity: 1 }}
             transition={{ delay: reduced ? 0 : 0.3, duration: 0.15 }}
             data-lane="other"
-            className="border border-dashed border-mint bg-carbon p-5 font-mono text-sm leading-relaxed text-chalk"
+            className="border border-dashed border-mint bg-carbon p-5 font-sans text-sm leading-relaxed text-chalk"
           >
             We&apos;re building your room. For now you&apos;re in the main kootam — {brand.founder.shortName} will reach out.
           </motion.p>
         )}
       </div>
 
-      <p className="font-mono text-[0.8125rem] text-chalk-dim">Links not opening? Make sure WhatsApp is installed on this device.</p>
+      <p className="text-[0.875rem] font-medium text-chalk-dim">Links not opening? Make sure WhatsApp is installed on this device.</p>
       {footer}
     </div>
   );

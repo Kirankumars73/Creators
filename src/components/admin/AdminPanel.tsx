@@ -42,7 +42,7 @@ export function AdminPanel({ people, q }: { people: AdminPerson[]; q: AdminQuery
 
   return (
     <>
-      <p className="flex flex-wrap gap-x-8 gap-y-3 font-mono text-sm uppercase tracking-[0.14em] text-chalk-dim">
+      <p className="flex flex-wrap gap-x-8 gap-y-3 font-sans text-sm text-chalk-dim">
         {tallies.map(([label, n]) => (
           <span key={label} className="flex items-center gap-3">
             <span aria-hidden="true">{label}</span>
@@ -99,7 +99,7 @@ export function AdminPanel({ people, q }: { people: AdminPerson[]; q: AdminQuery
       </form>
 
       {rows.length === 0 ? (
-        <p className="font-mono text-sm text-chalk-dim">
+        <p className="font-sans text-sm text-chalk-dim">
           {people.length === 0 ? 'Nobody has signed in yet.' : `Nobody matches.${q.q ? ' Try a shorter search.' : ''}`}
         </p>
       ) : (
@@ -144,7 +144,7 @@ function Row({ p }: { p: AdminPerson }) {
   return (
     <tr data-person="" className="border-t border-rule align-top text-chalk">
       <td className="px-3 py-3">{m?.display_name ?? p.name ?? '—'}</td>
-      <td className="px-3 py-3 font-mono">
+      <td className="px-3 py-3 font-sans">
         <a href={`mailto:${p.email}`} className="underline underline-offset-4">
           {p.email}
         </a>
@@ -161,7 +161,7 @@ function Row({ p }: { p: AdminPerson }) {
           )}
         </span>
       </td>
-      <td className="px-3 py-3 font-mono">
+      <td className="px-3 py-3 font-sans">
         {m ? (
           <a href={`https://instagram.com/${m.instagram}`} className="underline underline-offset-4">
             @{m.instagram}
@@ -170,8 +170,8 @@ function Row({ p }: { p: AdminPerson }) {
       </td>
       <td className="px-3 py-3">{m?.city ?? ''}</td>
       <td className="px-3 py-3 text-chalk-dim">{m?.tags.join(', ') ?? ''}</td>
-      <td className="whitespace-nowrap px-3 py-3 font-mono text-chalk-dim">{p.lastSignInAt ? WHEN.format(new Date(p.lastSignInAt)) : '—'}</td>
-      <td className="whitespace-nowrap px-3 py-3 font-mono text-chalk-dim">{m ? DAY.format(new Date(m.created_at)) : '—'}</td>
+      <td className="whitespace-nowrap px-3 py-3 font-sans text-chalk-dim">{p.lastSignInAt ? WHEN.format(new Date(p.lastSignInAt)) : '—'}</td>
+      <td className="whitespace-nowrap px-3 py-3 font-sans text-chalk-dim">{m ? DAY.format(new Date(m.created_at)) : '—'}</td>
       <td className="text-label px-3 py-3">{m?.status ?? '—'}</td>
       <td className="px-3 py-3">
         <div className="flex gap-2">
