@@ -9,6 +9,7 @@ import type { InAppInfo } from '@/lib/join/in-app-browser';
 import type { RenderTask } from '@/lib/join/render-progress';
 import { resolveStep, type JoinStep } from '@/lib/join/step';
 import type { MemberInput } from '@/lib/members/schema';
+import { photoProblemText, sendPhoto as defaultSendPhoto, type JoinPhoto, type SendPhotoResult } from '@/lib/photos/client';
 import type { SubmitResult } from '@/lib/members/submit';
 import dynamic from 'next/dynamic';
 import { PassPreview } from './PassPreview';
@@ -36,6 +37,12 @@ export type JoinFlowProps = {
   signInConfigured?: boolean;
   submitMember(input: unknown): Promise<SubmitResult>;
   fetchInvite?(): Promise<InviteClientResult>;
+  /** The signed-in account's Google photo, offered as the pass photo. */
+  googlePhotoUrl?: string | null;
+  /** The "show my photo" switch (a server action); used only if they ticked it. */
+  setPhotoPublic?(value: boolean): Promise<{ ok: boolean }>;
+  /** Injectable for tests; the real one posts to /api/photo/me. */
+  sendPhoto?(choice: JoinPhoto['choice']): Promise<SendPhotoResult>;
 };
 
 const STEP_NO: Record<JoinStep, number> = { signin: 1, lane: 2, details: 3, reveal: 4 };
@@ -69,6 +76,9 @@ export function JoinFlow({
   signInConfigured = true,
   submitMember,
   fetchInvite = defaultFetchInvite,
+  googlePhotoUrl = null,
+  setPhotoPublic,
+  sendPhoto = defaultSendPhoto,
 }: JoinFlowProps) {
   const isClient = useIsClient();
   const [draft, patchDraft, clearDraft] = useJoinDraft();
@@ -80,6 +90,9 @@ export function JoinFlow({
   const [flood, setFlood] = useState<Lane | null>(null);
   const [otherText, setOtherText] = useState('');
   const [handle, setHandle] = useState<string | null>(member?.instagram ?? null);
+  // The photo picked in the details step: shown on the pass preview, uploaded after joining.
+  const [photo, setPhoto] = useState<JoinPhoto | null>(null);
+  const [photoNote, setPhotoNote] = useState<string | null>(null);
   const [returning] = useState(initial.step === 'reveal');
   // Returning members start on the reveal: hand the render bar a factory so the request
   // starts in the browser when the bar mounts (never during the server render).
@@ -129,12 +142,23 @@ export function JoinFlow({
     go('details', chosen, 'push');
   }
 
-  async function onSubmit(input: MemberInput): Promise<SubmitResult> {
+  async function onSubmit(input: MemberInput, picked: JoinPhoto | null = null): Promise<SubmitResult> {
     const result = await submitMember(input);
     // The row exists only now — and only now may the links be asked for.
     if (result.ok) {
       joined.current = true;
       setHandle(input.instagram);
+      // The photo is stored against the member record, so it goes up only now. It can never
+      // stop someone joining: if it fails they are in, and told where to add it.
+      if (picked) {
+        const sent = await sendPhoto(picked.choice);
+        if (!sent.ok) {
+          setPhotoNote(`You’re in, but your photo didn’t upload. ${photoProblemText(sent.reason)} You can add it from your pass page.`);
+        } else if (picked.show && setPhotoPublic) {
+          const shown = await setPhotoPublic(true).catch(() => ({ ok: false }));
+          if (!shown.ok) setPhotoNote('You’re in and your photo is on your pass, but we couldn’t switch it on for your page. You can do that from your pass page.');
+        }
+      }
       setTask(fetchInvite());
     }
     return result;
@@ -188,6 +212,8 @@ export function JoinFlow({
                   onDraft={patchDraft}
                   onSubmit={onSubmit}
                   onDone={onDone}
+                  googlePhotoUrl={googlePhotoUrl}
+                  onPhoto={setPhoto}
                 />
               ) : null}
 
@@ -198,7 +224,16 @@ export function JoinFlow({
                     lane={revealLane}
                     returning={returning}
                     onRetry={() => setTask(fetchInvite())}
-                    footer={<SavePassButton instagram={handle} />}
+                    footer={
+                      <>
+                        <SavePassButton instagram={handle} />
+                        {photoNote ? (
+                          <p role="status" className="max-w-xl border-l-[3px] border-mustard bg-graphite px-4 py-3 text-[0.9375rem] font-medium text-chalk">
+                            {photoNote}
+                          </p>
+                        ) : null}
+                      </>
+                    }
                   />
                 ) : (
                   <RenderBar progress={0} frames={0} />
@@ -210,7 +245,7 @@ export function JoinFlow({
 
         <aside aria-label="Your pass preview" className="hidden lg:block">
           <div className="sticky top-28">
-            <PassPreview lane={accent ?? null} name={draft.displayName ?? user?.name} handle={draft.instagram ?? handle} />
+            <PassPreview lane={accent ?? null} name={draft.displayName ?? user?.name} handle={draft.instagram ?? handle} photo={photo} googlePhotoUrl={googlePhotoUrl} />
           </div>
         </aside>
       </div>

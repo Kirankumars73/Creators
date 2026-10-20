@@ -6,8 +6,10 @@ import { getSessionUser } from '@/lib/auth/session';
 import { detectInAppBrowser } from '@/lib/join/in-app-browser';
 import { resolveStep } from '@/lib/join/step';
 import { getOwnMember } from '@/lib/members/self';
+import { setPhotoPublic } from '../me/actions';
 import { submitMember } from './actions';
 import { requestOrigin, siteUrl } from '@/lib/site';
+import { isGoogleAvatarUrl } from '@/lib/photos/google';
 import { supabasePublicConfig } from '@/lib/supabase/config';
 import { TOKENS } from '@/config/tokens';
 
@@ -49,6 +51,8 @@ async function JoinStepServer({ searchParams }: { searchParams: PageProps<'/join
       currentUrl={`${requestOrigin(h, siteUrl)}/join`}
       authError={first(sp.error) === 'auth'}
       signInConfigured={supabasePublicConfig() !== null}
+      googlePhotoUrl={user?.avatarUrl && isGoogleAvatarUrl(user.avatarUrl) ? user.avatarUrl : null}
+      setPhotoPublic={setPhotoPublic}
       submitMember={submitMember}
     />
   );

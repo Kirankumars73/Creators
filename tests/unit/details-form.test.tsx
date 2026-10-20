@@ -82,6 +82,7 @@ describe('DetailsForm (§7 step 3)', () => {
     await waitFor(() =>
       expect(props.onSubmit).toHaveBeenCalledWith(
         expect.objectContaining({ role: 'creator', instagram: 'the.gowtham_das', city: 'Ernakulam', acceptedCode: true, showOnWall: true, profilePublic: true }),
+        null, // no photo was picked
       ),
     );
   });

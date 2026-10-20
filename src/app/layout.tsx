@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import ClickSpark from '@/components/bits/ClickSpark';
 import { SmoothScroll } from '@/components/motion/SmoothScroll';
+import { SessionLoader } from '@/components/session/SessionLoader';
 import { Grain } from '@/components/texture/Grain';
 import { brand } from '@/config/brand';
 import { TOKENS } from '@/config/tokens';
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
           {children}
         </ClickSpark>
         <SmoothScroll />
+        <SessionLoader />
         <Grain />
       </body>
     </html>

@@ -4,7 +4,7 @@ import BlurText from '@/components/bits/BlurText';
 import TiltedCard from '@/components/bits/TiltedCard';
 import { MlMark } from '@/components/brand/MlMark';
 import { Wordmark } from '@/components/brand/Wordmark';
-import { Button } from '@/components/ui/Button';
+import { JoinButton } from '@/components/session/JoinButton';
 import { brand } from '@/config/brand';
 import { CODE_ARTICLES } from '@/config/code';
 import { CODE_SHELF, FINAL, HOW, INSIDE, MANIFESTO, PASS } from '@/config/landing';
@@ -52,9 +52,7 @@ export function HowToJoin() {
           </li>
         ))}
       </ol>
-      <Button href="/join" className="mt-14">
-        {HOW.cta}
-      </Button>
+      <JoinButton className="mt-14">{HOW.cta}</JoinButton>
     </section>
   );
 }
@@ -157,9 +155,7 @@ export function FinalCta() {
           ))}
         </h2>
         <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
-          <Button href="/join" variant="ink">
-            {FINAL.primary}
-          </Button>
+          <JoinButton variant="ink">{FINAL.primary}</JoinButton>
           <Link href="/#brands" className="inline-flex min-h-11 items-center font-display text-[1.5rem] uppercase underline decoration-2 underline-offset-[6px]">
             {FINAL.secondary}
           </Link>

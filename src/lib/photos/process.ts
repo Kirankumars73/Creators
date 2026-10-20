@@ -37,3 +37,11 @@ export async function processPhoto(input: Uint8Array): Promise<{ ok: true; jpeg:
     return { ok: false, error: /pixel limit/i.test(message) ? 'too_big' : 'not_an_image' };
   }
 }
+
+export const THUMB_WIDTH = 240;
+export const THUMB_HEIGHT = 300;
+
+/** A small copy for the member grid, so a screenful of tiles doesn't download full-size photos. */
+export async function thumbnail(jpeg: Uint8Array): Promise<Buffer> {
+  return sharp(jpeg).resize(THUMB_WIDTH, THUMB_HEIGHT, { fit: 'cover' }).jpeg({ quality: 76, mozjpeg: true }).toBuffer();
+}

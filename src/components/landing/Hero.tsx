@@ -6,7 +6,7 @@ import Magnet from '@/components/bits/Magnet';
 import { CraftArt } from '@/components/brand/CraftArt';
 import { CraftScene } from '@/components/brand/CraftScene';
 import { MlMark } from '@/components/brand/MlMark';
-import { Button } from '@/components/ui/Button';
+import { JoinButton } from '@/components/session/JoinButton';
 import { LANES, brand, type Lane } from '@/config/brand';
 import { HERO } from '@/config/landing';
 import type { MemberCounts } from '@/lib/wall/queries';
@@ -59,7 +59,7 @@ export function Hero({ counts }: { counts: MemberCounts | null }) {
           <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4">
             {/* React Bits Magnet: the way in leans toward the cursor. */}
             <Magnet padding={70} magnetStrength={4}>
-              <Button href="/join">{HERO.primary}</Button>
+              <JoinButton>{HERO.primary}</JoinButton>
             </Magnet>
             <Link href="/#brands" className="wall-link inline-flex min-h-11 items-center font-display text-[1.5rem] uppercase">
               {HERO.secondary}
