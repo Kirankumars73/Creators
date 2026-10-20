@@ -12,6 +12,9 @@ vi.mock('@/lib/photos/storage', () => ({
 vi.mock('@/lib/pass/badge', () => ({
   badgeImage: async (pass: unknown, cache: string, photo: unknown) => new Response(JSON.stringify({ badge: true, pass, hasPhoto: !!photo }), { headers: { 'Cache-Control': cache } }),
 }));
+vi.mock('sharp', () => ({
+  default: (input: Buffer) => ({ jpeg: () => ({ toBuffer: async () => input }) }),
+}));
 vi.mock('@/lib/pass/image', () => ({
   passImage: async (pass: unknown, cache: string) => new Response(JSON.stringify(pass), { headers: { 'Cache-Control': cache } }),
 }));
@@ -31,7 +34,20 @@ describe('GET /api/pass/by/<handle>', () => {
     const body = await res.json();
     expect(body).toMatchObject({ headline: 'Anu K', instagram: 'anu.k', role: 'editor', joined: '14.10.2026' });
     expect(JSON.stringify(body)).not.toMatch(/email|user_id|photo_path/);
-    expect(res.headers.get('cache-control')).toContain('s-maxage=60');
+    expect(res.headers.get('cache-control')).toContain('max-age=0');
+    expect(res.headers.get('etag')).toMatch(/^"[0-9a-f]{20}"$/);
+  });
+
+  test('a browser that already has this version gets a 304 and no image is drawn', async () => {
+    const { GET } = await import('@/app/api/pass/by/[handle]/route');
+    const first = await GET(new Request('http://x'), ctx('anu.k'));
+    const etag = first.headers.get('etag')!;
+    const again = await GET(new Request('http://x', { headers: { 'if-none-match': etag } }), ctx('anu.k'));
+    expect(again.status).toBe(304);
+    // A change (a new name here) is a new version, so it is drawn again.
+    state.profile = { ...profile, displayName: 'Anu Krishna' };
+    const changed = await GET(new Request('http://x', { headers: { 'if-none-match': etag } }), ctx('anu.k'));
+    expect(changed.status).toBe(200);
   });
 
   test('?style=badge draws the photo-filled badge instead of the story pass', async () => {

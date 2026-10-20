@@ -1420,7 +1420,8 @@ const Lanyard = ({
     const resize = () => {
       view.width = Math.max(1, container.clientWidth);
       view.height = Math.max(1, container.clientHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      // Local: 1.5x on phones (not 2x): about 45% fewer pixels to draw every frame, still sharp at that size.
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 640 ? 1.5 : 2));
       renderer.setSize(view.width, view.height, false);
       apply();
       render();

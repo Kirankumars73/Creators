@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, type CSSProperties, type PointerEvent } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
 import type { Lane } from '@/config/brand';
 
 type MemberCardProps = {
@@ -28,6 +28,13 @@ const initials = (name: string) =>
  */
 export function MemberCard({ name, instagram, role, roomLabel, hasPhoto, eager = false }: MemberCardProps) {
   const card = useRef<HTMLDivElement>(null);
+  const photo = useRef<HTMLImageElement>(null);
+  // The photo fades in over the initials once it has loaded, so a card never flashes empty or half-drawn.
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    // A photo already in the browser cache can finish before this runs.
+    if (photo.current?.complete && photo.current.naturalWidth > 0) setLoaded(true);
+  }, []);
   const ink = role === 'creator' ? 'text-paper' : 'text-print';
 
   function aim(e: PointerEvent<HTMLDivElement>) {
@@ -60,22 +67,25 @@ export function MemberCard({ name, instagram, role, roomLabel, hasPhoto, eager =
       className="member-card relative isolate aspect-[4/5] w-full rounded-[0.9rem] bg-lane p-[5px] shadow-[0_16px_30px_-18px_var(--print)]"
     >
       <div className="relative isolate size-full overflow-hidden rounded-[0.65rem] bg-lane">
+        {/* The initials are always there: they are the card while a photo loads, and the card without one. */}
+        <span aria-hidden="true" className={`halftone absolute inset-0 -z-10 grid place-items-center font-display text-[clamp(3.5rem,14vw,6rem)] uppercase leading-none ${ink}`}>
+          <span className="-translate-y-4 opacity-90">{initials(name)}</span>
+        </span>
+
         {hasPhoto ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
+            ref={photo}
+            onLoad={() => setLoaded(true)}
             src={`/api/photo/by/${instagram}?size=thumb`}
             alt=""
             width={240}
             height={300}
             loading={eager ? 'eager' : 'lazy'}
             decoding="async"
-            className="absolute inset-0 -z-10 size-full object-cover object-[50%_25%]"
+            className={`absolute inset-0 -z-10 size-full object-cover object-[50%_25%] transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
           />
-        ) : (
-          <span aria-hidden="true" className={`halftone absolute inset-0 -z-10 grid place-items-center font-display text-[clamp(3.5rem,14vw,6rem)] uppercase leading-none ${ink}`}>
-            <span className="-translate-y-4 opacity-90">{initials(name)}</span>
-          </span>
-        )}
+        ) : null}
         <div className="absolute inset-x-0 bottom-0 flex flex-col gap-0.5 px-3 pb-3 pt-16 sm:px-3.5" style={{ backgroundImage: 'linear-gradient(to top, rgb(8 12 24 / 0.92), rgb(8 12 24 / 0.7) 45%, rgb(8 12 24 / 0))' } as CSSProperties}>
           <span className="line-clamp-2 break-words font-display text-[1.3rem] uppercase leading-[0.95] sm:text-[1.6rem]" style={{ color: '#fff' }}>
             {name}

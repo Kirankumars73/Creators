@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { SiteNav } from '@/components/landing/SiteNav';
 import { MePanel } from '@/components/me/MePanel';
+import { MeLoading } from '@/components/ui/Loading';
 import { TOKENS } from '@/config/tokens';
 import { getSessionUser } from '@/lib/auth/session';
 import { getOwnMember } from '@/lib/members/self';
@@ -17,7 +18,7 @@ export default function MePage() {
       <SiteNav />
       <main id="main" className="mx-auto flex min-h-dvh max-w-[90rem] flex-col gap-10 px-4 pb-24 pt-28 md:px-10 md:pt-36">
         <h1 className="font-display text-[clamp(3rem,9vw,7rem)] uppercase leading-[0.94] tracking-[-0.015em] text-chalk">Your pass</h1>
-        <Suspense fallback={<p className="text-chalk-mute">Loading…</p>}>
+        <Suspense fallback={<MeLoading />}>
           <MeServer />
         </Suspense>
       </main>

@@ -5,6 +5,7 @@ import { Suspense } from 'react';
 import { SiteFooter } from '@/components/landing/SiteFooter';
 import { SiteNav } from '@/components/landing/SiteNav';
 import { ProfileView } from '@/components/members/ProfileView';
+import { Bone, LoadingPage } from '@/components/ui/Loading';
 import { brand } from '@/config/brand';
 import { TOKENS } from '@/config/tokens';
 import { getMemberProfile } from '@/lib/wall/cached';
@@ -37,7 +38,7 @@ export default function MemberPage({ params }: PageProps<'/m/[handle]'>) {
         <Link href="/creators" className="wall-link pointer-events-auto inline-flex min-h-11 items-center font-semibold text-chalk">
           All members
         </Link>
-        <Suspense fallback={<p className="mt-10 text-chalk-mute">Loading…</p>}>
+        <Suspense fallback={<LoadingPage label="Loading the member page"><div className="mt-10"><Bone className="h-16 w-4/5 md:h-24" /></div></LoadingPage>}>
           <Profile params={params} />
         </Suspense>
       </main>

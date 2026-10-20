@@ -1,4 +1,6 @@
+import sharp from 'sharp';
 import { brand } from '@/config/brand';
+import { IMAGE_CACHE, etagOf, hasVersion } from '@/lib/http/etag';
 import { badgeImage } from '@/lib/pass/badge';
 import { passImage } from '@/lib/pass/image';
 import { publicPhotoPath, readPhotoObject } from '@/lib/photos/storage';
@@ -31,10 +33,19 @@ export async function GET(req: Request, ctx: RouteContext<'/api/pass/by/[handle]
       joined: JOINED.format(new Date(p.createdAt)).replaceAll('/', '.'),
       photoPath: null,
     };
-    const cache = 'public, max-age=60, s-maxage=60, stale-while-revalidate=120';
     // ?style=badge is the photo-filled card the hanging badge uses; the default is the story pass.
-    if (new URL(req.url).searchParams.get('style') === 'badge') return await badgeImage(data, cache, photo);
-    return await passImage(data, cache, new URL(siteUrl).host, photo);
+    const badge = new URL(req.url).searchParams.get('style') === 'badge';
+    const etag = etagOf(badge ? 'badge' : 'pass', JSON.stringify(data), photo);
+    if (hasVersion(req, etag)) return new Response(null, { status: 304, headers: { ETag: etag, 'Cache-Control': IMAGE_CACHE } });
+    if (badge) {
+      // A photograph as a PNG is over a megabyte; as a jpeg it is a tenth of that, and looks the same.
+      const drawn = await badgeImage(data, IMAGE_CACHE, photo);
+      const jpeg = await sharp(Buffer.from(await drawn.arrayBuffer())).jpeg({ quality: 84, mozjpeg: true }).toBuffer();
+      return new Response(new Uint8Array(jpeg), { headers: { 'Content-Type': 'image/jpeg', 'Cache-Control': IMAGE_CACHE, ETag: etag, 'X-Content-Type-Options': 'nosniff' } });
+    }
+    const res = await passImage(data, IMAGE_CACHE, new URL(siteUrl).host, photo);
+    res.headers.set('ETag', etag);
+    return res;
   } catch (err) {
     console.error('[api/pass/by]', err);
     return new Response('Unavailable', { status: 503, headers: { 'Cache-Control': 'no-store' } });

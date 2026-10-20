@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { headers } from 'next/headers';
 import { Suspense } from 'react';
 import { JoinFlow } from '@/components/join/JoinFlow';
+import { JoinLoading } from '@/components/ui/Loading';
 import { getSessionUser } from '@/lib/auth/session';
 import { detectInAppBrowser } from '@/lib/join/in-app-browser';
 import { resolveStep } from '@/lib/join/step';
@@ -23,7 +24,7 @@ export default function JoinPage({ searchParams }: PageProps<'/join'>) {
     <main id="main" className="mx-auto flex min-h-dvh max-w-[90rem] flex-col gap-10 px-4 pb-24 pt-28 md:px-10 md:pt-36">
       <h1 className="font-display text-[clamp(3rem,9vw,7rem)] uppercase leading-[0.94] tracking-[-0.015em] text-chalk">Take your place.</h1>
       {/* The session is a request-time read: it streams in behind Suspense (Cache Components). */}
-      <Suspense fallback={<p className="text-chalk-mute">Loading…</p>}>
+      <Suspense fallback={<JoinLoading />}>
         <JoinStepServer searchParams={searchParams} />
       </Suspense>
     </main>

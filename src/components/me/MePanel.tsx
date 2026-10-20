@@ -53,6 +53,9 @@ export function MePanel({ member, changeLane, setProfilePublic, setPhotoPublic }
             onChanged={(has) => {
               setPassVersion((v) => v + 1);
               setHasPhoto(has);
+              // Your page, your badge and the member list read the photo too: drop the pages this
+              // browser kept, so they show the new one the first time you open them.
+              router.refresh();
             }}
           />
         ) : null}
