@@ -12,7 +12,7 @@ type Filter = 'all' | Lane;
 const ROOM_LABEL: Record<Lane, string> = { creator: 'Content creators', editor: 'Editors', other: 'Something else' };
 const FILTERS: { id: Filter; label: string }[] = [{ id: 'all', label: 'Everyone' }, ...LANES.map((l) => ({ id: l, label: ROOM_LABEL[l] }))];
 
-const SELECT = 'min-h-11 rounded-full border-2 border-chalk/20 bg-carbon px-4 text-sm font-semibold text-chalk focus:border-chalk';
+const SELECT = 'min-h-11 rounded-full border-2 border-chalk/20 bg-carbon px-4 text-base font-semibold text-chalk focus:border-chalk';
 
 const initials = (name: string) =>
   name

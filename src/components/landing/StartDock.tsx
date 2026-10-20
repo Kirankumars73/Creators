@@ -31,17 +31,22 @@ export function StartDock() {
     if (dismissed) return;
     const hero = document.getElementById('top');
     const end = document.getElementById('join');
+    // Also out of the way while someone fills in the brief form: it would sit on the fields.
+    const brands = document.getElementById('brands');
     let pastHero = false;
     let atEnd = false;
+    let inBrands = false;
     const io = new IntersectionObserver((entries) => {
       for (const e of entries) {
         if (e.target === hero) pastHero = !e.isIntersecting && e.boundingClientRect.top < 0;
         if (e.target === end) atEnd = e.isIntersecting || e.boundingClientRect.top < 0;
+        if (e.target === brands) inBrands = e.isIntersecting;
       }
-      setShown(pastHero && !atEnd);
+      setShown(pastHero && !atEnd && !inBrands);
     });
     if (hero) io.observe(hero);
     if (end) io.observe(end);
+    if (brands) io.observe(brands);
     return () => io.disconnect();
   }, [dismissed]);
 

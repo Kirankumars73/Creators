@@ -43,7 +43,7 @@ export function Hero({ counts }: { counts: MemberCounts | null }) {
 
       <div className="relative mx-auto grid max-w-[90rem] grid-cols-1 gap-y-10 px-4 pb-16 pt-24 md:px-10 md:pt-28 lg:min-h-svh lg:grid-cols-[minmax(0,1fr)_33rem] lg:gap-x-10 lg:pb-20">
         <div className="flex flex-col justify-center">
-          <p aria-hidden="true" className="-ml-[0.04em] -mt-[0.3em] mb-[-0.04em] text-[min(60vw,20rem)] leading-none text-rosso lg:text-[min(32vw,20rem)]">
+          <p aria-hidden="true" className="-ml-[0.04em] -mt-[0.3em] mb-[-0.04em] text-[min(60vw,20rem,36svh)] leading-none text-rosso lg:text-[min(32vw,20rem,40svh)]">
             <MlMark mlKey="wordmark" variant="wall" className="wall-writing" />
           </p>
           <h1 id="hero-title" className="font-display text-[clamp(3rem,8.5vw,7.25rem)] uppercase leading-[0.94] tracking-[-0.015em]">

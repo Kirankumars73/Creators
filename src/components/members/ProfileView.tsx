@@ -63,7 +63,7 @@ export function ProfileView({ p }: { p: MemberProfile }) {
         </div>
       </div>
 
-      <section id="brief" aria-label={`Brief ${p.displayName}`} data-surface="night" className="mt-20 grid grid-cols-1 gap-10 bg-ink p-6 text-chalk md:p-10 lg:grid-cols-[minmax(0,1fr)_34rem]">
+      <section id="brief" aria-label={`Brief ${p.displayName}`} data-surface="night" className="mt-16 grid grid-cols-1 gap-8 bg-ink p-4 text-chalk md:mt-20 md:gap-10 md:p-10 lg:grid-cols-[minmax(0,1fr)_34rem]">
         <div className="flex flex-col gap-4">
           <h2 className="font-display text-[clamp(2.5rem,5vw,4rem)] uppercase leading-[0.94]">Work with {p.displayName}</h2>
           <p className="text-body max-w-[46ch] text-chalk-dim">

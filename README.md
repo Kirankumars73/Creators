@@ -26,6 +26,7 @@ Next.js 16.4 (App Router, Cache Components) · React 19 · TypeScript strict · 
 | `pnpm test:e2e` | Playwright against a production build with no Supabase: routes, scroll film, keyboard, reduced motion, axe, reflow, touch targets, SEO |
 | `pnpm check:leaks` | Builds with sentinel secrets and proves no WhatsApp link, service key or admin email reaches the browser bundle or the prerendered HTML/RSC |
 | `pnpm test:deployed` | Playwright against the live site (`BASE_URL=…`, needs `.auth/creator.json`; see the file header) |
+| `pnpm check:live [url]` | After a deploy: fetches the live page's stylesheet and fails if it's stale (see "Production looked dark" below) |
 | `pnpm check:launch` | Lists every launch blocker still open, and exits 1 until there are none |
 | `pnpm render:ml` | Re-renders the fixed Malayalam strings to PNGs. Run it after editing `src/i18n/ml.ts`; a test fails until you do. `pnpm render:ml --wall` re-renders only the billboard-size wall-writing (`public/brand/ml/wordmark-wall.png`). On a machine without Playwright's browser, set `CHROMIUM_PATH=/usr/bin/chromium` |
 
@@ -132,6 +133,14 @@ The "For brands" section on `/` is a public form (no sign-in). A server action v
 - **Theming.** `[data-surface="wall"]` remaps the token names light (`chalk` = foreground, `carbon` = raised panel), so shared components restyle themselves; `[data-surface="night"]` restores the dark values inside a wall page (the brands band, the footer, a poster's photo frame). A test keeps the night block equal to `:root`.
 - **Performance** (2026-10-20, local production build; Lighthouse not re-run): a real Chromium run with 4× CPU and 150 ms / 1.6 Mbps throttling paints LCP at ~0.95s on `/` (3 runs, 0.932–0.964s; 0.89s before the React Bits components, the original 0.94s) and ~0.85s on `/join`, CLS 0 on both.
 - **Skills.** `anthropic-skills:theme-factory` was not used: §4 of the brief fully specifies the tokens. The wall redesign followed Anthropic's open-source `frontend-design` skill (plan, review against generic defaults, build, critique from screenshots).
+
+## Production looked dark (2026-10-21) — and how to avoid it
+
+After the redesign merged, production served the new pages with the **original** stylesheet: the colour tokens and the wall/night rules in `globals.css` were missing (Tailwind's generated utilities were current), so the light site rendered dark. A clean local build of the same commit was correct, and I could not reproduce it locally, so the cause is inferred: Vercel restored a stale Turbopack build cache (Next 16.3+ caches builds in `.next/cache` by default). What changed:
+
+- `next.config.ts` turns off the Turbopack filesystem cache for builds and dev. Builds are a little slower; they can't reuse a stale cache.
+- `pnpm check:live` fetches the live page, finds its stylesheet and checks it has the wall rules and no deleted classes. Run it after every deploy; its message says how to fix a stale deploy.
+- If it ever reports stale: Vercel → Deployments → ⋯ → Redeploy → untick **Use existing Build Cache** (or set `VERCEL_FORCE_NO_BUILD_CACHE=1` once).
 
 ## Launch verification (§14 Definition of Done)
 
