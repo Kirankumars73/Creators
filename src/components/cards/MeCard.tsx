@@ -17,6 +17,8 @@ type MeCardProps = {
   hasPhoto: boolean;
   /** Changes when the photo does, so the card refetches it. */
   version: number;
+  /** Where to load the photo from; your own photo by default. */
+  photoSrc?: string;
   onOpen(): void;
   openLabel: string;
 };
@@ -29,12 +31,12 @@ const initialsImage = (name: string, bg: string, fg: string) => {
 };
 
 /** /me: your own pass as a live profile card: your photo, name, room and handle, tilting with the pointer. */
-export function MeCard({ lane, name, instagram, hasPhoto, version, onOpen, openLabel }: MeCardProps) {
+export function MeCard({ lane, name, instagram, hasPhoto, version, photoSrc, onOpen, openLabel }: MeCardProps) {
   const look = LANE_TINT[lane];
   return (
     <div className="w-full max-w-[19rem]">
       <ProfileCard
-        avatarUrl={hasPhoto ? `/api/photo/me?v=${version}` : initialsImage(name, look.tint, look.ink)}
+        avatarUrl={hasPhoto ? (photoSrc ?? `/api/photo/me?v=${version}`) : initialsImage(name, look.tint, look.ink)}
         name={name}
         title={brand.rooms[lane].name}
         handle={instagram}

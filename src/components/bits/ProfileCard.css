@@ -168,13 +168,14 @@
 
 .profile-card__photo {
   position: absolute;
-  /* Local: 1.6x the margin, because the spring overshoots the shift and showed a strip of the backdrop at the edge. */
-  inset: calc(var(--pc-parallax) * -1.6);
-  width: calc(100% + var(--pc-parallax) * 3.2);
-  height: calc(100% + var(--pc-parallax) * 3.2);
+  /* Local: fills the tile exactly, and gets its room to drift with the pointer from a slight scale
+     (1.14 covers any shift up to 7% of the tile), instead of margins that let an edge show. */
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  object-position: center bottom;
-  transform: translate3d(var(--pc-shift-x), var(--pc-shift-y), 0);
+  object-position: center 30%;
+  transform: translate3d(var(--pc-shift-x), var(--pc-shift-y), 0) scale(1.14);
   pointer-events: none;
   user-select: none;
   -webkit-user-select: none;

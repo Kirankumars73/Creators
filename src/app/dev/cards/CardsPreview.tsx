@@ -15,7 +15,7 @@ export function CardsPreview() {
     <main data-surface="wall" className="limewash min-h-screen p-6">
       <div className="flex flex-wrap items-start gap-8">
         {LANES.map((lane) => (
-          <MeCard key={`me-${lane}`} lane={lane} name="Thomas Martin" instagram="_thomas.martin__" hasPhoto={false} version={0} openLabel="My page" onOpen={() => {}} />
+          <MeCard key={`me-${lane}`} lane={lane} name="Thomas Martin" instagram="_thomas.martin__" hasPhoto photoSrc="/api/photo/by/_thomas.martin__" version={0} openLabel="My page" onOpen={() => {}} />
         ))}
       </div>
       <div className="mt-10 flex flex-wrap items-start gap-8">
