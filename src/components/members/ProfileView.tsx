@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 import TiltedCard from '@/components/bits/TiltedCard';
+import { LazyInView } from '@/components/cards/LazyInView';
+import { MemberLanyard } from '@/components/cards/MemberLanyard';
 import { PortraitCard } from '@/components/members/PortraitCard';
 import { BriefForm } from '@/components/landing/BriefForm';
 import { Button } from '@/components/ui/Button';
@@ -85,13 +87,23 @@ function Detail({ term, children }: { term: string; children: ReactNode }) {
   );
 }
 
-/** Their portrait as a card that tilts toward the cursor, with name, handle and room over the photo. */
+/**
+ * Their pass hanging on a strap you can drag (three.js, fetched only as it scrolls into view).
+ * Until then, and on browsers without WebGL, it is their portrait card, tilting with the pointer.
+ */
 function ProfilePoster({ p }: { p: MemberProfile }) {
-  return (
+  const portrait = (
     <div className="mx-auto w-full max-w-[22rem]" role="img" aria-label={`${p.displayName}, ${brand.rooms[p.role].name}`}>
       <TiltedCard containerHeight="auto" containerWidth="100%" imageHeight="auto" imageWidth="100%" radius={6} rotateAmplitude={9} glare={0.4} intro={false} floating>
         <PortraitCard name={p.displayName} instagram={p.instagram} role={p.role} hasPhoto={p.hasPhoto} size="full" eager className="min-h-[26rem]" />
       </TiltedCard>
     </div>
+  );
+  return (
+    <LazyInView fallback={portrait} margin="200px" className="mx-auto h-[34rem] w-full max-w-[24rem]">
+      <div role="img" aria-label={`${p.displayName}'s member pass, hanging on a strap. Drag it to swing it, tap it to flip it.`} className="size-full">
+        <MemberLanyard instagram={p.instagram} role={p.role} />
+      </div>
+    </LazyInView>
   );
 }

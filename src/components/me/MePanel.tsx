@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import TiltedCard from '@/components/bits/TiltedCard';
+import { useRouter } from 'next/navigation';
+import { MeCard } from '@/components/cards/MeCard';
 import { ExportSequence } from '@/components/join/Reveal';
 import { SavePassButton } from '@/components/join/SavePassButton';
 import type { Lane } from '@/config/brand';
@@ -14,6 +15,7 @@ import { ProfileSwitch } from './ProfileSwitch';
 type MePanelProps = {
   member: {
     role: Lane;
+    displayName: string;
     instagram: string;
     roleChanges: number;
     active: boolean;
@@ -32,6 +34,9 @@ type MePanelProps = {
 export function MePanel({ member, changeLane, setProfilePublic, setPhotoPublic }: MePanelProps) {
   // Bumped when the photo changes, so the pass image beside the form is fetched again.
   const [passVersion, setPassVersion] = useState(0);
+  const router = useRouter();
+  // The card shows the photo as soon as one is uploaded or removed, before the page reloads.
+  const [hasPhoto, setHasPhoto] = useState(member.hasPhoto);
   return (
     <div data-lane={member.role} className="grid grid-cols-1 gap-14 lg:grid-cols-[minmax(0,1fr)_19rem] lg:gap-16">
       <div className="flex min-w-0 flex-col gap-12">
@@ -45,7 +50,10 @@ export function MePanel({ member, changeLane, setProfilePublic, setPhotoPublic }
             hasGoogle={member.hasGoogle}
             instagram={member.instagram}
             setPhotoPublic={setPhotoPublic}
-            onChanged={() => setPassVersion((v) => v + 1)}
+            onChanged={(has) => {
+              setPassVersion((v) => v + 1);
+              setHasPhoto(has);
+            }}
           />
         ) : null}
         {member.active ? (
@@ -56,21 +64,17 @@ export function MePanel({ member, changeLane, setProfilePublic, setPhotoPublic }
 
       <aside aria-label="Your member pass" className="order-first lg:order-none">
         <figure className="flex flex-col items-center gap-5 lg:sticky lg:top-28">
-          {/* React Bits TiltedCard: the real pass image, turning toward the pointer and catching the light. */}
-          <TiltedCard
-            imageSrc={`/api/pass/me?v=${passVersion}`}
-            altText="Your member pass"
-            containerHeight="30rem"
-            containerWidth="17rem"
-            imageHeight="30rem"
-            imageWidth="17rem"
-            radius={4}
-            rotateAmplitude={10}
-            glare={0.45}
-            intro={false}
-            floating
+          {/* React Bits ProfileCard: your pass as a live card: your photo, name, room and handle. */}
+          <MeCard
+            lane={member.role}
+            name={member.displayName}
+            instagram={member.instagram}
+            hasPhoto={hasPhoto}
+            version={passVersion}
+            openLabel={member.profilePublic ? 'My page' : 'Edit'}
+            onOpen={() => (member.profilePublic ? router.push(`/m/${member.instagram}`) : document.getElementById('profile-switch')?.scrollIntoView({ behavior: 'smooth', block: 'center' }))}
           />
-          <figcaption className="text-sm font-semibold text-chalk-mute">Story-sized: 1080 × 1920</figcaption>
+          <figcaption className="text-sm font-semibold text-chalk-mute">Save it as a story-sized picture: 1080 × 1920</figcaption>
           <SavePassButton instagram={member.instagram} />
         </figure>
       </aside>

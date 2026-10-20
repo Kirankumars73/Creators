@@ -3,7 +3,8 @@
 ## React Bits — https://reactbits.dev
 
 `src/components/bits/*` are React Bits components (BlurText, ClickSpark, CountUp,
-ElectricBorder, GlareHover, Magnet, RotatingText, ScrollVelocity, TiltedCard), vendored as
+ElectricBorder, GlareHover, HoloCard, Lanyard, Magnet, ProfileCard, ReflectiveCard, RotatingText,
+ScrollVelocity, TiltedCard), vendored as
 published; local patches are marked `Local:` in each file. The stepper on `/join` is written
 after React Bits' Stepper.
 
