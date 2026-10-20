@@ -32,6 +32,13 @@ describe('SignIn', () => {
     expect(screen.getByRole('button', { name: /copy link/i })).toBeInTheDocument();
   });
 
+  test('a copy of the site with no sign-in configured says so, instead of a retry that can never work', () => {
+    render(<SignIn {...base} configured={false} inApp={{ inApp: false, app: null, platform: 'other' }} />);
+    expect(screen.queryByRole('button', { name: /continue with google/i })).toBeNull();
+    expect(screen.getByRole('status')).toHaveTextContent(/sign-in isn’t set up on this copy of the site/i);
+    expect(screen.getByRole('link', { name: /creators-kootam\.vercel\.app/i })).toHaveAttribute('href', 'https://creators-kootam.vercel.app/join');
+  });
+
   test('a failed Google round-trip says so', () => {
     render(<SignIn {...base} error inApp={{ inApp: false, app: null, platform: 'other' }} />);
     expect(screen.getByRole('alert')).toHaveTextContent(/sign-in didn’t go through/i);

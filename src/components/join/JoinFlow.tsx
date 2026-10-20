@@ -30,6 +30,8 @@ export type JoinFlowProps = {
   inApp: InAppInfo;
   currentUrl: string;
   authError: boolean;
+  /** Supabase settings present; false shows an honest "not set up here" instead of the button. */
+  signInConfigured?: boolean;
   submitMember(input: unknown): Promise<SubmitResult>;
   fetchInvite?(): Promise<InviteClientResult>;
 };
@@ -62,6 +64,7 @@ export function JoinFlow({
   inApp,
   currentUrl,
   authError,
+  signInConfigured = true,
   submitMember,
   fetchInvite = defaultFetchInvite,
 }: JoinFlowProps) {
@@ -151,7 +154,7 @@ export function JoinFlow({
         </h2>
       ) : null}
 
-      {step === 'signin' ? <SignIn inApp={inApp} currentUrl={currentUrl} error={authError} /> : null}
+      {step === 'signin' ? <SignIn inApp={inApp} currentUrl={currentUrl} error={authError} configured={signInConfigured} /> : null}
 
       {step === 'lane' ? (
         <LanePicker value={lane} onCommit={onLaneCommit} onFlood={setFlood} initialOtherText={draft.roleOtherText} />

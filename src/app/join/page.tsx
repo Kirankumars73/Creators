@@ -8,6 +8,7 @@ import { resolveStep } from '@/lib/join/step';
 import { getOwnMember } from '@/lib/members/self';
 import { submitMember } from './actions';
 import { requestOrigin, siteUrl } from '@/lib/site';
+import { supabasePublicConfig } from '@/lib/supabase/config';
 
 export const metadata: Metadata = { title: 'Take your place' };
 
@@ -45,6 +46,7 @@ async function JoinStepServer({ searchParams }: { searchParams: PageProps<'/join
       inApp={detectInAppBrowser(ua)}
       currentUrl={`${requestOrigin(h, siteUrl)}/join`}
       authError={first(sp.error) === 'auth'}
+      signInConfigured={supabasePublicConfig() !== null}
       submitMember={submitMember}
     />
   );

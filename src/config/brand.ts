@@ -52,6 +52,8 @@ export const brand = {
   contact: 'gowthamdas04@gmail.com' as string | null,
   copyright: '© kiran@2003',
   instagramUrl: 'https://instagram.com/thegowthamdas',
+  // Where sign-in works when a local or preview copy has no Supabase settings.
+  liveUrl: 'https://creators-kootam.vercel.app',
   region: 'KERALA',
   year: 2026,
 } as const;

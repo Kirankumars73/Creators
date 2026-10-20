@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button, buttonClasses } from '@/components/ui/Button';
+import { brand } from '@/config/brand';
 import { chromeIntentUrl, type InAppInfo } from '@/lib/join/in-app-browser';
 
 type SignInProps = {
@@ -10,6 +11,8 @@ type SignInProps = {
   currentUrl: string;
   /** The OAuth round-trip came back with an error. */
   error?: boolean;
+  /** False on a copy with no Supabase settings (a fresh clone, a preview without env). */
+  configured?: boolean;
 };
 
 const PRIVACY = 'We read your name, email and profile photo. Nothing else. We never post anything.';
@@ -23,11 +26,12 @@ const APP_NAME = {
   webview: 'This app',
 } as const;
 
-export function SignIn({ inApp, currentUrl, error = false }: SignInProps) {
+export function SignIn({ inApp, currentUrl, error = false, configured = true }: SignInProps) {
   const [pending, setPending] = useState(false);
   const [failed, setFailed] = useState(error);
 
   if (inApp.inApp) return <InAppEscape inApp={inApp} currentUrl={currentUrl} />;
+  if (!configured) return <NotConfigured />;
 
   async function signIn() {
     setPending(true);
@@ -60,6 +64,23 @@ export function SignIn({ inApp, currentUrl, error = false }: SignInProps) {
         Continue with Google
       </Button>
       <p className="max-w-sm font-mono text-[0.8125rem] leading-relaxed text-chalk-dim">{PRIVACY}</p>
+    </div>
+  );
+}
+
+/** Honest about a copy that can't sign anyone in, and points at the one that can. */
+function NotConfigured() {
+  const live = `${brand.liveUrl}/join`;
+  return (
+    <div role="status" className="flex max-w-md flex-col items-start gap-4 border-l-[3px] border-mustard bg-graphite px-5 py-4">
+      <p className="font-mono text-sm text-chalk">Sign-in isn’t set up on this copy of the site.</p>
+      <p className="text-body text-chalk-dim">
+        Join on{' '}
+        <a href={live} className="inline-flex min-h-11 items-center text-chalk underline underline-offset-4">
+          {brand.liveUrl.replace(/^https:\/\//, '')}
+        </a>
+      </p>
+      <p className="font-mono text-xs leading-relaxed text-chalk-mute">Running it yourself? Add the Supabase values to .env.local — see the README.</p>
     </div>
   );
 }
