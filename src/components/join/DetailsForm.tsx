@@ -47,6 +47,7 @@ export function DetailsForm({ lane, otherText, user, draft, onDraft, onSubmit, o
   const [tags, setTags] = useState<string[]>(draft.tags ?? []);
   const [portfolioUrl, setPortfolioUrl] = useState(draft.portfolioUrl ?? '');
   const [showOnWall, setShowOnWall] = useState(draft.showOnWall ?? true);
+  const [profilePublic, setProfilePublic] = useState(draft.profilePublic ?? true);
   const [acceptedCode, setAcceptedCode] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -92,6 +93,8 @@ export function DetailsForm({ lane, otherText, user, draft, onDraft, onSubmit, o
       tags,
       portfolioUrl,
       showOnWall,
+      // A profile lives on the wall: off the wall means no profile either.
+      profilePublic: showOnWall && profilePublic,
       acceptedCode,
     });
     if (!parsed.success) {
@@ -205,6 +208,23 @@ export function DetailsForm({ lane, otherText, user, draft, onDraft, onSubmit, o
             remember('showOnWall', v);
           }}
         />
+        {showOnWall ? (
+          <Checkbox
+            label={
+              <>
+                Give me a public profile page
+                <span className="mt-1 block font-mono text-[0.8125rem] text-chalk-dim">
+                  Your district, what you do and your portfolio link, so brands and collaborators can find you. Never your email.
+                </span>
+              </>
+            }
+            checked={profilePublic}
+            onChange={(v) => {
+              setProfilePublic(v);
+              remember('profilePublic', v);
+            }}
+          />
+        ) : null}
         <Checkbox
           label={
             <>

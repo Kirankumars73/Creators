@@ -15,6 +15,7 @@ export function findLaunchBlockers({ ml, articles, brand, env }) {
   if (!brand.contact) out.push('brand:contact');
   if (!brand.founderConfirmed) out.push('brand:founder');
   if (brand.privacyReviewed === false) out.push('brand:privacy');
+  if (brand.landingReviewed === false) out.push('brand:landing');
   for (const key of WA_REQUIRED) {
     const v = (env[key] ?? '').trim();
     if (!WA_INVITE.test(v) || /PENDING/i.test(v)) out.push(`env:${key}`);
@@ -33,6 +34,7 @@ const EXPLAIN = {
   'brand:contact': 'Contact address for the footer (src/config/brand.ts)',
   'brand:founder': 'Gowtham confirms the spelling of his name (src/config/brand.ts founderConfirmed)',
   'brand:privacy': 'Gowtham reads and agrees with /privacy, which speaks for him (src/config/brand.ts privacyReviewed)',
+  'brand:landing': 'Gowtham reads the landing copy, FAQ and brand-brief promises (src/config/landing.ts; then brand.ts landingReviewed)',
   env: 'Production env value missing or a placeholder',
 };
 

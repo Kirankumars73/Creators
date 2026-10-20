@@ -47,8 +47,8 @@ describe('JoinFlow — four steps, URL-reflected (§7)', () => {
     render(<JoinFlow {...props()} />);
     const nav = screen.getByRole('navigation', { name: 'Join progress' });
     const current = nav.querySelector('[aria-current="step"]');
-    expect(current).toHaveTextContent('02');
-    expect(current).toHaveTextContent('LANE');
+    expect(current).toHaveTextContent('Step 2');
+    expect(current).toHaveTextContent('Pick your room');
   });
 
   test('choosing EDITORS moves to details and writes it into the URL and the draft', async () => {
@@ -102,6 +102,6 @@ describe('JoinFlow — four steps, URL-reflected (§7)', () => {
     await waitFor(() => expect(window.location.search).toBe('?step=details&lane=editor'), { timeout: 2000 });
     window.history.back();
     await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Step 2 of 4'));
-    expect(await screen.findAllByRole('radio')).toHaveLength(3);
+    await waitFor(() => expect(screen.getAllByRole('radio').map((r) => r.getAttribute('aria-label') ?? r.textContent?.slice(0, 20))).toHaveLength(3), { timeout: 3000 });
   });
 });

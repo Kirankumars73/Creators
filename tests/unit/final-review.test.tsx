@@ -147,7 +147,7 @@ describe('F9 — Kerala cities by the names people actually type', () => {
 });
 
 describe('F12 — members who opted out of the wall have no public pass by id', () => {
-  const row = { id: 'm', user_id: 'u', email: 'e', display_name: 'A B', avatar_url: null, instagram: 'a.b', role: 'creator', role_other_text: null, city: 'Kollam', tags: [], portfolio_url: null, show_on_wall: false, accepted_code: true, status: 'active', role_changes: 0, created_at: '2026-10-13T00:00:00Z', updated_at: '2026-10-13T00:00:00Z' } as MemberRow;
+  const row = { id: 'm', user_id: 'u', email: 'e', display_name: 'A B', avatar_url: null, instagram: 'a.b', role: 'creator', role_other_text: null, city: 'Kollam', tags: [], portfolio_url: null, show_on_wall: false, profile_public: false, accepted_code: true, status: 'active', role_changes: 0, created_at: '2026-10-13T00:00:00Z', updated_at: '2026-10-13T00:00:00Z' } as MemberRow;
   test('public by-id request → no pass', () => expect(toPassData(row, { public: true })).toBeNull());
   test('their own pass still works', () => expect(toPassData(row)).not.toBeNull());
 });

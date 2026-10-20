@@ -13,12 +13,16 @@ test.describe('from the Instagram app', () => {
   });
 });
 
-test('a normal browser on /join gets the Google button', async ({ page }) => {
+// The e2e server has no Supabase on purpose, like a fresh clone or a preview without env: sign-in
+// can't work there, so the page says so (the Google button itself is covered in sign-in.test.tsx).
+test('a copy with no Supabase says sign-in is not set up and points to the live site — no dead button', async ({ page }) => {
   await page.goto('/join');
-  await expect(page.getByRole('button', { name: /continue with google/i })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: 'Sign-in' })).toContainText('Sign-in isn’t set up on this copy of the site.');
+  await expect(page.getByRole('link', { name: 'creators-kootam.vercel.app' })).toHaveAttribute('href', 'https://creators-kootam.vercel.app/join');
+  await expect(page.getByRole('button', { name: /continue with google/i })).toHaveCount(0);
 });
 
 test('a signed-out visitor asking for the reveal is sent back to sign-in', async ({ page }) => {
   await page.goto('/join?step=reveal');
-  await expect(page.getByRole('button', { name: /continue with google/i })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: 'Sign-in' })).toContainText('Sign-in isn’t set up');
 });

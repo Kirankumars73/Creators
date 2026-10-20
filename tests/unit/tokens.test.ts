@@ -33,7 +33,25 @@ describe('token layer', () => {
       lumen: '#C6F24E',
       mint: '#7FD4B8',
       focus: '#7FD4B8',
+      // The wall (public pages, 2026-10-20): cool lime-wash, never cream.
+      wall: '#EEF2F8',
+      'wall-shade': '#E1E7F1',
+      'wall-rule': '#C3CCDA',
+      paper: '#FFFFFF',
+      print: '#101828',
+      'print-dim': '#3B4558',
+      'print-mute': '#586275',
+      neelam: '#2346C8',
+      'lumen-ink': '#3F6F0A',
+      'mint-ink': '#0E6E57',
     });
+  });
+
+  test('the night surface restores exactly the :root dark values', () => {
+    const night = css.match(/\[data-surface="night"\]\s*\{([\s\S]*?)\n\}/)?.[1] ?? '';
+    const values = Object.fromEntries([...night.matchAll(/--([a-z-]+):\s*(#[0-9A-Fa-f]{6})\s*;/g)].map((m) => [m[1], m[2]!.toUpperCase()]));
+    expect(Object.keys(values).sort()).toEqual(['carbon', 'chalk', 'chalk-dim', 'chalk-mute', 'focus', 'graphite', 'ink', 'rule']);
+    for (const [k, v] of Object.entries(values)) expect(v, k).toBe(TOKENS[k as keyof typeof TOKENS]);
   });
 
   test('no token trips the aesthetic ban', () => {

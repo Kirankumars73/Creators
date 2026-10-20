@@ -40,6 +40,9 @@ export const brand = {
   founderConfirmed: true as boolean,
   // [ASK GOUTHAM] /privacy speaks for him; flip once he has read and agreed with it.
   privacyReviewed: false as boolean,
+  // [ASK GOUTHAM] The redesigned landing page (src/config/landing.ts) promises things for him —
+  // free to join, how brand briefs are handled, the FAQ answers. Flip once he has read it.
+  landingReviewed: false as boolean,
   founder: {
     fullName: 'GOWTHAM DAS THEKKINKATTIL',
     shortName: 'Gowtham',
@@ -49,6 +52,8 @@ export const brand = {
   contact: 'gowthamdas04@gmail.com' as string | null,
   copyright: '© kiran@2003',
   instagramUrl: 'https://instagram.com/thegowthamdas',
+  // Where sign-in works when a local or preview copy has no Supabase settings.
+  liveUrl: 'https://creators-kootam.vercel.app',
   region: 'KERALA',
   year: 2026,
 } as const;

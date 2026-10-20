@@ -9,4 +9,9 @@ describe('pre-rendered Malayalam images (next/og cannot shape Malayalam)', () =>
     expect(manifest[key]?.text).toBe(entry.ml);
     expect(existsSync(`src/assets/ml/${key}.png`)).toBe(true);
   });
+
+  test('the wall-writing render matches the wordmark — run `pnpm render:ml --wall` after editing it', () => {
+    expect(manifest['wordmark-wall']?.text).toBe(ML.wordmark.ml);
+    expect(existsSync('public/brand/ml/wordmark-wall.png')).toBe(true);
+  });
 });

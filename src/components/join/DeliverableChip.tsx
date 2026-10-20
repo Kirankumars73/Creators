@@ -42,7 +42,7 @@ export function DeliverableChip({ index, title, body, href, locked, laneTag, ord
       initial={reduced ? { opacity: 0 } : { x: 48, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={reduced ? { duration: 0.15 } : { ...SETTLE, delay: order * 0.3 }}
-      className={`relative border bg-graphite p-5 transition-colors duration-[var(--dur-cut)] ease-cut md:p-6 ${
+      className={`relative border bg-carbon p-5 shadow-[0_14px_30px_-22px_var(--print)] transition-colors duration-[var(--dur-cut)] ease-cut md:p-6 ${
         locked ? 'border-rule opacity-60' : 'border-lane'
       }`}
     >

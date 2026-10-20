@@ -2,7 +2,7 @@ import 'server-only';
 import { createClient } from '@supabase/supabase-js';
 import { cacheLife } from 'next/cache';
 import { supabasePublicConfig } from '@/lib/supabase/config';
-import { readMemberCounts, readMemberWall } from './queries';
+import { readMemberCounts, readMemberProfile, readMemberWall } from './queries';
 
 // Public, anonymous reads: no cookies, so they can be cached and prerendered.
 // Cache Components replaces route-level `revalidate`: 'minutes' revalidates about every 60s.
@@ -21,4 +21,10 @@ export async function getMemberWall() {
   'use cache';
   cacheLife('minutes');
   return readMemberWall(anonClient(), new Date());
+}
+
+export async function getMemberProfile(handle: string) {
+  'use cache';
+  cacheLife('minutes');
+  return readMemberProfile(anonClient(), handle.toLowerCase());
 }

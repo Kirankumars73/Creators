@@ -1,32 +1,44 @@
-import { CodeTeaser } from '@/components/film/CodeTeaser';
-import { EndCredits } from '@/components/film/EndCredits';
-import { Hero } from '@/components/film/Hero';
-import { Inside } from '@/components/film/Inside';
-import { JoinGate } from '@/components/film/JoinGate';
-import { RollCall } from '@/components/film/RollCall';
-import { TheRoom } from '@/components/film/TheRoom';
-import { ScrollFilm } from '@/components/film/ScrollFilm';
-import { Scrubber } from '@/components/film/Scrubber';
-import { WhosInside } from '@/components/film/WhosInside';
+import type { Viewport } from 'next';
+import { Brands } from '@/components/landing/Brands';
+import { CraftTicker } from '@/components/landing/CraftTicker';
+import { Directory } from '@/components/landing/Directory';
+import { Faq } from '@/components/landing/Faq';
+import { Hero } from '@/components/landing/Hero';
+import { CodeShelf, FinalCta, HowToJoin, Inside, Manifesto, Pass } from '@/components/landing/Sections';
+import { SiteFooter } from '@/components/landing/SiteFooter';
+import { SiteNav } from '@/components/landing/SiteNav';
+import { StartDock } from '@/components/landing/StartDock';
+import { WallHeading } from '@/components/landing/WallHeading';
+import { ROLL_CALL } from '@/config/landing';
+import { TOKENS } from '@/config/tokens';
 import { getMemberCounts, getMemberWall } from '@/lib/wall/cached';
+
+// The public pages are the wall: light, so the browser chrome matches it.
+export const viewport: Viewport = { themeColor: TOKENS.wall, colorScheme: 'light' };
 
 export default async function Home() {
   const [counts, wall] = await Promise.all([getMemberCounts(), getMemberWall()]);
   return (
-    <ScrollFilm>
-      <Scrubber />
-      <main>
+    <div data-surface="wall" className="limewash min-h-dvh text-chalk">
+      <SiteNav />
+      <main id="main">
         <Hero counts={counts} />
-        <TheRoom />
-        <WhosInside />
-        <CodeTeaser />
+        <CraftTicker />
+        <Manifesto />
+        <HowToJoin />
         <Inside />
-        <RollCall wall={wall} counts={counts} />
-        <JoinGate />
+        <Pass />
+        <Brands />
+        <section id="roll-call" aria-labelledby="roll-call-title" className="mx-auto max-w-[90rem] px-4 py-16 md:px-10 md:py-24">
+          <WallHeading id="roll-call-title" title={ROLL_CALL.title} sub={ROLL_CALL.sub} />
+          <Directory wall={wall} counts={counts} limit={12} />
+        </section>
+        <CodeShelf />
+        <Faq />
+        <FinalCta />
       </main>
-      <EndCredits />
-      {/* Room for the scrubber so it never sits on the last line of the credits. */}
-      <div aria-hidden="true" className="h-10 md:h-14" />
-    </ScrollFilm>
+      <SiteFooter />
+      <StartDock />
+    </div>
   );
 }

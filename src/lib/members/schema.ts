@@ -42,6 +42,8 @@ const common = {
   city: z.enum(DISTRICTS),
   portfolioUrl: z.preprocess(blankToUndefined, z.url({ protocol: /^https?$/ }).max(300).optional()),
   showOnWall: z.boolean().default(true),
+  // Public profile page (district, crafts, portfolio). Off unless they say yes: migration 0005.
+  profilePublic: z.boolean().default(false),
   acceptedCode: z.literal(true),
 };
 

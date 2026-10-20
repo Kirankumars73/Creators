@@ -94,6 +94,14 @@ describe('ExportSequence — render bar, then the result', () => {
     expect(screen.queryByRole('progressbar')).toBeNull();
   });
 
+  test('a copy with no WhatsApp settings says so and points to the live pass — no retry that can never work', () => {
+    render(<Reveal result={{ status: 503, error: 'not_configured' }} lane="creator" returning />);
+    expect(screen.getByRole('alert')).toHaveTextContent('The WhatsApp links aren’t set up on this copy of the site.');
+    expect(screen.getByRole('link', { name: /creators-kootam\.vercel\.app/ })).toHaveAttribute('href', 'https://creators-kootam.vercel.app/me');
+    expect(screen.queryByRole('button', { name: /try again/i })).toBeNull();
+    expect(screen.queryByText(/check your connection/i)).toBeNull();
+  });
+
   test('a network failure offers a retry', async () => {
     const onRetry = vi.fn();
     render(<ExportSequence task={Promise.resolve({ status: 0, error: 'network' })} lane="creator" returning={false} onRetry={onRetry} />);

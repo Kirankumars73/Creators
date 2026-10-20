@@ -1,5 +1,6 @@
 'use client';
 
+import { AnimatePresence, MotionConfig, motion } from 'motion/react';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import type { Lane } from '@/config/brand';
 import { useJoinDraft } from '@/lib/join/draft';
@@ -10,6 +11,7 @@ import { resolveStep, type JoinStep } from '@/lib/join/step';
 import type { MemberInput } from '@/lib/members/schema';
 import type { SubmitResult } from '@/lib/members/submit';
 import dynamic from 'next/dynamic';
+import { PassPreview } from './PassPreview';
 import { RenderBar } from './RenderBar';
 import { SignIn } from './SignIn';
 
@@ -30,6 +32,8 @@ export type JoinFlowProps = {
   inApp: InAppInfo;
   currentUrl: string;
   authError: boolean;
+  /** Supabase settings present; false shows an honest "not set up here" instead of the button. */
+  signInConfigured?: boolean;
   submitMember(input: unknown): Promise<SubmitResult>;
   fetchInvite?(): Promise<InviteClientResult>;
 };
@@ -43,7 +47,7 @@ const STEP_NAME: Record<JoinStep, string> = {
 };
 const HEADINGS: Partial<Record<JoinStep, string>> = {
   signin: 'Start with Google.',
-  lane: 'Pick your lane.',
+  lane: 'Pick your room.',
   details: 'A few details.',
 };
 
@@ -62,12 +66,16 @@ export function JoinFlow({
   inApp,
   currentUrl,
   authError,
+  signInConfigured = true,
   submitMember,
   fetchInvite = defaultFetchInvite,
 }: JoinFlowProps) {
   const isClient = useIsClient();
   const [draft, patchDraft, clearDraft] = useJoinDraft();
   const [step, setStep] = useState<JoinStep>(initial.step);
+  // Each arrival at a step is a new visit: coming Back mid-transition must mount a fresh step,
+  // not revive the one still animating out (which would keep its old choice).
+  const [visit, setVisit] = useState(0);
   const [lane, setLane] = useState<Lane | null>(initial.lane ?? member?.role ?? null);
   const [flood, setFlood] = useState<Lane | null>(null);
   const [otherText, setOtherText] = useState('');
@@ -89,6 +97,7 @@ export function JoinFlow({
         { signedIn: user !== null, hasMember: joined.current },
       );
       setStep(next.step);
+      setVisit((v) => v + 1);
       if (next.lane) setLane(next.lane);
       if (next.step === 'lane') setFlood(null);
     };
@@ -110,6 +119,7 @@ export function JoinFlow({
     if (mode === 'push') window.history.pushState(null, '', url);
     else window.history.replaceState(null, '', url);
     setStep(next);
+    setVisit((v) => v + 1);
   }
 
   function onLaneCommit(chosen: Lane, text?: string) {
@@ -140,48 +150,70 @@ export function JoinFlow({
   const title = HEADINGS[step];
 
   return (
-    <div data-lane={accent ?? undefined} className="flex w-full flex-col gap-10">
-      <StepTimeline step={step} lane={lane} />
-      <p role="status" aria-live="polite" className="sr-only">
-        Step {STEP_NO[step]} of 4: {STEP_NAME[step]}.
-      </p>
-      {title ? (
-        <h2 ref={heading} tabIndex={-1} className="text-subhead text-chalk outline-none">
-          {title}
-        </h2>
-      ) : null}
+    <MotionConfig reducedMotion="user">
+      <div data-lane={accent ?? undefined} className="grid w-full grid-cols-1 gap-12 lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:gap-16">
+        <div className="flex min-w-0 flex-col gap-10">
+          <StepTimeline step={step} lane={lane} />
+          <p role="status" aria-live="polite" className="sr-only">
+            Step {STEP_NO[step]} of 4: {STEP_NAME[step]}.
+          </p>
+          {/* Each step comes into focus as the last one blurs away. */}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={`${step}-${visit}`}
+              initial={{ opacity: 0, y: 18, filter: 'blur(6px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, y: -12, filter: 'blur(6px)' }}
+              transition={{ duration: 0.32, ease: [0.33, 1, 0.68, 1] }}
+              className="flex flex-col gap-8"
+            >
+              {title ? (
+                <h2 ref={heading} tabIndex={-1} className="font-display text-[clamp(2rem,4.5vw,3.25rem)] uppercase leading-[0.94] text-chalk outline-none">
+                  {title}
+                </h2>
+              ) : null}
 
-      {step === 'signin' ? <SignIn inApp={inApp} currentUrl={currentUrl} error={authError} /> : null}
+              {step === 'signin' ? <SignIn inApp={inApp} currentUrl={currentUrl} error={authError} configured={signInConfigured} /> : null}
 
-      {step === 'lane' ? (
-        <LanePicker value={lane} onCommit={onLaneCommit} onFlood={setFlood} initialOtherText={draft.roleOtherText} />
-      ) : null}
+              {step === 'lane' ? (
+                <LanePicker value={lane} onCommit={onLaneCommit} onFlood={setFlood} initialOtherText={draft.roleOtherText} />
+              ) : null}
 
-      {step === 'details' && lane && isClient ? (
-        <DetailsForm
-          lane={lane}
-          otherText={otherText || draft.roleOtherText}
-          user={{ name: user?.name ?? null }}
-          draft={draft}
-          onDraft={patchDraft}
-          onSubmit={onSubmit}
-          onDone={onDone}
-        />
-      ) : null}
+              {step === 'details' && lane && isClient ? (
+                <DetailsForm
+                  lane={lane}
+                  otherText={otherText || draft.roleOtherText}
+                  user={{ name: user?.name ?? null }}
+                  draft={draft}
+                  onDraft={patchDraft}
+                  onSubmit={onSubmit}
+                  onDone={onDone}
+                />
+              ) : null}
 
-      {step === 'reveal' ? (
-        task ? (
-          <ExportSequence
-            task={task}
-            lane={revealLane}
-            returning={returning}
-            onRetry={() => setTask(fetchInvite())}
-            footer={<SavePassButton instagram={handle} />}
-          />
-        ) : (
-          <RenderBar progress={0} frames={0} />
-        )
-      ) : null}
-    </div>
+              {step === 'reveal' ? (
+                task ? (
+                  <ExportSequence
+                    task={task}
+                    lane={revealLane}
+                    returning={returning}
+                    onRetry={() => setTask(fetchInvite())}
+                    footer={<SavePassButton instagram={handle} />}
+                  />
+                ) : (
+                  <RenderBar progress={0} frames={0} />
+                )
+              ) : null}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        <aside aria-label="Your pass preview" className="hidden lg:block">
+          <div className="sticky top-28">
+            <PassPreview lane={accent ?? null} name={draft.displayName ?? user?.name} handle={draft.instagram ?? handle} />
+          </div>
+        </aside>
+      </div>
+    </MotionConfig>
   );
 }

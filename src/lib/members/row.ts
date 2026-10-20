@@ -16,6 +16,7 @@ export function buildMemberInsert(user: SessionUser, input: MemberInput): Member
     tags: input.tags,
     portfolio_url: input.portfolioUrl ?? null,
     show_on_wall: input.showOnWall,
+    profile_public: input.profilePublic,
     accepted_code: input.acceptedCode,
   };
 }

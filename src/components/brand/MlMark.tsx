@@ -10,8 +10,10 @@ type Meta = { text: string; width: number; height: number };
  * 200KB Anek download. Height follows the font size: 1em of the parent = the PNG's line box.
  * Returns null when the string has no rendered image yet.
  */
-export function MlMark({ mlKey, className = '' }: { mlKey: MlKey; className?: string }) {
-  const meta = (manifest as Record<string, Meta | undefined>)[mlKey];
+export function MlMark({ mlKey, variant, className = '' }: { mlKey: MlKey; variant?: 'wall'; className?: string }) {
+  // `wall`: the large, heaviest render for wall-writing (pnpm render:ml --wall).
+  const file = variant ? `${mlKey}-${variant}` : mlKey;
+  const meta = (manifest as Record<string, Meta | undefined>)[file];
   const ml = t(mlKey).ml;
   if (!meta || !ml || meta.text !== ml) return null;
   return (
@@ -22,8 +24,8 @@ export function MlMark({ mlKey, className = '' }: { mlKey: MlKey; className?: st
       style={{
         height: '1em',
         aspectRatio: `${meta.width} / ${meta.height}`,
-        WebkitMaskImage: `url(/brand/ml/${mlKey}.png)`,
-        maskImage: `url(/brand/ml/${mlKey}.png)`,
+        WebkitMaskImage: `url(/brand/ml/${file}.png)`,
+        maskImage: `url(/brand/ml/${file}.png)`,
         WebkitMaskSize: '100% 100%',
         maskSize: '100% 100%',
         WebkitMaskRepeat: 'no-repeat',

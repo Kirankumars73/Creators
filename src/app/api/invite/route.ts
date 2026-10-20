@@ -8,8 +8,15 @@ const NO_STORE = { 'Cache-Control': 'no-store' };
 
 // POST only, and the request body is never read: the lane comes from the member row.
 export async function POST() {
+  let wa: ReturnType<typeof getServerEnv>['wa'];
   try {
-    const { wa } = getServerEnv();
+    wa = getServerEnv().wa;
+  } catch (err) {
+    // A copy without the server env (a clone, a preview): say so, so the page doesn't blame the network.
+    console.error('[api/invite]', err);
+    return NextResponse.json({ error: 'not_configured' }, { status: 503, headers: NO_STORE });
+  }
+  try {
     const result = await handleInvite({
       getUserId: async () => (await getSessionUser())?.id ?? null,
       getMemberByUserId,

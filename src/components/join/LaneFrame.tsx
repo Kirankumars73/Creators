@@ -53,7 +53,7 @@ export function LaneFrame({ lane, mode = 'static', selected = false, size = 'car
       } ${className}`}
     >
       <CropMarks offset={size === 'card' ? 6 : 0} tone={selected ? 'lane' : 'rule'} />
-      <div data-monitor="" className={`relative overflow-hidden border-b border-rule bg-ink ${size === 'full' ? 'min-h-0 flex-1' : 'aspect-[16/10]'}`}>
+      <div data-monitor="" data-surface="night" className={`relative overflow-hidden border-b border-rule bg-ink ${size === 'full' ? 'min-h-0 flex-1' : 'aspect-[16/10]'}`}>
         <CraftScene craft={lane === 'creator' ? 'viewfinder' : 'timeline'} className="absolute inset-0 h-full w-full" />
       </div>
       <div className={compact ? 'p-3 md:p-6' : 'p-5 md:p-7'}>
