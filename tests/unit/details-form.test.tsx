@@ -81,7 +81,7 @@ describe('DetailsForm (§7 step 3)', () => {
     await userEvent.click(screen.getByRole('button', { name: /render my pass/i }));
     await waitFor(() =>
       expect(props.onSubmit).toHaveBeenCalledWith(
-        expect.objectContaining({ role: 'creator', instagram: 'the.gowtham_das', city: 'Ernakulam', acceptedCode: true, showOnWall: true }),
+        expect.objectContaining({ role: 'creator', instagram: 'the.gowtham_das', city: 'Ernakulam', acceptedCode: true, showOnWall: true, profilePublic: true }),
       ),
     );
   });

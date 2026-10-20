@@ -1,34 +1,64 @@
-import { ClipBlock } from '@/components/brand/ClipBlock';
+'use client';
+
+import { motion } from 'motion/react';
 import type { Lane } from '@/config/brand';
 import type { JoinStep } from '@/lib/join/step';
 
-const STEPS: { id: JoinStep; n: string; word: string }[] = [
-  { id: 'signin', n: '01', word: 'SIGN IN' },
-  { id: 'lane', n: '02', word: 'LANE' },
-  { id: 'details', n: '03', word: 'DETAILS' },
-  { id: 'reveal', n: '04', word: 'EXPORT' },
+const STEPS: { id: JoinStep; word: string }[] = [
+  { id: 'signin', word: 'Sign in' },
+  { id: 'lane', word: 'Pick your room' },
+  { id: 'details', word: 'Your details' },
+  { id: 'reveal', word: 'Your links' },
 ];
 
-/** The scrubber's Editing Bay twin: four clips, the lane clip fills with the chosen color (§7). */
+/**
+ * Where you are in joining: four numbered stops on a line that fills as you go (after React
+ * Bits' Stepper). Done stops get a tick; the room stop takes your room's colour once chosen.
+ */
 export function StepTimeline({ step, lane }: { step: JoinStep; lane: Lane | null }) {
   const at = STEPS.findIndex((s) => s.id === step);
   return (
-    <nav aria-label="Join progress">
-      <ol className="grid grid-cols-4 gap-1 border-y border-rule py-2">
-        {STEPS.map((s, i) => (
-          <li key={s.id}>
-            <ClipBlock
-              label={s.n}
-              lane={s.id === 'lane' && lane ? lane : 'neutral'}
-              active={i <= at}
-              aria-current={i === at ? 'step' : undefined}
-              className="w-full"
-            >
-              <span className={`text-label hidden truncate sm:inline ${i <= at ? 'text-chalk-dim' : 'text-chalk-mute'}`}>{s.word}</span>
-              <span className="sr-only sm:hidden">{s.word}</span>
-            </ClipBlock>
-          </li>
-        ))}
+    <nav aria-label="Join progress" data-lane={lane ?? undefined}>
+      <ol className="relative grid grid-cols-4">
+        <span aria-hidden="true" className="absolute left-[12.5%] right-[12.5%] top-5 h-[3px] bg-rule" />
+        <motion.span
+          aria-hidden="true"
+          className="absolute left-[12.5%] top-5 h-[3px] origin-left bg-rosso"
+          initial={false}
+          animate={{ width: `${(at / (STEPS.length - 1)) * 75}%` }}
+          transition={{ type: 'spring', stiffness: 120, damping: 22 }}
+        />
+        {STEPS.map((s, i) => {
+          const done = i < at;
+          const current = i === at;
+          const fill = done || current ? (s.id === 'lane' && lane ? 'bg-lane text-print' : 'bg-rosso text-paper') : 'bg-carbon text-chalk-mute';
+          return (
+            <li key={s.id} aria-current={current ? 'step' : undefined} className="relative flex flex-col items-center gap-2 text-center">
+              <motion.span
+                aria-hidden="true"
+                initial={false}
+                animate={{ scale: current ? 1.12 : 1 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 18 }}
+                className={`relative z-10 grid size-10 place-items-center rounded-full border-[3px] font-display text-lg leading-none ${fill} ${
+                  current ? 'border-chalk' : done ? 'border-transparent' : 'border-rule'
+                }`}
+              >
+                {done ? (
+                  <svg viewBox="0 0 16 16" className="size-4" fill="none" stroke="currentColor" strokeWidth="2.4">
+                    <path d="M3 8.5 6.5 12 13 4.5" />
+                  </svg>
+                ) : (
+                  i + 1
+                )}
+              </motion.span>
+              <span className={`text-xs font-semibold sm:text-sm ${current ? 'text-chalk' : 'text-chalk-mute'}`}>
+                <span className="sr-only">Step {i + 1}: </span>
+                {s.word}
+                {done ? <span className="sr-only"> (done)</span> : null}
+              </span>
+            </li>
+          );
+        })}
       </ol>
     </nav>
   );

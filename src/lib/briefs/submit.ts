@@ -6,7 +6,15 @@ import { z } from 'zod';
 
 export const MIN_FILL_MS = 3000;
 
-export type BriefInsert = { brand: string; contact_name: string; email: string; phone: string | null; brief: string | null };
+export type BriefInsert = {
+  brand: string;
+  contact_name: string;
+  email: string;
+  phone: string | null;
+  brief: string | null;
+  /** Set when the brief came from a member's profile ("Work with me"). */
+  for_instagram?: string | null;
+};
 
 export type BriefResult =
   | { ok: true }
@@ -31,6 +39,7 @@ export const briefSchema = z.object({
     .regex(/^[^@\s]+@[^@\s]+\.[^@\s]+$/, 'We need an email we can reply to.'),
   phone: z.preprocess(blankToNull, z.string().trim().regex(/^\+?[0-9 ()-]{7,20}$/, 'Digits, spaces and + only — or leave it blank.').nullable()),
   brief: z.preprocess(blankToNull, z.string().trim().max(1500, 'Keep it under 1,500 characters — the details can follow by email.').nullable()),
+  for_instagram: z.preprocess(blankToNull, z.string().regex(/^[a-zA-Z0-9._]{1,30}$/).nullable().optional()),
 });
 
 export async function submitBriefCore(deps: BriefDeps, input: unknown): Promise<BriefResult> {
@@ -49,7 +58,8 @@ export async function submitBriefCore(deps: BriefDeps, input: unknown): Promise<
     return { ok: false, error: 'invalid', fieldErrors };
   }
 
-  const { errorCode } = await deps.insert(parsed.data);
+  const { for_instagram, ...rest } = parsed.data;
+  const { errorCode } = await deps.insert(for_instagram ? { ...rest, for_instagram } : rest);
   if (errorCode) {
     console.error('[briefs] insert failed', errorCode);
     return { ok: false, error: 'unavailable' };

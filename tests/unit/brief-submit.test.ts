@@ -29,6 +29,13 @@ describe('brand briefs (public form, server-validated)', () => {
     });
   });
 
+  test('a brief from a member’s profile names that member; a bad handle is invalid', async () => {
+    const d = deps();
+    await expect(submitBriefCore(d, { ...valid, for_instagram: 'kit.maker' })).resolves.toEqual({ ok: true });
+    expect(d.insert).toHaveBeenCalledWith(expect.objectContaining({ for_instagram: 'kit.maker' }));
+    await expect(submitBriefCore(deps(), { ...valid, for_instagram: '../admin' })).resolves.toMatchObject({ ok: false, error: 'invalid' });
+  });
+
   test('phone and brief are optional and stored as null when blank', async () => {
     const d = deps();
     await expect(submitBriefCore(d, { ...valid, phone: '  ', brief: '' })).resolves.toEqual({ ok: true });

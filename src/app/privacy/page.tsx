@@ -88,6 +88,13 @@ export default function PrivacyPage() {
             <strong className="text-chalk">Everyone</strong>, only if you’re on the member wall: your display name, Instagram handle, lane and the date you joined. Untick “Show me on the member wall” and none of it is public.
           </p>
           <p>
+            <strong className="text-chalk">Your public profile page</strong>, only if you turn it on (when you join, or from{' '}
+            <Link href="/me" className="text-chalk underline underline-offset-4">
+              your pass page
+            </Link>
+            ): it adds your district, the crafts you picked, what you do and your portfolio link to your page at /m/your-handle and to the member filters. Switch it off any time; members who joined before it existed start with it off.
+          </p>
+          <p>
             <strong className="text-chalk">The admins ({brand.founder.shortName}, and the person who runs this site for him):</strong> your email address and the name on your Google account, plus your name, handle, lane, city, tags, portfolio link, what you wrote, when you joined and when you last signed in — in the admin panel and its export. That includes anyone who signed in but didn’t finish joining.
           </p>
           <p>Your email is never shown publicly — only the admins see it. Your member pass (name, handle, lane) is made for you to share — only you decide where it goes.</p>

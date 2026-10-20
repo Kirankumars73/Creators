@@ -20,7 +20,7 @@ export async function insertBrief(row: BriefInsert): Promise<{ errorCode: string
 export async function listBriefs(limit = 200): Promise<BriefRow[]> {
   const { data, error } = await createAdminSupabase()
     .from('brand_briefs')
-    .select('id, brand, contact_name, email, phone, brief, status, created_at')
+    .select('*')
     .order('created_at', { ascending: false })
     .limit(limit);
   if (error) throw error;

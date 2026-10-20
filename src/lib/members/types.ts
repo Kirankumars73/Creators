@@ -16,6 +16,8 @@ export type MemberRow = {
   tags: string[];
   portfolio_url: string | null;
   show_on_wall: boolean;
+  /** District, crafts, what they do and portfolio on /m/<handle>. Migration 0005. */
+  profile_public: boolean;
   accepted_code: boolean;
   status: MemberStatus;
   role_changes: number;

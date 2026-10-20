@@ -1,5 +1,6 @@
 import type { Viewport } from 'next';
 import { Brands } from '@/components/landing/Brands';
+import { CraftTicker } from '@/components/landing/CraftTicker';
 import { Directory } from '@/components/landing/Directory';
 import { Faq } from '@/components/landing/Faq';
 import { Hero } from '@/components/landing/Hero';
@@ -22,6 +23,7 @@ export default async function Home() {
       <SiteNav />
       <main id="main">
         <Hero counts={counts} />
+        <CraftTicker />
         <Manifesto />
         <HowToJoin />
         <Inside />

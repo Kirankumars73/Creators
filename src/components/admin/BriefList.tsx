@@ -19,7 +19,10 @@ export function BriefList({ briefs }: { briefs: BriefRow[] | null }) {
           {briefs.map((b) => (
             <li key={b.id} data-lane="other" className="flex flex-col gap-2 border border-rule border-l-[3px] border-l-lane bg-carbon p-4">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <p className="font-subhead text-lg font-bold text-chalk">{b.brand}</p>
+                <p className="font-subhead text-lg font-bold text-chalk">
+                  {b.brand}
+                  {b.for_instagram ? <span className="ml-2 font-mono text-sm font-normal text-lane">for @{b.for_instagram}</span> : null}
+                </p>
                 <p className="text-label text-chalk-mute">{WHEN.format(new Date(b.created_at))}</p>
               </div>
               <p className="font-mono text-sm text-chalk-dim">

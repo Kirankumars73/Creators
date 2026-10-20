@@ -14,8 +14,11 @@ let openedAt: string | undefined;
 const clientStamp = () => (openedAt ??= String(Date.now()));
 const subscribeNothing = () => () => {};
 
-/** The "post a brief" form. Server-validated; on any server trouble it hands over an email link instead. */
-export function BriefForm() {
+/**
+ * The "post a brief" form. Server-validated; on any server trouble it hands over an email link
+ * instead. With `forInstagram` it's the "Work with me" form on a member's page, addressed to them.
+ */
+export function BriefForm({ forInstagram }: { forInstagram?: string } = {}) {
   const [state, action, pending] = useActionState<BriefResult | null, FormData>(submitBrief, null);
   const started = useSyncExternalStore(subscribeNothing, clientStamp, () => '');
   const briefId = useId();
@@ -42,10 +45,13 @@ export function BriefForm() {
   return (
     <form ref={form} action={action} noValidate className="relative flex flex-col gap-5 border border-rule bg-carbon p-6 md:p-8" data-lane="community">
       <div className="flex items-baseline justify-between gap-4">
-        <h3 className="font-display text-[2rem] uppercase leading-none text-chalk">{BRANDS.formTitle}</h3>
+        <h3 className="font-display text-[2rem] uppercase leading-none text-chalk">{forInstagram ? `Brief @${forInstagram}` : BRANDS.formTitle}</h3>
         <span className="text-label text-chalk-mute">Free</span>
       </div>
-      <p className="font-mono text-[0.8125rem] leading-snug text-chalk-dim">{BRANDS.formNote}</p>
+      <p className="font-mono text-[0.8125rem] leading-snug text-chalk-dim">
+        {/* Members' emails are never public: a brief to one member goes through the team. */}
+        {forInstagram ? `It comes to the kootam team, who pass it to @${forInstagram}. You get a reply by email.` : BRANDS.formNote}
+      </p>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Field label="Brand / organisation" name="brand" required autoComplete="organization" maxLength={80} error={errors.brand} />
@@ -85,6 +91,7 @@ export function BriefForm() {
         </label>
       </div>
       <input type="hidden" name="t" value={started} />
+      {forInstagram ? <input type="hidden" name="for_instagram" value={forInstagram} /> : null}
 
       {state && !state.ok && state.error === 'unavailable' ? (
         <p role="alert" className="border-l-2 border-rosso pl-3 font-mono text-[0.8125rem] leading-snug text-chalk">

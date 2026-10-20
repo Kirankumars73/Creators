@@ -13,6 +13,7 @@ export type JoinDraft = Partial<{
   tags: string[];
   portfolioUrl: string;
   showOnWall: boolean;
+  profilePublic: boolean;
 }>;
 
 const KEY = 'ck:join-draft';

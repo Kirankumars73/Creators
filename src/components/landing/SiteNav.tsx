@@ -106,6 +106,7 @@ export function SiteNav() {
           role="dialog"
           aria-modal="true"
           aria-label="Menu"
+          data-lenis-prevent=""
           data-on="rosso"
           className="menu-in fixed inset-0 z-[80] flex flex-col overflow-y-auto bg-rosso px-4 pb-10 pt-4 text-paper"
         >

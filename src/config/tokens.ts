@@ -23,6 +23,8 @@ export const TOKENS = {
   'print-dim': '#3B4558',
   'print-mute': '#586275',
   neelam: '#2346C8',
+  'lumen-ink': '#3F6F0A',
+  'mint-ink': '#0E6E57',
 } as const satisfies Record<string, `#${string}`>;
 
 export type TokenName = keyof typeof TOKENS;

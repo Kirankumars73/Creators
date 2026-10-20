@@ -1,5 +1,8 @@
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
+import CountUp from '@/components/bits/CountUp';
+import GlareHover from '@/components/bits/GlareHover';
+import Magnet from '@/components/bits/Magnet';
 import { CraftArt } from '@/components/brand/CraftArt';
 import { CraftScene } from '@/components/brand/CraftScene';
 import { MlMark } from '@/components/brand/MlMark';
@@ -7,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { LANES, brand, type Lane } from '@/config/brand';
 import { HERO } from '@/config/landing';
 import type { MemberCounts } from '@/lib/wall/queries';
+import { HeroFind } from './HeroFind';
 
 // Where each poster sits in the cluster, how crooked it hangs, and when it's slapped on
 // (after the wall-writing has painted in).
@@ -50,14 +54,30 @@ export function Hero({ counts }: { counts: MemberCounts | null }) {
               </span>
             ))}
           </h1>
+          <HeroFind />
           <p className="text-body mt-6 max-w-[46ch] text-chalk-dim md:mt-8 md:text-[1.1875rem]">{HERO.sub}</p>
           <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4">
-            <Button href="/join">{HERO.primary}</Button>
+            {/* React Bits Magnet: the way in leans toward the cursor. */}
+            <Magnet padding={70} magnetStrength={4}>
+              <Button href="/join">{HERO.primary}</Button>
+            </Magnet>
             <Link href="/#brands" className="wall-link inline-flex min-h-11 items-center font-display text-[1.5rem] uppercase">
               {HERO.secondary}
             </Link>
           </div>
-          <p className="mt-6 text-sm text-chalk-mute">{counts && counts.total > 0 ? HERO.members(counts.total) : HERO.empty}</p>
+          <p className="mt-6 text-sm text-chalk-mute">
+            {counts && counts.total > 0 ? (
+              <>
+                <span className="sr-only">{HERO.members(counts.total)}</span>
+                <span aria-hidden="true">
+                  <CountUp to={counts.total} duration={1.6} className="font-semibold text-chalk" />{' '}
+                  {HERO.members(counts.total).replace(/^\d+ /, '')}
+                </span>
+              </>
+            ) : (
+              HERO.empty
+            )}
+          </p>
         </div>
 
         {/* On wide screens the posters hang loose; this keeps the wall tall enough to hold them. */}
@@ -88,12 +108,15 @@ function Poster({ lane }: { lane: Lane }) {
       className={`poster paste relative flex w-[16rem] flex-col gap-3 bg-lane p-4 pb-5 sm:w-[17rem] ${lane === 'creator' ? 'text-paper' : 'text-print'}`}
       style={{ '--rot': p.rot, animationDelay: `${p.delay}ms` } as CSSProperties}
     >
-      <span data-surface="night" className="relative block aspect-[16/10] overflow-hidden bg-ink">
-        {lane === 'other' ? (
-          <CraftArt craft="bars" labels={false} className="absolute inset-0 h-full w-full" />
-        ) : (
-          <CraftScene craft={lane === 'creator' ? 'viewfinder' : 'timeline'} className="absolute inset-0 h-full w-full" />
-        )}
+      {/* React Bits GlareHover: the photo is a glossy print that catches the light. */}
+      <span data-surface="night" className="block">
+        <GlareHover width="100%" height="auto" borderRadius="0" background="var(--ink)" glareOpacity={0.35} className="aspect-[16/10] w-full">
+          {lane === 'other' ? (
+            <CraftArt craft="bars" labels={false} className="absolute inset-0 h-full w-full" />
+          ) : (
+            <CraftScene craft={lane === 'creator' ? 'viewfinder' : 'timeline'} className="absolute inset-0 h-full w-full" />
+          )}
+        </GlareHover>
       </span>
       <span className="font-display text-[2.5rem] uppercase leading-[0.9]">{room.name}</span>
       <span className="text-base font-semibold leading-snug">{room.tagline}</span>

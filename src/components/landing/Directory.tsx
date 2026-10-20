@@ -12,6 +12,8 @@ type Filter = 'all' | Lane;
 const ROOM_LABEL: Record<Lane, string> = { creator: 'Content creators', editor: 'Editors', other: 'Something else' };
 const FILTERS: { id: Filter; label: string }[] = [{ id: 'all', label: 'Everyone' }, ...LANES.map((l) => ({ id: l, label: ROOM_LABEL[l] }))];
 
+const SELECT = 'min-h-11 rounded-full border-2 border-chalk/20 bg-carbon px-4 text-sm font-semibold text-chalk focus:border-chalk';
+
 const initials = (name: string) =>
   name
     .split(/\s+/)
@@ -36,6 +38,8 @@ export function Directory({
   limit?: number;
 }) {
   const [filter, setFilter] = useState<Filter>('all');
+  const [craft, setCraft] = useState('');
+  const [district, setDistrict] = useState('');
   const [query, setQuery] = useState('');
   const q = useDeferredValue(query.trim().toLowerCase().replace(/^@/, ''));
 
@@ -53,8 +57,16 @@ export function Directory({
     );
   }
 
+  // Craft and district come only from members who made their profile public, so the
+  // options are exactly what's findable: no filter ever leads to an empty dead end.
+  const crafts = [...new Set(wall.flatMap((m) => m.tags))].sort((a, b) => a.localeCompare(b));
+  const districts = [...new Set(wall.map((m) => m.city).filter((c): c is string => !!c))].sort((a, b) => a.localeCompare(b));
   const matches = wall.filter(
-    (m) => (filter === 'all' || m.role === filter) && (!q || m.displayName.toLowerCase().includes(q) || m.instagram.toLowerCase().includes(q)),
+    (m) =>
+      (filter === 'all' || m.role === filter) &&
+      (!craft || m.tags.includes(craft)) &&
+      (!district || m.city === district) &&
+      (!q || m.displayName.toLowerCase().includes(q) || m.instagram.toLowerCase().includes(q)),
   );
   const shown = limit ? matches.slice(0, limit) : matches;
   const n = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
@@ -85,6 +97,34 @@ export function Directory({
             </button>
           ))}
         </div>
+        <div className="flex flex-wrap gap-2">
+          {crafts.length ? (
+            <label className="flex min-h-11 items-center">
+              <span className="sr-only">Craft</span>
+              <select value={craft} onChange={(e) => setCraft(e.target.value)} className={SELECT}>
+                <option value="">Any craft</option>
+                {crafts.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+          {districts.length ? (
+            <label className="flex min-h-11 items-center">
+              <span className="sr-only">District</span>
+              <select value={district} onChange={(e) => setDistrict(e.target.value)} className={SELECT}>
+                <option value="">Any district</option>
+                {districts.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+        </div>
         <label className="relative flex min-h-11 items-center lg:w-80">
           <span className="sr-only">{ROLL_CALL.search}</span>
           <input
@@ -101,14 +141,14 @@ export function Directory({
         {matches.length} {matches.length === 1 ? 'member' : 'members'} shown
       </p>
 
+      {craft || district ? <p className="text-sm text-chalk-mute">District and craft filters show members who made their profile public.</p> : null}
+
       {shown.length ? (
         <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {shown.map((m) => (
             <li key={`${m.instagram}-${m.createdAt}`} data-lane={m.role}>
-              <a
-                href={`https://instagram.com/${m.instagram}`}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href={`/m/${m.instagram}`}
                 className="group relative flex min-h-16 items-center gap-3 bg-carbon p-3 pr-4 shadow-[0_1px_0_color-mix(in_oklab,var(--chalk)_12%,transparent)] transition-transform duration-200 hover:-translate-y-0.5"
               >
                 <span aria-hidden="true" className="grid size-11 shrink-0 place-items-center rounded-full bg-lane text-sm font-bold text-print">
@@ -125,8 +165,7 @@ export function Directory({
                     <span className="sr-only">New</span>
                   </span>
                 ) : null}
-                <span className="sr-only">(opens Instagram)</span>
-              </a>
+              </Link>
             </li>
           ))}
         </ul>

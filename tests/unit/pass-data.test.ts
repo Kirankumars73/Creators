@@ -15,6 +15,7 @@ const row: MemberRow = {
   tags: [],
   portfolio_url: null,
   show_on_wall: true,
+  profile_public: false,
   accepted_code: true,
   status: 'active',
   role_changes: 0,

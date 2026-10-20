@@ -81,6 +81,8 @@ describe('memberInputSchema', () => {
     const withoutWallChoice: Record<string, unknown> = { ...validCreator };
     delete withoutWallChoice.showOnWall;
     expect(memberInputSchema.parse(withoutWallChoice).showOnWall).toBe(true);
+    // A public profile is never assumed: no answer means no profile.
+    expect(memberInputSchema.parse(withoutWallChoice).profilePublic).toBe(false);
   });
 });
 

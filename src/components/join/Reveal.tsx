@@ -2,9 +2,11 @@
 
 import { motion } from 'motion/react';
 import { useEffect, useState, type ReactNode } from 'react';
+import ElectricBorder from '@/components/bits/ElectricBorder';
 import { Star } from '@/components/brand/Star';
 import { Button } from '@/components/ui/Button';
 import { brand, type Lane } from '@/config/brand';
+import { TOKENS } from '@/config/tokens';
 import { t } from '@/i18n/ml';
 import { useCommunityOpened, markCommunityOpened } from '@/lib/join/chip-store';
 import type { LaneKey } from '@/lib/invite/resolve';
@@ -25,6 +27,9 @@ type RevealProps = {
   /** Slot under the chips (SAVE MY PASS). */
   footer?: ReactNode;
 };
+
+// Canvas strokes can't read CSS variables: the lane colours from the token mirror.
+const LANE_HEX: Record<Lane, string> = { creator: TOKENS.rosso, editor: TOKENS['lumen-ink'], other: TOKENS['mint-ink'] };
 
 const LANE_ROOM_COPY: Record<Lane, string> = {
   creator: 'Your room. Only creators.',
@@ -110,15 +115,18 @@ function RevealOk({
           onOpen={markCommunityOpened}
         />
         {links.lane ? (
-          <DeliverableChip
-            index="02"
-            order={1}
-            title={brand.rooms[lane].name}
-            laneTag={brand.rooms[lane].short}
-            body={LANE_ROOM_COPY[lane]}
-            href={unlocked ? links.lane : null}
-            locked={!unlocked}
-          />
+          // React Bits ElectricBorder: once the community is open, your room's link goes live.
+          <ElectricBorder active={unlocked} color={LANE_HEX[lane]} speed={0.8} chaos={0.4} thickness={2} borderRadius={0} theme="light">
+            <DeliverableChip
+              index="02"
+              order={1}
+              title={brand.rooms[lane].name}
+              laneTag={brand.rooms[lane].short}
+              body={LANE_ROOM_COPY[lane]}
+              href={unlocked ? links.lane : null}
+              locked={!unlocked}
+            />
+          </ElectricBorder>
         ) : (
           <motion.p
             initial={{ opacity: 0 }}

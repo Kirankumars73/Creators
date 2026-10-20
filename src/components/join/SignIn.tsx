@@ -60,11 +60,24 @@ export function SignIn({ inApp, currentUrl, error = false, configured = true }: 
           Sign-in didn’t go through. Nothing was saved. Try again.
         </p>
       ) : null}
-      <Button variant="poster" onClick={signIn} disabled={pending} aria-busy={pending}>
+      <Button variant="chalk" onClick={signIn} disabled={pending} aria-busy={pending} className="border-2 border-print/15 shadow-[0_10px_24px_-14px_var(--print)]">
+        <GoogleMark />
         Continue with Google
       </Button>
       <p className="max-w-sm font-mono text-[0.8125rem] leading-relaxed text-chalk-dim">{PRIVACY}</p>
     </div>
+  );
+}
+
+/** Google's "G", as Google's sign-in branding asks for on a "Continue with Google" button. */
+function GoogleMark() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 48 48" className="size-6 shrink-0">
+      <path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-2.8-.4-4.1H24v7.7h12.1c-.2 2-1.6 5-4.6 7l-.1.3 6.6 5.1.5.1c4.2-3.9 6.6-9.6 6.6-16.1" />
+      <path fill="#34A853" d="M24 46c6 0 11-2 14.6-5.4l-7-5.4c-1.9 1.3-4.4 2.2-7.6 2.2-5.8 0-10.8-3.9-12.5-9.2l-.3.1-6.9 5.3-.1.3C7.8 41.1 15.3 46 24 46" />
+      <path fill="#FBBC05" d="M11.5 28.2c-.5-1.4-.7-2.8-.7-4.2s.3-2.9.7-4.2v-.3l-7-5.4-.2.1C2.8 17.2 2 20.5 2 24s.8 6.8 2.3 9.8z" />
+      <path fill="#EA4335" d="M24 10.6c4.1 0 6.9 1.8 8.5 3.3l6.2-6.1C34.9 4.3 30 2 24 2 15.3 2 7.8 7 4.3 14.2l7.1 5.6C13.2 14.5 18.2 10.6 24 10.6" />
+    </svg>
   );
 }
 

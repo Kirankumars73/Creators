@@ -34,6 +34,9 @@
   --print-dim: #3B4558;
   --print-mute: #586275;
   --neelam: #2346C8;
+  /* lane colours as text on the wall (lime and mint are paper there, never text) */
+  --lumen-ink: #3F6F0A;
+  --mint-ink: #0E6E57;
 
   /* contextual: set by [data-lane] / [data-surface] below */
   --lane: var(--rosso);
@@ -51,10 +54,10 @@
   interpolate-size: allow-keywords;
 }
 
-[data-lane="creator"] { --lane: var(--rosso); }
-[data-lane="editor"] { --lane: var(--lumen); }
-[data-lane="other"] { --lane: var(--mint); }
-[data-lane="community"] { --lane: var(--rosso); }
+[data-lane="creator"] { --lane: var(--rosso); --lane-ink: var(--rosso-deep); }
+[data-lane="editor"] { --lane: var(--lumen); --lane-ink: var(--lumen-ink); }
+[data-lane="other"] { --lane: var(--mint); --lane-ink: var(--mint-ink); }
+[data-lane="community"] { --lane: var(--rosso); --lane-ink: var(--rosso-deep); }
 
 [data-surface="poster"] { --surface: var(--ink); }
 [data-surface="bay"] { --surface: var(--carbon); }
@@ -73,6 +76,16 @@
   --chalk-mute: var(--print-mute);
   --focus: var(--neelam);
   color-scheme: light;
+}
+/* On the wall, lane-coloured text uses the lane's ink (AA at any size); fills keep the lane. */
+[data-surface="wall"] .text-lane {
+  color: var(--lane-ink, var(--lane));
+}
+[data-surface="wall"] .halation-lane {
+  filter: none;
+}
+[data-surface="night"] .text-lane {
+  color: var(--lane);
 }
 
 /* Night: back to the dark values inside a wall page (a poster's photo frame, the brands band).
@@ -304,6 +317,12 @@
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }
 }
+
+/* Lenis (SmoothScroll): it drives the scroll itself, so the CSS smoothing must step aside. */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: clip; }
 
 /* Lime-wash: faint vertical brush drag and grit, drawn once (no image request). */
 .limewash {

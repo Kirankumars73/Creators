@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { headers } from 'next/headers';
 import { Suspense } from 'react';
 import { JoinFlow } from '@/components/join/JoinFlow';
@@ -9,17 +9,19 @@ import { getOwnMember } from '@/lib/members/self';
 import { submitMember } from './actions';
 import { requestOrigin, siteUrl } from '@/lib/site';
 import { supabasePublicConfig } from '@/lib/supabase/config';
+import { TOKENS } from '@/config/tokens';
 
 export const metadata: Metadata = { title: 'Take your place' };
+export const viewport: Viewport = { themeColor: TOKENS.wall, colorScheme: 'light' };
 
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
 export default function JoinPage({ searchParams }: PageProps<'/join'>) {
   return (
-    <main className="mx-auto flex min-h-dvh max-w-5xl flex-col gap-10 px-4 py-10 md:px-10 md:py-16">
-      <h1 className="text-title text-chalk">Take your place.</h1>
+    <main id="main" className="mx-auto flex min-h-dvh max-w-[90rem] flex-col gap-10 px-4 pb-24 pt-28 md:px-10 md:pt-36">
+      <h1 className="font-display text-[clamp(3rem,9vw,7rem)] uppercase leading-[0.94] tracking-[-0.015em] text-chalk">Take your place.</h1>
       {/* The session is a request-time read: it streams in behind Suspense (Cache Components). */}
-      <Suspense fallback={<p className="text-label text-chalk-mute">Loading…</p>}>
+      <Suspense fallback={<p className="text-chalk-mute">Loading…</p>}>
         <JoinStepServer searchParams={searchParams} />
       </Suspense>
     </main>

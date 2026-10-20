@@ -17,4 +17,14 @@ test.describe('prefers-reduced-motion: reduce — the quiet cut (§10)', () => {
     await page.waitForTimeout(2000);
     expect(await page.evaluate(() => document.getAnimations().filter((a) => a.playState === 'running').length)).toBe(0);
   });
+
+  test('the rotating craft and the craft ticker hold still (they are JS-driven, so checked by position)', async ({ page }) => {
+    await page.goto('/');
+    const word = page.locator('#top p').filter({ hasText: 'Find your' }).locator('[aria-hidden="true"]');
+    const first = await word.innerText();
+    await page.waitForTimeout(2600);
+    expect(await word.innerText()).toBe(first);
+    expect(await page.locator('.parallax').count()).toBeGreaterThan(0);
+    expect(await page.locator('.scroller').count()).toBe(0);
+  });
 });

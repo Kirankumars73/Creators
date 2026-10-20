@@ -13,6 +13,9 @@ const member = (over: Partial<WallMember>): WallMember => ({
   role: 'creator',
   createdAt: '2026-10-14T02:00:00Z',
   isNew: false,
+  city: null,
+  tags: [],
+  hasProfile: false,
   ...over,
 });
 const wall = [
@@ -36,12 +39,11 @@ describe('Directory — the member wall, honest in every state', () => {
     expect(screen.getByText('The member list didn’t load. Refresh in a minute.')).toBeInTheDocument();
   });
 
-  test('members show name, handle and room, link to Instagram — and never an email', () => {
+  test('members show name, handle and room, link to their page — and never an email', () => {
     const { container } = render(<Directory wall={wall} counts={counts} />);
     expect(cards()).toHaveLength(3);
     const ravi = screen.getByText('Ravi Menon').closest('a')!;
-    expect(ravi).toHaveAttribute('href', 'https://instagram.com/ravicuts');
-    expect(ravi).toHaveAttribute('rel', 'noopener noreferrer');
+    expect(ravi).toHaveAttribute('href', '/m/ravicuts');
     expect(within(ravi).getByText('Editors')).toBeInTheDocument();
     expect(within(ravi).getByText('New')).toBeInTheDocument();
     expect(container.innerHTML).not.toMatch(/@example\.com|email/i);
@@ -57,6 +59,30 @@ describe('Directory — the member wall, honest in every state', () => {
     await user.type(screen.getByRole('searchbox'), '@meera');
     expect(await screen.findByText('Meera')).toBeInTheDocument();
     expect(cards()).toHaveLength(1);
+  });
+
+  test('craft and district filters list only what public profiles show, and narrow to them', async () => {
+    const user = userEvent.setup();
+    const withProfiles = [
+      member({ displayName: 'Anu K', instagram: 'anu', city: 'Kochi', tags: ['reels'], hasProfile: true }),
+      member({ displayName: 'Ravi', instagram: 'ravi', role: 'editor', city: 'Thrissur', tags: ['davinci'], hasProfile: true }),
+      member({ displayName: 'Private', instagram: 'private' }),
+    ];
+    render(<Directory wall={withProfiles} counts={{ total: 3, creators: 2, editors: 1, other: 0 }} />);
+    const district = screen.getByRole('combobox', { name: 'District' });
+    expect([...district.querySelectorAll('option')].map((o) => o.textContent)).toEqual(['Any district', 'Kochi', 'Thrissur']);
+    await user.selectOptions(district, 'Thrissur');
+    expect(cards()).toHaveLength(1);
+    expect(screen.getByText('Ravi')).toBeInTheDocument();
+    await user.selectOptions(district, '');
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Craft' }), 'reels');
+    expect(cards()).toHaveLength(1);
+    expect(screen.getByText('Anu K')).toBeInTheDocument();
+  });
+
+  test('with no public profiles there are no craft or district filters at all', () => {
+    render(<Directory wall={wall} counts={counts} />);
+    expect(screen.queryByRole('combobox')).toBeNull();
   });
 
   test('a search with no match says so instead of showing an empty grid', async () => {

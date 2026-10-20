@@ -14,3 +14,18 @@ if (typeof window !== 'undefined' && !window.matchMedia) {
       dispatchEvent: () => false,
     }) as MediaQueryList;
 }
+
+// jsdom has no IntersectionObserver / ResizeObserver; the React Bits components use both to
+// pause off screen. A no-op stand-in: nothing in jsdom is ever "visible" to animate.
+if (typeof window !== 'undefined') {
+  class NoopObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+    takeRecords() {
+      return [];
+    }
+  }
+  window.IntersectionObserver ??= NoopObserver as unknown as typeof IntersectionObserver;
+  window.ResizeObserver ??= NoopObserver as unknown as typeof ResizeObserver;
+}

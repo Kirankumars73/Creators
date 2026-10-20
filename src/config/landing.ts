@@ -24,6 +24,15 @@ export const HERO = {
   postersLabel: 'Pick your room',
 } as const;
 
+/** The rotating end of "Find your …" under the hero headline. */
+export const FIND = { lead: 'Find your', words: ['editor.', 'DOP.', 'colourist.', 'sound designer.', 'next collab.', 'people.'] } as const;
+
+/** Crafts on the velocity ticker under the hero. */
+export const CRAFTS = [
+  'Reels', 'Short films', 'Fashion', 'Food', 'Travel', 'Comedy', 'Tech', 'Colour grading',
+  'Sound design', 'Motion', 'VFX', 'Photography', 'Styling', 'Writing', 'DOP', 'Thumbnails',
+] as const;
+
 export const MANIFESTO = {
   title: 'Why a room',
   lines: ['Creators burn out making everything alone.', 'Editors get cropped out of the credits.', 'Everyone’s shooting. Nobody’s talking to each other.'],
@@ -74,7 +83,7 @@ export const BRANDS = {
 
 export const ROLL_CALL = {
   title: 'Who’s on the wall',
-  sub: 'Members who chose to be listed. Tap a name to open their Instagram.',
+  sub: 'Members who chose to be listed. Tap a name to open their page.',
   empty: 'Nobody’s on the wall yet. Join and be the first name on it.',
   unreachable: 'The member list didn’t load. Refresh in a minute.',
   search: 'Search by name or handle',
