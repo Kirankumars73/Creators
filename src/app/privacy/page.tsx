@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 // The public pages are the wall: light, so the browser chrome matches it.
 export const viewport: Viewport = { themeColor: TOKENS.wall, colorScheme: 'light' };
 
-const UPDATED = '21 October 2026';
+const UPDATED = '22 October 2026';
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -75,7 +75,7 @@ export default function PrivacyPage() {
             <strong className="text-chalk">A sign-in cookie</strong> so you stay signed in. No analytics, no ads, no tracking pixels.
           </p>
           <p>
-            <strong className="text-chalk">A photo</strong>, only if you add one from{' '}
+            <strong className="text-chalk">A photo</strong>, only if you add one, when you join or later from{' '}
             <Link href="/me" className="text-chalk underline underline-offset-4">
               your pass page
             </Link>

@@ -7,6 +7,8 @@ import { Checkbox } from '@/components/ui/Checkbox';
 import { Combobox } from '@/components/ui/Combobox';
 import { Field } from '@/components/ui/Field';
 import { TagSelect } from '@/components/ui/TagSelect';
+import type { JoinPhoto } from '@/lib/photos/client';
+import { PhotoPicker } from './PhotoPicker';
 import type { Lane } from '@/config/brand';
 import { DISTRICTS, DISTRICT_ALIASES, TAGS } from '@/config/join';
 import type { JoinDraft } from '@/lib/join/draft';
@@ -19,8 +21,13 @@ type DetailsFormProps = {
   user: { name: string | null };
   draft: JoinDraft;
   onDraft(patch: JoinDraft): void;
-  onSubmit(input: MemberInput): Promise<SubmitResult>;
+  /** The second argument is the optional photo, uploaded by the flow once the member record exists. */
+  onSubmit(input: MemberInput, photo: JoinPhoto | null): Promise<SubmitResult>;
   onDone(): void;
+  /** Their Google profile photo, if the account has one. */
+  googlePhotoUrl?: string | null;
+  /** Reports the photo choice so the pass preview beside the form can show it. */
+  onPhoto?(photo: JoinPhoto | null): void;
 };
 
 // One plain sentence per field: what's wrong and how to fix it.
@@ -40,7 +47,7 @@ const FORM_ERRORS = {
   invalid: 'Something in the form needs another look.',
 } as const;
 
-export function DetailsForm({ lane, otherText, user, draft, onDraft, onSubmit, onDone }: DetailsFormProps) {
+export function DetailsForm({ lane, otherText, user, draft, onDraft, onSubmit, onDone, googlePhotoUrl = null, onPhoto }: DetailsFormProps) {
   const [displayName, setDisplayName] = useState(draft.displayName ?? user.name ?? '');
   const [instagram, setInstagram] = useState(draft.instagram ?? '');
   const [city, setCity] = useState(draft.city ?? '');
@@ -49,6 +56,11 @@ export function DetailsForm({ lane, otherText, user, draft, onDraft, onSubmit, o
   const [showOnWall, setShowOnWall] = useState(draft.showOnWall ?? true);
   const [profilePublic, setProfilePublic] = useState(draft.profilePublic ?? true);
   const [acceptedCode, setAcceptedCode] = useState(false);
+  const [photo, setPhotoState] = useState<JoinPhoto | null>(null);
+  const setPhoto = (next: JoinPhoto | null) => {
+    setPhotoState(next);
+    onPhoto?.(next);
+  };
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -111,7 +123,8 @@ export function DetailsForm({ lane, otherText, user, draft, onDraft, onSubmit, o
     inFlight.current = true;
     setPending(true);
     try {
-      const result = await onSubmit(parsed.data);
+      // Off the wall means no public photo either, whatever the box said before they unticked it.
+      const result = await onSubmit(parsed.data, photo ? { ...photo, show: photo.show && showOnWall } : null);
       if (result.ok) {
         onDone();
         return;
@@ -194,6 +207,7 @@ export function DetailsForm({ lane, otherText, user, draft, onDraft, onSubmit, o
         }}
         error={errors.portfolioUrl}
       />
+      <PhotoPicker value={photo} onChange={setPhoto} googlePhotoUrl={googlePhotoUrl} canShow={showOnWall} />
       <div className="flex flex-col gap-1">
         <Checkbox
           label={

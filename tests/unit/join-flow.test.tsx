@@ -90,6 +90,74 @@ describe('JoinFlow — four steps, URL-reflected (§7)', () => {
     expect(window.location.search).toBe('?step=reveal');
   });
 
+  describe('the photo picked while joining', () => {
+    beforeEach(() => {
+      URL.createObjectURL = vi.fn(() => 'blob:preview');
+      URL.revokeObjectURL = vi.fn();
+    });
+
+    async function joinWithPhoto(extra: Partial<Parameters<typeof JoinFlow>[0]>, tick: { show?: boolean } = {}) {
+      render(<JoinFlow {...props({ initial: { step: 'details', lane: 'editor' }, ...extra })} />);
+      await userEvent.type(await screen.findByRole('textbox', { name: 'Instagram handle' }), 'the.gowtham_das');
+      await userEvent.type(screen.getByRole('combobox', { name: 'City / district' }), 'Ernakulam');
+      await userEvent.tab();
+      await userEvent.upload(screen.getByLabelText('Add a photo'), new File([new Uint8Array(900)], 'me.jpg', { type: 'image/jpeg' }));
+      if (tick.show) await userEvent.click(screen.getByRole('checkbox', { name: /show my photo/i }));
+      await userEvent.click(screen.getByRole('checkbox', { name: /read the code/i }));
+      await userEvent.click(screen.getByRole('button', { name: /render my pass/i }));
+    }
+
+    test('it is uploaded only AFTER the member record is saved, and before the links are fetched; private by default', async () => {
+      const calls: string[] = [];
+      const submitMember = vi.fn(async (): Promise<SubmitResult> => (calls.push('member saved'), { ok: true, alreadyMember: false }));
+      const sendPhoto = vi.fn(async () => (calls.push('photo uploaded'), { ok: true as const }));
+      const setPhotoPublic = vi.fn(async () => ({ ok: true }));
+      const fetchInvite = vi.fn(async () => (calls.push('links fetched'), okInvite));
+      await joinWithPhoto({ submitMember, sendPhoto, setPhotoPublic, fetchInvite });
+      await waitFor(() => expect(calls).toEqual(['member saved', 'photo uploaded', 'links fetched']));
+      expect(sendPhoto).toHaveBeenCalledWith({ kind: 'file', file: expect.any(File) });
+      expect(setPhotoPublic).not.toHaveBeenCalled(); // they didn't tick "show my photo"
+    });
+
+    test('ticking "show my photo" switches it on after the upload', async () => {
+      const setPhotoPublic = vi.fn(async () => ({ ok: true }));
+      await joinWithPhoto({ sendPhoto: vi.fn(async () => ({ ok: true as const })), setPhotoPublic }, { show: true });
+      await waitFor(() => expect(setPhotoPublic).toHaveBeenCalledWith(true));
+    });
+
+    test('a failed upload never stops them joining: they reach the links and are told where to add it', async () => {
+      const sendPhoto = vi.fn(async () => ({ ok: false as const, reason: 'too_big' }));
+      await joinWithPhoto({ sendPhoto });
+      expect(await screen.findByRole('heading', { name: /export complete/i }, { timeout: 4000 })).toBeInTheDocument();
+      expect(screen.getByText(/your photo didn’t upload/i)).toBeInTheDocument();
+      expect(screen.getByText(/add it from your pass page/i)).toBeInTheDocument();
+    });
+
+    test('no photo picked means nothing is uploaded at all', async () => {
+      const sendPhoto = vi.fn(async () => ({ ok: true as const }));
+      render(<JoinFlow {...props({ initial: { step: 'details', lane: 'editor' }, sendPhoto })} />);
+      await userEvent.type(await screen.findByRole('textbox', { name: 'Instagram handle' }), 'the.gowtham_das');
+      await userEvent.type(screen.getByRole('combobox', { name: 'City / district' }), 'Ernakulam');
+      await userEvent.tab();
+      await userEvent.click(screen.getByRole('checkbox', { name: /read the code/i }));
+      await userEvent.click(screen.getByRole('button', { name: /render my pass/i }));
+      expect(await screen.findByRole('heading', { name: /export complete/i }, { timeout: 4000 })).toBeInTheDocument();
+      expect(sendPhoto).not.toHaveBeenCalled();
+    });
+
+    test('the Google photo is offered when the account has one, and uploads as the google source', async () => {
+      const sendPhoto = vi.fn(async () => ({ ok: true as const }));
+      render(<JoinFlow {...props({ initial: { step: 'details', lane: 'editor' }, sendPhoto, googlePhotoUrl: 'https://lh3.googleusercontent.com/a/x=s96-c' })} />);
+      await userEvent.type(await screen.findByRole('textbox', { name: 'Instagram handle' }), 'the.gowtham_das');
+      await userEvent.type(screen.getByRole('combobox', { name: 'City / district' }), 'Ernakulam');
+      await userEvent.tab();
+      await userEvent.click(screen.getByRole('button', { name: 'Use my Google photo' }));
+      await userEvent.click(screen.getByRole('checkbox', { name: /read the code/i }));
+      await userEvent.click(screen.getByRole('button', { name: /render my pass/i }));
+      await waitFor(() => expect(sendPhoto).toHaveBeenCalledWith({ kind: 'google' }));
+    });
+  });
+
   test('a returning member lands on the condensed reveal with both links open', async () => {
     render(<JoinFlow {...props({ initial: { step: 'reveal', lane: null }, member: { id: 'm1', role: 'editor', instagram: 'the.gowtham_das' } })} />);
     const two = await screen.findByRole('link', { name: /EDITORS/ }, { timeout: 3000 });

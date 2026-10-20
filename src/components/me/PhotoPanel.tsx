@@ -2,7 +2,7 @@
 
 import { useId, useRef, useState } from 'react';
 import type { PhotoReason, PhotoResult } from '@/lib/photos/actions';
-import { shrinkPhoto } from '@/lib/photos/client';
+import { photoProblemText, shrinkPhoto } from '@/lib/photos/client';
 
 type PhotoPanelProps = {
   hasPhoto: boolean;
@@ -15,17 +15,6 @@ type PhotoPanelProps = {
   /** Called after the photo or its switch changed, so the pass preview beside it can refresh. */
   onChanged?(): void;
 };
-
-const PROBLEMS: Partial<Record<PhotoReason | 'network', string>> = {
-  not_an_image: 'That file isn’t a photo we can use. Pick a jpeg, png or webp picture.',
-  too_big: 'That photo is too large. Pick one under 6 MB.',
-  no_google_photo: 'Your Google account doesn’t have a photo.',
-  unavailable: 'Google didn’t answer. Try again, or upload a photo.',
-  unauthenticated: 'Your sign-in expired. Sign in again.',
-  inactive: 'Your pass is on hold. Message us on Instagram.',
-  network: 'That didn’t go through. Check your connection and try again.',
-};
-const FALLBACK = 'That didn’t save. Try again.';
 
 /** /me: the photo on your pass. Upload one or use your Google photo; it stays private until you switch it on. */
 export function PhotoPanel({ hasPhoto: initialHas, photoPublic: initialPublic, onWall, hasGoogle, setPhotoPublic, onChanged }: PhotoPanelProps) {
@@ -53,10 +42,10 @@ export function PhotoPanel({ hasPhoto: initialHas, photoPublic: initialPublic, o
         onChanged?.();
       } else {
         const body = (await res.json().catch(() => ({}))) as { error?: PhotoReason };
-        setProblem((body.error && PROBLEMS[body.error]) || FALLBACK);
+        setProblem(photoProblemText(body.error ?? 'unknown'));
       }
     } catch {
-      setProblem(PROBLEMS.network!);
+      setProblem(photoProblemText('network'));
     } finally {
       setBusy(null);
     }
@@ -80,7 +69,7 @@ export function PhotoPanel({ hasPhoto: initialHas, photoPublic: initialPublic, o
     if (result.ok) onChanged?.();
     else {
       setShown(!next);
-      setProblem((result.reason !== 'unknown' && PROBLEMS[result.reason]) || FALLBACK);
+      setProblem(photoProblemText(result.reason));
     }
   }
 
