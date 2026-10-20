@@ -6,11 +6,17 @@ import { MAX_INPUT_BYTES } from '@/lib/photos/process';
 import { readPhotoObject } from '@/lib/photos/storage';
 import { getSessionUser } from '@/lib/auth/session';
 import { getOwnMember } from '@/lib/members/self';
+import { refreshOnOk, refreshWallFromRoute } from '@/lib/wall/revalidate';
 
 const NO_STORE = { 'Cache-Control': 'private, no-store' };
 
-const reply = (r: PhotoResult) =>
-  r.ok ? NextResponse.json({ ok: true }, { headers: NO_STORE }) : NextResponse.json({ error: r.reason }, { status: reasonStatus(r.reason), headers: NO_STORE });
+// A new, changed or removed photo changes the public wall, so it is refreshed here too.
+function reply(result: PhotoResult) {
+  refreshOnOk(result, refreshWallFromRoute);
+  return result.ok
+    ? NextResponse.json({ ok: true }, { headers: NO_STORE })
+    : NextResponse.json({ error: result.reason }, { status: reasonStatus(result.reason), headers: NO_STORE });
+}
 
 // GET /api/photo/me — the signed-in member's own photo, whether or not it is switched on publicly.
 export async function GET() {

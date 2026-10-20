@@ -3,6 +3,7 @@
 import { useId, useRef, useState } from 'react';
 import type { PhotoReason, PhotoResult } from '@/lib/photos/actions';
 import { photoProblemText, shrinkPhoto } from '@/lib/photos/client';
+import { refreshSession } from '@/lib/session/store';
 
 type PhotoPanelProps = {
   hasPhoto: boolean;
@@ -40,6 +41,7 @@ export function PhotoPanel({ hasPhoto: initialHas, photoPublic: initialPublic, o
           setVersion((v) => v + 1);
         }
         onChanged?.();
+        void refreshSession();
       } else {
         const body = (await res.json().catch(() => ({}))) as { error?: PhotoReason };
         setProblem(photoProblemText(body.error ?? 'unknown'));
@@ -66,8 +68,10 @@ export function PhotoPanel({ hasPhoto: initialHas, photoPublic: initialPublic, o
     setProblem(null);
     const result = await setPhotoPublic(next);
     setBusy(null);
-    if (result.ok) onChanged?.();
-    else {
+    if (result.ok) {
+      onChanged?.();
+      void refreshSession();
+    } else {
       setShown(!next);
       setProblem(photoProblemText(result.reason));
     }
@@ -136,6 +140,7 @@ export function PhotoPanel({ hasPhoto: initialHas, photoPublic: initialPublic, o
 
       {has ? (
         onWall ? (
+          <>
           <div className="flex items-center gap-4">
             <button
               type="button"
@@ -151,9 +156,15 @@ export function PhotoPanel({ hasPhoto: initialHas, photoPublic: initialPublic, o
               <span className={`absolute size-6 rounded-full bg-paper shadow transition-transform duration-200 ease-pan ${shown ? 'translate-x-8' : 'translate-x-1'}`} />
             </button>
             <span id={`${id}-l`} className="font-semibold text-chalk">
-              {shown ? 'Your photo is on your page and the member list' : 'Only you can see your photo'}
+              {shown ? 'Your photo is on your page and the member list' : 'Your photo is hidden from everyone else'}
             </span>
           </div>
+          {!shown ? (
+            <p className="text-body max-w-[52ch] rounded-sm bg-mustard/25 px-3 py-2 font-semibold text-chalk">
+              Switch this on to show your photo on your profile page and the member list. “Your profile page” below is a separate switch.
+            </p>
+          ) : null}
+          </>
         ) : (
           <p className="text-body max-w-[52ch] text-chalk-dim">You’re not on the member wall, so your photo stays on your own pass only.</p>
         )

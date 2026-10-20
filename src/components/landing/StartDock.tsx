@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState, useSyncExternalStore } from 'react';
-import { Button } from '@/components/ui/Button';
+import { JoinButton } from '@/components/session/JoinButton';
 import { DOCK } from '@/config/landing';
+import { useSession } from '@/lib/session/store';
 
 const KEY = 'kootam:dock-hidden';
 
@@ -23,9 +24,11 @@ const subscribeNothing = () => () => {};
 export function StartDock() {
   const [shown, setShown] = useState(false);
   const [closed, setClosed] = useState(false);
+  const session = useSession();
   // Server and hydration render nothing; the dock only exists once we know it wasn't hidden.
   const hiddenBefore = useSyncExternalStore(subscribeNothing, storedHidden, () => true);
-  const dismissed = closed || hiddenBefore;
+  // Someone who has already joined doesn't need an invitation floating over the page.
+  const dismissed = closed || hiddenBefore || session.state === 'member';
 
   useEffect(() => {
     if (dismissed) return;
@@ -72,9 +75,9 @@ export function StartDock() {
         <p className="truncate text-sm text-chalk-dim">{DOCK.sub}</p>
       </div>
       {/* On a phone the button is the whole message. */}
-      <Button href="/join" variant="pill" size="sm" className="flex-1 sm:flex-none">
+      <JoinButton variant="pill" size="sm" className="flex-1 sm:flex-none">
         {DOCK.cta}
-      </Button>
+      </JoinButton>
       <button type="button" onClick={hide} aria-label={DOCK.close} className="grid size-11 shrink-0 place-items-center rounded-full text-chalk-dim hover:bg-chalk/5 hover:text-chalk">
         <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" className="stroke-current" strokeWidth="1.8">
           <path d="M3 3 L13 13 M13 3 L3 13" />

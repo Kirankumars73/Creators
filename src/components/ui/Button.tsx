@@ -2,9 +2,9 @@ import Link from 'next/link';
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import { CropMarks } from '@/components/brand/CropMarks';
 
-type Variant = 'poster' | 'ghost' | 'ink' | 'bay' | 'chalk' | 'pill';
+export type Variant = 'poster' | 'ghost' | 'ink' | 'bay' | 'chalk' | 'pill';
 
-type Size = 'md' | 'sm';
+export type Size = 'md' | 'sm';
 
 const BASE =
   'group relative inline-flex items-center justify-center gap-3 font-display text-[1.5rem] uppercase leading-none tracking-[-0.01em] transition-colors duration-[var(--dur-cut)] ease-cut disabled:cursor-not-allowed disabled:opacity-50';
