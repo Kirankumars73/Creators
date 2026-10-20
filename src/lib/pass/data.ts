@@ -9,6 +9,8 @@ export type PassData = {
   roomName: string;
   laneLabel: string;
   joined: string;
+  /** The member's photo in the private bucket, or null. Never a URL: the route reads the file. */
+  photoPath: string | null;
 };
 
 // next/og has no complex-script shaping (Task 19 spike): Indic names would render broken.
@@ -31,5 +33,7 @@ export function toPassData(row: MemberRow, opts: { public?: boolean } = {}): Pas
     roomName: room.name,
     laneLabel: room.label,
     joined: JOINED.format(new Date(row.created_at)).replaceAll('/', '.'),
+    // Their own pass always shows it; a shared one only if they switched it on.
+    photoPath: row.photo_path && (!opts.public || row.photo_public) ? row.photo_path : null,
   };
 }

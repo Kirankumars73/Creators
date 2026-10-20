@@ -102,6 +102,28 @@ test.describe('member pages (/m/<handle>)', () => {
   });
 
   test('the dev previews are 404 in production', async ({ request }) => {
-    for (const path of ['/dev/profile', '/dev/join', '/dev/admin']) expect((await request.get(path)).status(), path).toBe(404);
+    for (const path of ['/dev/profile', '/dev/join', '/dev/admin', '/dev/photo', '/dev/pass']) expect((await request.get(path)).status(), path).toBe(404);
+  });
+});
+
+test.describe('photos are private by default and never reachable without the member’s say-so', () => {
+  test('the public photo route finds nothing for a handle (and refuses nonsense), with no database', async ({ request }) => {
+    expect((await request.get('/api/photo/by/anu.shoots')).status()).toBe(503);
+    expect((await request.get('/api/photo/by/..%2Fetc')).status()).toBe(404);
+    expect((await request.get('/api/photo/by/' + 'a'.repeat(31))).status()).toBe(404);
+  });
+
+  test('your own photo needs a sign-in', async ({ request }) => {
+    expect((await request.get('/api/photo/me')).status()).toBe(404);
+  });
+
+  test('uploading or removing from another site is refused before anything else happens', async ({ request }) => {
+    for (const method of ['POST', 'DELETE'] as const) {
+      const res = await request.fetch('/api/photo/me', { method, headers: { origin: 'https://evil.example' } });
+      expect(res.status(), method).toBe(403);
+    }
+    // Same site but signed out: refused at the door, not crashed.
+    const own = await request.fetch('/api/photo/me', { method: 'DELETE', headers: { origin: 'http://localhost:3100' } });
+    expect([401, 503]).toContain(own.status());
   });
 });

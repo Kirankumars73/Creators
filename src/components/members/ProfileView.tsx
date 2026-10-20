@@ -101,7 +101,12 @@ function ProfilePoster({ p }: { p: MemberProfile }) {
       </div>
       <span data-surface="night" className="mt-6 block">
         <GlareHover width="100%" height="auto" borderRadius="0" background="var(--ink)" glareOpacity={0.35} className="aspect-[16/10] w-full">
-          <span className="font-display text-[clamp(3rem,10vw,4.5rem)] uppercase leading-none text-chalk">{[...p.displayName][0]}</span>
+          {p.hasPhoto ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={`/api/photo/by/${p.instagram}`} alt={`${p.displayName}`} width={400} height={250} className="absolute inset-0 size-full object-cover object-[50%_22%]" />
+          ) : (
+            <span className="font-display text-[clamp(3rem,10vw,4.5rem)] uppercase leading-none text-chalk">{[...p.displayName][0]}</span>
+          )}
         </GlareHover>
       </span>
       <span className="mt-auto text-sm font-semibold">Member pass</span>

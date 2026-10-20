@@ -11,6 +11,8 @@ export type WallMember = {
   city: string | null;
   tags: string[];
   hasProfile: boolean;
+  /** Photo switched on and uploaded: served from /api/photo/by/<handle>. */
+  hasPhoto: boolean;
 };
 export type MemberProfile = {
   displayName: string;
@@ -22,10 +24,11 @@ export type MemberProfile = {
   tags: string[];
   portfolioUrl: string | null;
   hasProfile: boolean;
+  hasPhoto: boolean;
 };
 
 type RpcClient = { rpc(fn: string, args?: Record<string, unknown>): PromiseLike<{ data: unknown; error: unknown }> };
-type DirectoryRow = { display_name: string; instagram: string; role: Lane; created_at: string; city?: string | null; tags?: string[] | null; has_profile?: boolean };
+type DirectoryRow = { display_name: string; instagram: string; role: Lane; created_at: string; city?: string | null; tags?: string[] | null; has_profile?: boolean; has_photo?: boolean };
 
 const DAY_MS = 86_400_000;
 const HANDLE = /^[a-zA-Z0-9._]{1,30}$/;
@@ -70,6 +73,7 @@ export async function readMemberWall(client: RpcClient | null, now: Date, limit 
       city: r.city ?? null,
       tags: r.tags ?? [],
       hasProfile: r.has_profile ?? false,
+      hasPhoto: r.has_photo ?? false,
     }));
   } catch (err) {
     console.error('[wall] member_directory', err);
@@ -98,6 +102,7 @@ export async function readMemberProfile(client: RpcClient | null, handle: string
       tags: r.tags ?? [],
       portfolioUrl: r.portfolio_url,
       hasProfile: r.has_profile ?? false,
+      hasPhoto: r.has_photo ?? false,
     };
   } catch (err) {
     console.error('[wall] member_profile', err);

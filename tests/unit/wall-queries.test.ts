@@ -30,8 +30,8 @@ describe('readMemberWall (the directory: wall fields, plus district and crafts f
       { display_name: 'Old One', instagram: 'old.one', role: 'creator', created_at: '2026-10-10T02:00:00Z', city: null, tags: [], has_profile: false },
     ];
     expect(await readMemberWall(client(rows), NOW)).toEqual([
-      { displayName: 'New One', instagram: 'new.one', role: 'editor', createdAt: '2026-10-14T02:00:00Z', isNew: true, city: 'Thrissur', tags: ['davinci'], hasProfile: true },
-      { displayName: 'Old One', instagram: 'old.one', role: 'creator', createdAt: '2026-10-10T02:00:00Z', isNew: false, city: null, tags: [], hasProfile: false },
+      { displayName: 'New One', instagram: 'new.one', role: 'editor', createdAt: '2026-10-14T02:00:00Z', isNew: true, city: 'Thrissur', tags: ['davinci'], hasProfile: true, hasPhoto: false },
+      { displayName: 'Old One', instagram: 'old.one', role: 'creator', createdAt: '2026-10-10T02:00:00Z', isNew: false, city: null, tags: [], hasProfile: false, hasPhoto: false },
     ]);
   });
 
@@ -49,7 +49,7 @@ describe('readMemberWall (the directory: wall fields, plus district and crafts f
         : { data: [{ display_name: 'Old One', instagram: 'old.one', role: 'creator', created_at: '2026-10-10T02:00:00Z' }], error: null },
     );
     expect(await readMemberWall({ rpc }, NOW)).toEqual([
-      { displayName: 'Old One', instagram: 'old.one', role: 'creator', createdAt: '2026-10-10T02:00:00Z', isNew: false, city: null, tags: [], hasProfile: false },
+      { displayName: 'Old One', instagram: 'old.one', role: 'creator', createdAt: '2026-10-10T02:00:00Z', isNew: false, city: null, tags: [], hasProfile: false, hasPhoto: false },
     ]);
     expect(rpc).toHaveBeenLastCalledWith('member_wall', { max_rows: 500 });
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('apply migration 0005'));
@@ -82,6 +82,7 @@ describe('readMemberProfile', () => {
       tags: [],
       portfolioUrl: 'https://example.com/reel',
       hasProfile: true,
+      hasPhoto: false,
     }));
 
   test('nobody by that handle → "missing"', async () => expect(await readMemberProfile(client([]), 'nobody')).toBe('missing'));
@@ -96,5 +97,15 @@ describe('readMemberProfile', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     expect(await readMemberProfile(client(null, { message: 'down' }), 'kit.maker')).toBeNull();
     expect(await readMemberProfile(null, 'kit.maker')).toBeNull();
+  });
+});
+
+describe('photos in the directory and profile reads', () => {
+  test('has_photo comes through; a database without migration 0006 simply has none', async () => {
+    const row = { display_name: 'A', instagram: 'a', role: 'creator', created_at: '2026-10-10T02:00:00Z', has_photo: true };
+    expect((await readMemberWall(client([row]), NOW))![0]).toMatchObject({ hasPhoto: true });
+    const before0006 = { display_name: 'A', instagram: 'a', role: 'creator', created_at: '2026-10-10T02:00:00Z' };
+    expect((await readMemberWall(client([before0006]), NOW))![0]).toMatchObject({ hasPhoto: false });
+    expect(await readMemberProfile(client([{ ...row, role_other_text: null, portfolio_url: null }]), 'a')).toMatchObject({ hasPhoto: true });
   });
 });

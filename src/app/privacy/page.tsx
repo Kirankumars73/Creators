@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 // The public pages are the wall: light, so the browser chrome matches it.
 export const viewport: Viewport = { themeColor: TOKENS.wall, colorScheme: 'light' };
 
-const UPDATED = '20 October 2026';
+const UPDATED = '21 October 2026';
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -73,6 +73,13 @@ export default function PrivacyPage() {
           </p>
           <p>
             <strong className="text-chalk">A sign-in cookie</strong> so you stay signed in. No analytics, no ads, no tracking pixels.
+          </p>
+          <p>
+            <strong className="text-chalk">A photo</strong>, only if you add one from{' '}
+            <Link href="/me" className="text-chalk underline underline-offset-4">
+              your pass page
+            </Link>
+            : either one you upload or your Google profile photo. It is kept privately and used on your own pass. It shows on your public page and in the member list only if you switch that on, and you can switch it off or remove it any time. We re-save it as a plain picture, which removes any location or camera data hidden inside.
           </p>
           <p>
             <strong className="text-chalk">If you send a brand brief</strong> (no sign-in needed): the brand name, your name, email, optional phone number and what you wrote. Only the admins see it, and only to reply to you and pass the brief to the right members.

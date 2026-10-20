@@ -16,6 +16,7 @@ const PUBLIC: MemberProfile = {
   tags: ['reels', 'food', 'travel'],
   portfolioUrl: 'https://example.com/reel',
   hasProfile: true,
+  hasPhoto: false,
 };
 
 // Dev-only: a member page with sample data (no Supabase). 404 in production.
