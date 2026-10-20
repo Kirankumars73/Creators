@@ -12,6 +12,8 @@ import type { MemberInput } from '@/lib/members/schema';
 import { photoProblemText, sendPhoto as defaultSendPhoto, type JoinPhoto, type SendPhotoResult } from '@/lib/photos/client';
 import type { SubmitResult } from '@/lib/members/submit';
 import dynamic from 'next/dynamic';
+import { LazyInView } from '@/components/cards/LazyInView';
+import { RoomCard } from '@/components/cards/RoomCard';
 import { PassPreview } from './PassPreview';
 import { RenderBar } from './RenderBar';
 import { SignIn } from './SignIn';
@@ -245,7 +247,17 @@ export function JoinFlow({
 
         <aside aria-label="Your pass preview" className="hidden lg:block">
           <div className="sticky top-28">
-            <PassPreview lane={accent ?? null} name={draft.displayName ?? user?.name} handle={draft.instagram ?? handle} photo={photo} googlePhotoUrl={googlePhotoUrl} />
+            {step === 'reveal' && (draft.displayName || user?.name) ? (
+              // Joined: the pass preview gives way to the room's ID plate, in the room's colour.
+              <LazyInView
+                className="mx-auto min-h-[27.5rem] w-[18.75rem]"
+                fallback={<PassPreview lane={revealLane} name={draft.displayName ?? user?.name} handle={handle ?? draft.instagram} photo={photo} googlePhotoUrl={googlePhotoUrl} />}
+              >
+                <RoomCard lane={revealLane} name={draft.displayName ?? user?.name ?? ''} handle={handle ?? draft.instagram ?? ''} />
+              </LazyInView>
+            ) : (
+              <PassPreview lane={accent ?? null} name={draft.displayName ?? user?.name} handle={draft.instagram ?? handle} photo={photo} googlePhotoUrl={googlePhotoUrl} />
+            )}
           </div>
         </aside>
       </div>

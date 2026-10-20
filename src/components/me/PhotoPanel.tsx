@@ -14,7 +14,7 @@ type PhotoPanelProps = {
   instagram: string;
   setPhotoPublic(value: boolean): Promise<PhotoResult>;
   /** Called after the photo or its switch changed, so the pass preview beside it can refresh. */
-  onChanged?(): void;
+  onChanged?(hasPhoto: boolean): void;
 };
 
 /** /me: the photo on your pass. Upload one or use your Google photo; it stays private until you switch it on. */
@@ -40,7 +40,7 @@ export function PhotoPanel({ hasPhoto: initialHas, photoPublic: initialPublic, o
           setHas(true);
           setVersion((v) => v + 1);
         }
-        onChanged?.();
+        onChanged?.(kind !== 'remove');
         void refreshSession();
       } else {
         const body = (await res.json().catch(() => ({}))) as { error?: PhotoReason };
@@ -69,7 +69,7 @@ export function PhotoPanel({ hasPhoto: initialHas, photoPublic: initialPublic, o
     const result = await setPhotoPublic(next);
     setBusy(null);
     if (result.ok) {
-      onChanged?.();
+      onChanged?.(has);
       void refreshSession();
     } else {
       setShown(!next);

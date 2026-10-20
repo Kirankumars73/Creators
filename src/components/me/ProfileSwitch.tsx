@@ -53,7 +53,7 @@ export function ProfileSwitch({ handle, initial, onWall, setProfilePublic }: Pro
   }
 
   return (
-    <section aria-labelledby={`${id}-h`} className="flex flex-col gap-4 bg-carbon p-6 shadow-[0_14px_30px_-22px_var(--print)] md:p-8">
+    <section id="profile-switch" aria-labelledby={`${id}-h`} className="scroll-mt-28 flex flex-col gap-4 bg-carbon p-6 shadow-[0_14px_30px_-22px_var(--print)] md:p-8">
       <h2 id={`${id}-h`} className="font-display text-[2rem] uppercase leading-none text-chalk">
         Your profile page
       </h2>

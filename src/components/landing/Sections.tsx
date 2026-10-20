@@ -2,6 +2,8 @@ import Link from 'next/link';
 import type { CSSProperties } from 'react';
 import BlurText from '@/components/bits/BlurText';
 import TiltedCard from '@/components/bits/TiltedCard';
+import { LazyInView } from '@/components/cards/LazyInView';
+import { PassHolo } from '@/components/cards/PassHolo';
 import { MlMark } from '@/components/brand/MlMark';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { JoinButton } from '@/components/session/JoinButton';
@@ -99,20 +101,26 @@ export function Pass() {
             ))}
           </ul>
         </div>
-        {/* React Bits TiltedCard: the pass turns toward the pointer and catches the light. */}
-        <div className="mx-auto w-full max-w-[20rem]">
-          <TiltedCard containerHeight="31rem" containerWidth="100%" imageHeight="31rem" imageWidth="20rem" radius={4} rotateAmplitude={10} scaleOnHover={1.04} glare={0.45} intro={false}>
-            <div aria-label="A sample member pass" role="img" data-lane="creator" className="absolute inset-0 flex flex-col bg-lane p-6 text-paper">
-              <div data-surface="night" className="text-chalk">
-                <Wordmark size="sm" />
+        {/* React Bits HoloCard: the pass as a collectible, with real holographic foil. It is only
+            fetched as it scrolls into view; until then (and without WebGL) it is a plain tilting card. */}
+        <LazyInView
+          className="mx-auto min-h-[34.5rem] w-full max-w-[19.5rem]"
+          fallback={
+            <TiltedCard containerHeight="31rem" containerWidth="100%" imageHeight="31rem" imageWidth="20rem" radius={4} rotateAmplitude={10} scaleOnHover={1.04} glare={0.45} intro={false}>
+              <div aria-label="A sample member pass" role="img" data-lane="creator" className="absolute inset-0 flex flex-col bg-lane p-6 text-paper">
+                <div data-surface="night" className="text-chalk">
+                  <Wordmark size="sm" />
+                </div>
+                <span className="mt-auto text-sm font-semibold">Member pass</span>
+                <span className="mt-1 font-display text-[3rem] uppercase leading-[0.9]">{PASS.sample.name}</span>
+                <span className="mt-2 text-base">@{PASS.sample.handle}</span>
+                <span className="mt-5 border-t border-paper/40 pt-4 font-display text-[1.5rem] uppercase leading-none">{room.name}</span>
               </div>
-              <span className="mt-auto text-sm font-semibold">Member pass</span>
-              <span className="mt-1 font-display text-[3rem] uppercase leading-[0.9]">{PASS.sample.name}</span>
-              <span className="mt-2 text-base">@{PASS.sample.handle}</span>
-              <span className="mt-5 border-t border-paper/40 pt-4 font-display text-[1.5rem] uppercase leading-none">{room.name}</span>
-            </div>
-          </TiltedCard>
-        </div>
+            </TiltedCard>
+          }
+        >
+          <PassHolo src="/api/pass/sample?lane=creator" alt="A sample member pass" lane="creator" />
+        </LazyInView>
       </div>
     </section>
   );

@@ -37,6 +37,7 @@ async function MeServer() {
     <MePanel
       member={{
         role: member.role,
+        displayName: member.display_name,
         instagram: member.instagram,
         roleChanges: member.role_changes,
         active: member.status === 'active',
