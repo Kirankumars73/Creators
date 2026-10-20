@@ -21,7 +21,7 @@ const SIZE = 96; // CSS px; images are captured at 2x
 const CHALK = '#F2F3F5';
 // Wall-writing: the public pages paint these strings at billboard size, so they get their own
 // large, heaviest/widest render from the variable font (Malayalam subset, OFL).
-const WALL = ['wordmark'];
+const WALL = ['wordmark', 'footerSignoff'];
 const WALL_FONT = pathToFileURL(join(process.cwd(), 'src/assets/fonts/AnekMalayalam-Variable-malayalam.woff2')).href;
 const WALL_SIZE = 360;
 

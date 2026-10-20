@@ -48,9 +48,9 @@ export function PortraitCard({ name, instagram, role, hasPhoto, size = 'thumb', 
           {initials(name)}
         </span>
       )}
-      <div className="absolute inset-x-0 bottom-0 flex flex-col gap-0.5 bg-gradient-to-t from-[var(--fade)] via-[var(--fade)]/60 to-transparent px-3 pb-3 pt-14 text-white sm:px-4 sm:pb-4">
+      <div className="absolute inset-x-0 bottom-0 flex flex-col gap-0.5 bg-gradient-to-t from-[var(--fade)] via-[var(--fade)]/60 to-transparent px-3 pb-3 pt-14 sm:px-4 sm:pb-4" style={{ color: '#fff' }}>
         <span className="line-clamp-2 break-words font-display text-[1.375rem] uppercase leading-[0.95] sm:text-[1.75rem]">{name}</span>
-        <span className="truncate text-sm text-white/85">@{instagram}</span>
+        <span className="truncate text-sm" style={{ color: "rgb(255 255 255 / 0.88)" }}>@{instagram}</span>
         <span className="mt-1.5 inline-flex w-fit rounded-full bg-lane px-2.5 py-0.5 text-xs font-semibold text-print">
           <span className={role === 'creator' ? 'text-paper' : ''}>{roomLabel ?? brand.rooms[role].name}</span>
         </span>

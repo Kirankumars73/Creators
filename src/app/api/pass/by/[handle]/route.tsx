@@ -1,4 +1,5 @@
 import { brand } from '@/config/brand';
+import { badgeImage } from '@/lib/pass/badge';
 import { passImage } from '@/lib/pass/image';
 import { publicPhotoPath, readPhotoObject } from '@/lib/photos/storage';
 import { siteUrl } from '@/lib/site';
@@ -11,7 +12,7 @@ const JOINED = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', day:
 // GET /api/pass/by/<handle> — the pass of someone whose page is on the wall, drawn from the same
 // public data as their member page (name, handle, room, join date; never email) and with their
 // photo only if they switched it on. The hanging badge on /m/<handle> is this image.
-export async function GET(_req: Request, ctx: RouteContext<'/api/pass/by/[handle]'>) {
+export async function GET(req: Request, ctx: RouteContext<'/api/pass/by/[handle]'>) {
   const { handle } = await ctx.params;
   if (!HANDLE.test(handle)) return new Response('Not found', { status: 404, headers: { 'Cache-Control': 'no-store' } });
   try {
@@ -21,20 +22,19 @@ export async function GET(_req: Request, ctx: RouteContext<'/api/pass/by/[handle
     const room = brand.rooms[p.role];
     // A photo that can't be read just means a pass without one, never a failed pass.
     const photo = p.hasPhoto ? await publicPhotoPath(p.instagram).then((path) => (path ? readPhotoObject(path) : null)).catch(() => null) : null;
-    return await passImage(
-      {
-        headline: INDIC.test(p.displayName) ? `@${p.instagram}` : p.displayName,
-        instagram: p.instagram,
-        role: p.role,
-        roomName: room.name,
-        laneLabel: room.label,
-        joined: JOINED.format(new Date(p.createdAt)).replaceAll('/', '.'),
-        photoPath: null,
-      },
-      'public, max-age=60, s-maxage=60, stale-while-revalidate=120',
-      new URL(siteUrl).host,
-      photo,
-    );
+    const data = {
+      headline: INDIC.test(p.displayName) ? `@${p.instagram}` : p.displayName,
+      instagram: p.instagram,
+      role: p.role,
+      roomName: room.name,
+      laneLabel: room.label,
+      joined: JOINED.format(new Date(p.createdAt)).replaceAll('/', '.'),
+      photoPath: null,
+    };
+    const cache = 'public, max-age=60, s-maxage=60, stale-while-revalidate=120';
+    // ?style=badge is the photo-filled card the hanging badge uses; the default is the story pass.
+    if (new URL(req.url).searchParams.get('style') === 'badge') return await badgeImage(data, cache, photo);
+    return await passImage(data, cache, new URL(siteUrl).host, photo);
   } catch (err) {
     console.error('[api/pass/by]', err);
     return new Response('Unavailable', { status: 503, headers: { 'Cache-Control': 'no-store' } });

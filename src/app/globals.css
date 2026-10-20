@@ -369,6 +369,24 @@ html.lenis, html.lenis body { height: auto; }
   background: color-mix(in oklab, var(--paper) 62%, transparent);
   box-shadow: 0 1px 2px color-mix(in oklab, var(--print) 15%, transparent);
 }
+/* Foil: very light, soft white facets over the poster (like the shards on the pass card), and a
+   bright sheen that sweeps across when it is hovered or focused. White only, never dark, so the
+   colours stay clean and the words read first. CSS only: no script, no WebGL. */
+.poster::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(115deg, transparent 38%, rgb(255 255 255 / 0.32) 49%, rgb(255 255 255 / 0.1) 56%, transparent 63%) 140% 0 / 260% 100% no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cg fill='%23fff'%3E%3Cpolygon points='0,0 76,18 46,86' fill-opacity='.035'/%3E%3Cpolygon points='76,18 158,0 126,70' fill-opacity='.015'/%3E%3Cpolygon points='158,0 220,42 170,92' fill-opacity='.030'/%3E%3Cpolygon points='46,86 126,70 100,140' fill-opacity='.020'/%3E%3Cpolygon points='126,70 170,92 146,158' fill-opacity='.035'/%3E%3Cpolygon points='0,118 46,86 50,170' fill-opacity='.015'/%3E%3Cpolygon points='100,140 146,158 86,220' fill-opacity='.030'/%3E%3Cpolygon points='170,92 220,134 184,220' fill-opacity='.020'/%3E%3Cpolygon points='50,170 86,220 0,220' fill-opacity='.035'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 220px 220px;
+  transition: background-position 1100ms var(--ease-pan);
+}
+a.poster:hover::after,
+a.poster:focus-visible::after {
+  background-position: -40% 0, 0 0;
+}
 a.poster:hover,
 a.poster:focus-visible {
   translate: 0 -6px;
@@ -462,4 +480,59 @@ a.poster:focus-visible {
   .faq-icon {
     transition: none;
   }
+}
+
+/* Directory collector cards (components/members/MemberCard): lean toward the pointer, with a foil
+   sheen that follows it. Only the foil layer is hidden until hover; the lean is set from script. */
+.member-card {
+  --rx: 0deg;
+  --ry: 0deg;
+  --mx: 50%;
+  --my: 30%;
+  transform: perspective(800px) rotateX(var(--rx)) rotateY(var(--ry));
+  transition: transform 0.25s var(--ease-pan), box-shadow 0.25s;
+}
+.member-card:hover { box-shadow: 0 22px 36px -18px var(--print); }
+.member-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s;
+  background:
+    radial-gradient(circle at var(--mx) var(--my), rgb(255 255 255 / 0.55), transparent 42%),
+    conic-gradient(from 90deg at var(--mx) var(--my), rgb(255 90 120 / 0.35), rgb(255 210 90 / 0.35), rgb(90 255 190 / 0.35), rgb(90 170 255 / 0.35), rgb(210 100 255 / 0.35), rgb(255 90 120 / 0.35));
+  mix-blend-mode: soft-light;
+}
+.member-card:hover::after { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .member-card { transition: none; } }
+
+/* A quiet dot screen behind initials, so a card without a photo still looks printed. */
+.halftone {
+  background-image: radial-gradient(rgb(0 0 0 / 0.1) 1.2px, transparent 1.5px);
+  background-size: 9px 9px;
+}
+
+/* PaintOnView: armed = not yet painted, in = painting. Without script it is simply visible. */
+[data-paint="armed"] { clip-path: inset(0 100% 0 0); }
+[data-paint="in"] { animation: paint 1400ms cubic-bezier(.65, 0, .35, 1) both; }
+
+/* Footer portrait: a nearly black photo screened into the footer's black, so only the lit parts
+   (face, hands, smoke) show. The blend is on the layer, so it mixes with the footer itself.
+   Faded at the edges and breathing very slowly. */
+.footer-portrait { mix-blend-mode: screen; }
+.footer-portrait img {
+  opacity: 0.38;
+  -webkit-mask-image: radial-gradient(closest-side, #000 50%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 50%, transparent 100%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .footer-portrait img { animation: portrait-breathe 24s ease-in-out infinite alternate; }
+}
+@keyframes portrait-breathe {
+  from { transform: scale(1) translateY(0); opacity: 0.26; }
+  to { transform: scale(1.07) translateY(-1.5%); opacity: 0.44; }
 }

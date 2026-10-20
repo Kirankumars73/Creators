@@ -168,9 +168,10 @@
 
 .profile-card__photo {
   position: absolute;
-  inset: calc(var(--pc-parallax) * -1);
-  width: calc(100% + var(--pc-parallax) * 2);
-  height: calc(100% + var(--pc-parallax) * 2);
+  /* Local: 1.6x the margin, because the spring overshoots the shift and showed a strip of the backdrop at the edge. */
+  inset: calc(var(--pc-parallax) * -1.6);
+  width: calc(100% + var(--pc-parallax) * 3.2);
+  height: calc(100% + var(--pc-parallax) * 3.2);
   object-fit: cover;
   object-position: center bottom;
   transform: translate3d(var(--pc-shift-x), var(--pc-shift-y), 0);

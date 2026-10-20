@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useDeferredValue, useState } from 'react';
 import { Star } from '@/components/brand/Star';
-import { PortraitCard } from '@/components/members/PortraitCard';
+import { MemberCard } from '@/components/members/MemberCard';
 import { LANES, type Lane } from '@/config/brand';
 import { ROLL_CALL } from '@/config/landing';
 import type { MemberCounts, WallMember } from '@/lib/wall/queries';
@@ -142,9 +142,9 @@ export function Directory({
             <li key={`${m.instagram}-${m.createdAt}`} data-lane={m.role}>
               <Link
                 href={`/m/${m.instagram}`}
-                className="group relative block transition-transform duration-200 hover:-translate-y-1 focus-visible:-translate-y-1"
+                className="group relative block"
               >
-                <PortraitCard name={m.displayName} instagram={m.instagram} role={m.role} hasPhoto={m.hasPhoto} eager={i < 4} roomLabel={ROOM_LABEL[m.role]} className="shadow-[0_14px_28px_-20px_var(--print)]" />
+                <MemberCard name={m.displayName} instagram={m.instagram} role={m.role} roomLabel={ROOM_LABEL[m.role]} hasPhoto={m.hasPhoto} eager={i < 4} />
                 {m.isNew ? (
                   <span className="star-pulse absolute -right-1.5 -top-1.5 inline-flex" title="Joined in the last day">
                     <Star size={14} />

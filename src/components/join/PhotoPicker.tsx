@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useId, useMemo, useState } from 'react';
+import { PhotoCropper } from '@/components/photos/PhotoCropper';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { PHOTO_PROBLEMS, type JoinPhoto } from '@/lib/photos/client';
 
@@ -24,6 +25,7 @@ type PhotoPickerProps = {
 export function PhotoPicker({ value, onChange, googlePhotoUrl, canShow }: PhotoPickerProps) {
   const id = useId();
   const [problem, setProblem] = useState<string | null>(null);
+  const [framing, setFraming] = useState<File | null>(null);
 
   const file = value?.choice.kind === 'file' ? value.choice.file : null;
   const preview = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
@@ -35,7 +37,7 @@ export function PhotoPicker({ value, onChange, googlePhotoUrl, canShow }: PhotoP
     if (!TYPES.has(picked.type)) return setProblem(PHOTO_PROBLEMS.not_an_image!);
     if (picked.size > MAX_BYTES) return setProblem(PHOTO_PROBLEMS.too_big!);
     setProblem(null);
-    onChange({ choice: { kind: 'file', file: picked }, show: value?.show ?? false });
+    setFraming(picked); // they frame it first; it is remembered once they confirm
   }
 
   return (
@@ -102,6 +104,16 @@ export function PhotoPicker({ value, onChange, googlePhotoUrl, canShow }: PhotoP
       <p aria-live="polite" className="min-h-4 text-[0.875rem] font-semibold text-rosso-deep">
         {problem}
       </p>
+      {framing ? (
+        <PhotoCropper
+          file={framing}
+          onDone={(cropped) => {
+            setFraming(null);
+            onChange({ choice: { kind: 'file', file: cropped }, show: value?.show ?? false });
+          }}
+          onCancel={() => setFraming(null)}
+        />
+      ) : null}
     </div>
   );
 }

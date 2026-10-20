@@ -1,15 +1,11 @@
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
 import BlurText from '@/components/bits/BlurText';
-import TiltedCard from '@/components/bits/TiltedCard';
-import { LazyInView } from '@/components/cards/LazyInView';
-import { PassHolo } from '@/components/cards/PassHolo';
 import { MlMark } from '@/components/brand/MlMark';
-import { Wordmark } from '@/components/brand/Wordmark';
 import { JoinButton } from '@/components/session/JoinButton';
-import { brand } from '@/config/brand';
 import { CODE_ARTICLES } from '@/config/code';
 import { CODE_SHELF, FINAL, HOW, INSIDE, MANIFESTO, PASS } from '@/config/landing';
+import { PassShowcase } from './PassShowcase';
 import { WallHeading } from './WallHeading';
 
 const SECTION = 'mx-auto max-w-[90rem] px-4 py-16 md:px-10 md:py-24';
@@ -86,7 +82,6 @@ export function Inside() {
 
 /** The member pass, as the printed card it is. */
 export function Pass() {
-  const room = brand.rooms.creator;
   return (
     <section id="pass" aria-labelledby="pass-title" className={SECTION}>
       <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-20">
@@ -101,26 +96,8 @@ export function Pass() {
             ))}
           </ul>
         </div>
-        {/* React Bits HoloCard: the pass as a collectible, with real holographic foil. It is only
-            fetched as it scrolls into view; until then (and without WebGL) it is a plain tilting card. */}
-        <LazyInView
-          className="mx-auto min-h-[34.5rem] w-full max-w-[19.5rem]"
-          fallback={
-            <TiltedCard containerHeight="31rem" containerWidth="100%" imageHeight="31rem" imageWidth="20rem" radius={4} rotateAmplitude={10} scaleOnHover={1.04} glare={0.45} intro={false}>
-              <div aria-label="A sample member pass" role="img" data-lane="creator" className="absolute inset-0 flex flex-col bg-lane p-6 text-paper">
-                <div data-surface="night" className="text-chalk">
-                  <Wordmark size="sm" />
-                </div>
-                <span className="mt-auto text-sm font-semibold">Member pass</span>
-                <span className="mt-1 font-display text-[3rem] uppercase leading-[0.9]">{PASS.sample.name}</span>
-                <span className="mt-2 text-base">@{PASS.sample.handle}</span>
-                <span className="mt-5 border-t border-paper/40 pt-4 font-display text-[1.5rem] uppercase leading-none">{room.name}</span>
-              </div>
-            </TiltedCard>
-          }
-        >
-          <PassHolo src="/api/pass/sample?lane=creator" alt="A sample member pass" lane="creator" />
-        </LazyInView>
+        {/* React Bits HoloCard: the member card as a collectible, switchable by room. */}
+        <PassShowcase />
       </div>
     </section>
   );

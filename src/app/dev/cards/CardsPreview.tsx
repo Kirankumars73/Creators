@@ -1,10 +1,14 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { LazyInView } from '@/components/cards/LazyInView';
 import { MeCard } from '@/components/cards/MeCard';
-import { PassHolo } from '@/components/cards/PassHolo';
 import { RoomCard } from '@/components/cards/RoomCard';
 import { LANES } from '@/config/brand';
+
+const HoloCard = dynamic(() => import('@/components/bits/HoloCard'), { ssr: false });
+
+const PRESETS = ['shards', 'glitter', 'rainbow', 'gold', 'cosmos', 'stars'] as const;
 
 export function CardsPreview() {
   return (
@@ -21,10 +25,11 @@ export function CardsPreview() {
           </LazyInView>
         ))}
       </div>
-      <div className="mt-10 flex flex-wrap items-start gap-8">
-        {LANES.map((lane) => (
-          <LazyInView key={`holo-${lane}`} className="min-h-[34.5rem] w-[19.5rem]" fallback={<p>loading</p>}>
-            <PassHolo src={`/api/pass/sample?lane=${lane}`} alt="" lane={lane} />
+      <div className="mt-10 flex flex-wrap items-start gap-6">
+        {PRESETS.map((preset) => (
+          <LazyInView key={preset} className="min-h-[22rem] w-[15rem]" fallback={<p>{preset}</p>}>
+            <p className="mb-2 text-sm font-semibold">{preset}</p>
+            <HoloCard image="/api/pass/sample?lane=editor&style=badge" preset={preset} intensity={0.45} scale={1.3} frame={3.5} glare={0.8} tiltMax={29} edgeSparkle={0.9} hoverScale={1.03} radius={9} width={240} />
           </LazyInView>
         ))}
       </div>

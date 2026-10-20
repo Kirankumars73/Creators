@@ -9,6 +9,9 @@ vi.mock('@/lib/photos/storage', () => ({
   },
   readPhotoObject: async () => null,
 }));
+vi.mock('@/lib/pass/badge', () => ({
+  badgeImage: async (pass: unknown, cache: string, photo: unknown) => new Response(JSON.stringify({ badge: true, pass, hasPhoto: !!photo }), { headers: { 'Cache-Control': cache } }),
+}));
 vi.mock('@/lib/pass/image', () => ({
   passImage: async (pass: unknown, cache: string) => new Response(JSON.stringify(pass), { headers: { 'Cache-Control': cache } }),
 }));
@@ -29,6 +32,13 @@ describe('GET /api/pass/by/<handle>', () => {
     expect(body).toMatchObject({ headline: 'Anu K', instagram: 'anu.k', role: 'editor', joined: '14.10.2026' });
     expect(JSON.stringify(body)).not.toMatch(/email|user_id|photo_path/);
     expect(res.headers.get('cache-control')).toContain('s-maxage=60');
+  });
+
+  test('?style=badge draws the photo-filled badge instead of the story pass', async () => {
+    const { GET } = await import('@/app/api/pass/by/[handle]/route');
+    const body = await (await GET(new Request('http://x/api/pass/by/anu.k?style=badge'), ctx('anu.k'))).json();
+    expect(body.badge).toBe(true);
+    expect(body.pass).toMatchObject({ headline: 'Anu K', role: 'editor' });
   });
 
   test('a photo that cannot be read still gives a pass', async () => {
@@ -66,5 +76,11 @@ describe('GET /api/pass/sample', () => {
     const junk = await GET(new Request('http://x/api/pass/sample?lane=nope'));
     expect((await junk.json()).role).toBe('creator');
     expect(junk.headers.get('cache-control')).toContain('s-maxage=86400');
+  });
+
+  test('?style=badge is the colour-filled card, with no photo', async () => {
+    const { GET } = await import('@/app/api/pass/sample/route');
+    const body = await (await GET(new Request('http://x/api/pass/sample?lane=other&style=badge'))).json();
+    expect(body).toMatchObject({ badge: true, hasPhoto: false, pass: { role: 'other' } });
   });
 });

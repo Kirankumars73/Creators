@@ -1,18 +1,23 @@
+import Image from 'next/image';
 import Link from 'next/link';
-import { MlMark } from '@/components/brand/MlMark';
 import { Star } from '@/components/brand/Star';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { brand } from '@/config/brand';
+import portrait from '@/assets/footer-portrait.jpg';
 import { FOOTER } from '@/config/landing';
-import { t } from '@/i18n/ml';
+import { Signoff } from './Signoff';
 
 const LINK = 'inline-flex min-h-11 items-center text-chalk-dim hover:text-chalk';
 
 /** Every public page ends here, in the dark: the lockup, the links, contact, the sign-off, the KOOTAM marquee, ©. */
 export function SiteFooter() {
-  const signoff = t('footerSignoff');
   return (
-    <footer data-surface="night" className="relative overflow-hidden bg-ink text-chalk">
+    <footer data-surface="night" className="relative isolate overflow-hidden bg-ink text-chalk">
+      {/* The founder, almost lost in the dark: blended into the black behind the links, edges
+          faded out, breathing very slowly. Decorative, so hidden from screen readers. */}
+      <div aria-hidden="true" className="footer-portrait pointer-events-none absolute inset-0 -z-10 flex items-end justify-center pb-[6.5rem]">
+        <Image src={portrait} alt="" sizes="(min-width: 1024px) 50rem, 100vw" className="h-[22rem] w-auto max-w-none object-contain md:h-[32rem]" />
+      </div>
       <div className="mx-auto grid max-w-[90rem] grid-cols-1 gap-12 px-4 pb-16 pt-20 md:grid-cols-2 md:px-10 lg:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))]">
         <div className="flex flex-col items-start gap-6">
           <Wordmark size="md" />
@@ -45,12 +50,7 @@ export function SiteFooter() {
         </div>
       </div>
 
-      <div className="mx-auto flex max-w-[90rem] items-center justify-end px-4 pb-8 md:px-10">
-        {/* Drawn from its pre-rendered image: the public pages never download the Malayalam font. */}
-        <p data-ml-signoff="" className="text-body text-chalk-dim">
-          {signoff.ml ? <MlMark mlKey="footerSignoff" className="text-[1.75rem]" /> : signoff.en}
-        </p>
-      </div>
+      <Signoff />
 
       <Marquee />
       <p className="py-5 text-center text-xs text-chalk-mute">{brand.copyright}</p>

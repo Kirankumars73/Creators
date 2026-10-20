@@ -28,5 +28,11 @@
     "width": 864,
     "height": 576,
     "fontSize": 360
+  },
+  "footerSignoff-wall": {
+    "text": "നമോവാധം",
+    "width": 1942,
+    "height": 576,
+    "fontSize": 360
   }
 }

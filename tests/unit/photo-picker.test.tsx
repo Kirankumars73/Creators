@@ -4,8 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { PhotoPicker } from '@/components/join/PhotoPicker';
 import type { JoinPhoto } from '@/lib/photos/client';
+import { confirmCrop, stubCropDecoding } from '../support/crop';
 
 beforeEach(() => {
+  stubCropDecoding();
   URL.createObjectURL = vi.fn(() => 'blob:preview');
   URL.revokeObjectURL = vi.fn();
 });
@@ -29,6 +31,7 @@ describe('PhotoPicker (the join form)', () => {
   test('picking a file reports it as private (not shown) until they tick the box', async () => {
     const onChange = setup();
     await userEvent.upload(screen.getByLabelText('Add a photo'), file());
+    await confirmCrop();
     expect(onChange).toHaveBeenCalledWith({ choice: { kind: 'file', file: expect.any(File) }, show: false });
   });
 
