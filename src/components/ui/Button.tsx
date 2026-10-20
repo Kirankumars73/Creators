@@ -2,12 +2,12 @@ import Link from 'next/link';
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import { CropMarks } from '@/components/brand/CropMarks';
 
-type Variant = 'poster' | 'ghost' | 'ink' | 'bay' | 'chalk';
+type Variant = 'poster' | 'ghost' | 'ink' | 'bay' | 'chalk' | 'pill';
 
 type Size = 'md' | 'sm';
 
 const BASE =
-  'group relative inline-flex items-center justify-center gap-3 rounded-hairline font-display text-[1.5rem] uppercase leading-none tracking-[-0.01em] transition-colors duration-[var(--dur-cut)] ease-cut disabled:cursor-not-allowed disabled:opacity-50';
+  'group relative inline-flex items-center justify-center gap-3 font-display text-[1.5rem] uppercase leading-none tracking-[-0.01em] transition-colors duration-[var(--dur-cut)] ease-cut disabled:cursor-not-allowed disabled:opacity-50';
 
 // Both sizes keep the 24px label: below it, chalk on rosso drops under AA.
 const SIZES: Record<Size, string> = {
@@ -18,11 +18,14 @@ const SIZES: Record<Size, string> = {
 // Labels are Anton at 24px: the large-text threshold, so chalk on rosso (4.11:1) passes.
 const VARIANTS: Record<Variant, string> = {
   // paper, not chalk: on the wall "chalk" is the dark foreground (see [data-surface="wall"]).
-  poster: 'bg-rosso text-paper halation-rosso hover:bg-rosso-deep',
-  ghost: 'border border-chalk-dim text-chalk hover:border-chalk',
-  ink: 'bg-ink text-paper hover:bg-rosso-deep focus-visible:outline-chalk',
-  bay: 'bg-lane text-ink',
-  chalk: 'bg-paper text-print hover:bg-mustard',
+  poster: 'rounded-hairline bg-rosso text-paper halation-rosso hover:bg-rosso-deep',
+  ghost: 'rounded-hairline border border-chalk-dim text-chalk hover:border-chalk',
+  ink: 'rounded-hairline bg-ink text-paper hover:bg-rosso-deep focus-visible:outline-chalk',
+  bay: 'rounded-hairline bg-lane text-ink',
+  chalk: 'rounded-hairline bg-paper text-print hover:bg-mustard',
+  // A fully rounded button for sitting inside a pill-shaped bar (the floating join bar): its
+  // ends follow the bar's curve, and it has no corner marks that would poke out of the bar.
+  pill: 'rounded-full bg-rosso text-paper hover:bg-rosso-deep',
 };
 
 /** Button styling for elements that can't be <Button>, e.g. an `intent://` anchor. */

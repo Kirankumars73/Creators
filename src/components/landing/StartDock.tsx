@@ -65,14 +65,14 @@ export function StartDock() {
       data-surface="wall"
       data-shown={shown || undefined}
       inert={!shown}
-      className="start-dock fixed inset-x-3 bottom-3 z-40 mx-auto flex max-w-xl items-center gap-2 rounded-full bg-paper py-2 pl-2 pr-2 sm:gap-4 sm:pl-6 text-chalk shadow-[0_18px_40px_-16px_color-mix(in_oklab,var(--print)_45%,transparent)] md:bottom-5"
+      className="start-dock fixed inset-x-3 bottom-3 z-40 mx-auto flex max-w-xl items-center gap-2 overflow-hidden rounded-full bg-paper p-1.5 sm:gap-4 sm:py-2 sm:pl-6 sm:pr-2 text-chalk shadow-[0_18px_40px_-16px_color-mix(in_oklab,var(--print)_45%,transparent)] md:bottom-5"
     >
       <div className="hidden min-w-0 flex-1 sm:block">
         <p className="truncate font-semibold">{DOCK.title}</p>
         <p className="truncate text-sm text-chalk-dim">{DOCK.sub}</p>
       </div>
       {/* On a phone the button is the whole message. */}
-      <Button href="/join" size="sm" className="flex-1 sm:flex-none">
+      <Button href="/join" variant="pill" size="sm" className="flex-1 sm:flex-none">
         {DOCK.cta}
       </Button>
       <button type="button" onClick={hide} aria-label={DOCK.close} className="grid size-11 shrink-0 place-items-center rounded-full text-chalk-dim hover:bg-chalk/5 hover:text-chalk">
