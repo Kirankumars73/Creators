@@ -3,9 +3,10 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { Wordmark } from '@/components/brand/Wordmark';
-import { Button } from '@/components/ui/Button';
+import { JoinButton } from '@/components/session/JoinButton';
 import { brand } from '@/config/brand';
-import { NAV_LINKS } from '@/config/landing';
+import { NAV_LINKS, SESSION_COPY } from '@/config/landing';
+import { useSession } from '@/lib/session/store';
 
 /**
  * The top bar on every public page: wordmark, the main links, sign in and join. Transparent on
@@ -13,6 +14,7 @@ import { NAV_LINKS } from '@/config/landing';
  * focus and closes on Escape.
  */
 export function SiteNav() {
+  const session = useSession();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const menu = useRef<HTMLDivElement>(null);
@@ -79,12 +81,18 @@ export function SiteNav() {
             ))}
           </nav>
           <div className="flex items-center gap-2 md:gap-3">
-            <Link href="/me" className="hidden min-h-11 items-center px-2 text-[0.9375rem] font-semibold text-chalk-dim hover:text-chalk sm:inline-flex">
-              Sign in
-            </Link>
-            <Button href="/join" size="sm">
-              Join
-            </Button>
+            {session.state === 'member' || session.state === 'no-member' ? (
+              <form action="/auth/signout" method="post" className="hidden sm:block">
+                <button type="submit" className="inline-flex min-h-11 items-center px-2 text-[0.9375rem] font-semibold text-chalk-dim hover:text-chalk">
+                  {SESSION_COPY.signOut}
+                </button>
+              </form>
+            ) : (
+              <Link href="/me" className="hidden min-h-11 items-center px-2 text-[0.9375rem] font-semibold text-chalk-dim hover:text-chalk sm:inline-flex">
+                {SESSION_COPY.signIn}
+              </Link>
+            )}
+            <JoinButton size="sm">Join</JoinButton>
             <button
               ref={toggle}
               type="button"
@@ -119,7 +127,15 @@ export function SiteNav() {
             </button>
           </div>
           <nav aria-label="Mobile" className="mt-12 flex flex-col">
-            {[{ href: '/join', label: 'Join the kootam' }, ...NAV_LINKS, { href: '/me', label: 'Sign in' }].map((l, i) => (
+            {[
+              session.state === 'member'
+                ? { href: '/me', label: SESSION_COPY.member }
+                : session.state === 'no-member'
+                  ? { href: '/join?step=lane', label: SESSION_COPY.finish }
+                  : { href: '/join', label: SESSION_COPY.visitor },
+              ...NAV_LINKS,
+              ...(session.state === 'signed-out' || session.state === 'unknown' ? [{ href: '/me', label: SESSION_COPY.signIn }] : []),
+            ].map((l, i) => (
               <Link
                 key={l.href}
                 href={l.href}
@@ -131,6 +147,13 @@ export function SiteNav() {
               </Link>
             ))}
           </nav>
+          {session.state === 'member' || session.state === 'no-member' ? (
+            <form action="/auth/signout" method="post" className="mt-6">
+              <button type="submit" className="menu-link inline-flex min-h-14 items-center font-display text-[2rem] uppercase leading-none underline decoration-2 underline-offset-8">
+                {SESSION_COPY.signOut}
+              </button>
+            </form>
+          ) : null}
         </div>
       ) : null}
     </>

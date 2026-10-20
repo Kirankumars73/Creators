@@ -37,6 +37,29 @@ for (const { w, h } of SIZES) {
       expect(join.height).toBeGreaterThanOrEqual(44);
     });
 
+    test('the floating join bar: its button sits fully inside the bar, rounded to match, with no corner marks poking out', async ({ page }) => {
+      await page.goto('/');
+      await page.locator('#how').scrollIntoViewIfNeeded();
+      const dock = page.getByRole('complementary', { name: 'Join' });
+      await expect(dock).toHaveAttribute('data-shown');
+      // The bar slides up over ~0.4s: wait until it has stopped, then measure bar and button in
+      // the same instant, so a half-finished slide can't make them disagree.
+      await expect.poll(() => dock.evaluate((el) => getComputedStyle(el).transform), { timeout: 4000 }).toBe('none');
+      const button = dock.getByRole('link', { name: 'Join the kootam' });
+      const { bar, b } = await dock.evaluate((el) => {
+        const r = el.getBoundingClientRect();
+        const q = el.querySelector('a[href="/join"]')!.getBoundingClientRect();
+        return { bar: { x: r.x, y: r.y, width: r.width, height: r.height }, b: { x: q.x, y: q.y, width: q.width, height: q.height } };
+      });
+      expect(b.x, 'left edge').toBeGreaterThanOrEqual(bar.x - 0.5);
+      expect(b.x + b.width, 'right edge').toBeLessThanOrEqual(bar.x + bar.width + 0.5);
+      expect(b.y, 'top edge').toBeGreaterThanOrEqual(bar.y - 0.5);
+      expect(b.y + b.height, 'bottom edge').toBeLessThanOrEqual(bar.y + bar.height + 0.5);
+      expect(await button.evaluate((el) => parseFloat(getComputedStyle(el).borderTopLeftRadius))).toBeGreaterThan(20);
+      expect(await button.locator('svg').count(), 'corner marks').toBe(0);
+      expect(bar.x + bar.width, 'bar stays on screen').toBeLessThanOrEqual(w + 0.5);
+    });
+
     test('the menu opens, locks the page, and a tapped link closes it and lands under the bar', async ({ page }) => {
       await page.goto('/');
       await page.getByRole('button', { name: /menu/i }).tap();

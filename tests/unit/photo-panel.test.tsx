@@ -66,7 +66,7 @@ describe('PhotoPanel (/me)', () => {
     render(<PhotoPanel {...base} hasPhoto />);
     const sw = screen.getByRole('switch');
     expect(sw).toHaveAttribute('aria-checked', 'false');
-    expect(screen.getByText('Only you can see your photo')).toBeInTheDocument();
+    expect(screen.getByText('Your photo is hidden from everyone else')).toBeInTheDocument();
     await userEvent.click(sw);
     expect(setPhotoPublic).toHaveBeenCalledWith(true);
     expect(sw).toHaveAttribute('aria-checked', 'true');

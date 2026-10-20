@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useDeferredValue, useState } from 'react';
 import { Star } from '@/components/brand/Star';
+import { PortraitCard } from '@/components/members/PortraitCard';
 import { LANES, type Lane } from '@/config/brand';
 import { ROLL_CALL } from '@/config/landing';
 import type { MemberCounts, WallMember } from '@/lib/wall/queries';
@@ -13,14 +14,6 @@ const ROOM_LABEL: Record<Lane, string> = { creator: 'Content creators', editor: 
 const FILTERS: { id: Filter; label: string }[] = [{ id: 'all', label: 'Everyone' }, ...LANES.map((l) => ({ id: l, label: ROOM_LABEL[l] }))];
 
 const SELECT = 'min-h-11 rounded-full border-2 border-chalk/20 bg-carbon px-4 text-base font-semibold text-chalk focus:border-chalk';
-
-const initials = (name: string) =>
-  name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => [...w][0]!.toUpperCase())
-    .join('');
 
 /**
  * The member wall as a directory: filter by room, search by name or handle, tap through to
@@ -144,26 +137,14 @@ export function Directory({
       {craft || district ? <p className="text-sm text-chalk-mute">District and craft filters show members who made their profile public.</p> : null}
 
       {shown.length ? (
-        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {shown.map((m) => (
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+          {shown.map((m, i) => (
             <li key={`${m.instagram}-${m.createdAt}`} data-lane={m.role}>
               <Link
                 href={`/m/${m.instagram}`}
-                className="group relative flex min-h-16 items-center gap-3 bg-carbon p-3 pr-4 shadow-[0_1px_0_color-mix(in_oklab,var(--chalk)_12%,transparent)] transition-transform duration-200 hover:-translate-y-0.5"
+                className="group relative block transition-transform duration-200 hover:-translate-y-1 focus-visible:-translate-y-1"
               >
-                {m.hasPhoto ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={`/api/photo/by/${m.instagram}`} alt="" width={44} height={44} loading="lazy" className="size-11 shrink-0 rounded-full object-cover" />
-                ) : (
-                  <span aria-hidden="true" className="grid size-11 shrink-0 place-items-center rounded-full bg-lane text-sm font-bold text-print">
-                    {initials(m.displayName)}
-                  </span>
-                )}
-                <span className="flex min-w-0 flex-col">
-                  <span className="truncate font-semibold text-chalk">{m.displayName}</span>
-                  <span className="truncate text-sm text-chalk-dim">@{m.instagram}</span>
-                </span>
-                <span className="ml-auto shrink-0 text-xs font-semibold text-chalk-mute">{ROOM_LABEL[m.role]}</span>
+                <PortraitCard name={m.displayName} instagram={m.instagram} role={m.role} hasPhoto={m.hasPhoto} eager={i < 4} roomLabel={ROOM_LABEL[m.role]} className="shadow-[0_14px_28px_-20px_var(--print)]" />
                 {m.isNew ? (
                   <span className="star-pulse absolute -right-1.5 -top-1.5 inline-flex" title="Joined in the last day">
                     <Star size={14} />

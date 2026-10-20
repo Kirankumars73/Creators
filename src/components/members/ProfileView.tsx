@@ -1,6 +1,6 @@
-import type { CSSProperties, ReactNode } from 'react';
-import GlareHover from '@/components/bits/GlareHover';
-import { Wordmark } from '@/components/brand/Wordmark';
+import type { ReactNode } from 'react';
+import TiltedCard from '@/components/bits/TiltedCard';
+import { PortraitCard } from '@/components/members/PortraitCard';
 import { BriefForm } from '@/components/landing/BriefForm';
 import { Button } from '@/components/ui/Button';
 import { brand } from '@/config/brand';
@@ -85,34 +85,13 @@ function Detail({ term, children }: { term: string; children: ReactNode }) {
   );
 }
 
-/** Their pass as a pasted poster in their room's colour; the photo frame catches the light. */
+/** Their portrait as a card that tilts toward the cursor, with name, handle and room over the photo. */
 function ProfilePoster({ p }: { p: MemberProfile }) {
-  const ink = p.role === 'creator' ? 'text-paper' : 'text-print';
   return (
-    <div
-      data-lane={p.role}
-      role="img"
-      aria-label={`${p.displayName}'s member pass`}
-      className={`poster paste relative mx-auto flex aspect-[9/14] w-full max-w-[22rem] flex-col bg-lane p-6 ${ink}`}
-      style={{ '--rot': '-2deg' } as CSSProperties}
-    >
-      <div data-surface={p.role === 'creator' ? 'night' : 'wall'}>
-        <Wordmark size="sm" />
-      </div>
-      <span data-surface="night" className="mt-6 block">
-        <GlareHover width="100%" height="auto" borderRadius="0" background="var(--ink)" glareOpacity={0.35} className="aspect-[16/10] w-full">
-          {p.hasPhoto ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={`/api/photo/by/${p.instagram}`} alt={`${p.displayName}`} width={400} height={250} className="absolute inset-0 size-full object-cover object-[50%_22%]" />
-          ) : (
-            <span className="font-display text-[clamp(3rem,10vw,4.5rem)] uppercase leading-none text-chalk">{[...p.displayName][0]}</span>
-          )}
-        </GlareHover>
-      </span>
-      <span className="mt-auto text-sm font-semibold">Member pass</span>
-      <span className="mt-1 break-words font-display text-[2.5rem] uppercase leading-[0.9]">{p.displayName}</span>
-      <span className="mt-2 text-base">@{p.instagram}</span>
-      <span className="mt-4 border-t border-current/30 pt-3 font-display text-[1.375rem] uppercase leading-none">{brand.rooms[p.role].name}</span>
+    <div className="mx-auto w-full max-w-[22rem]" role="img" aria-label={`${p.displayName}, ${brand.rooms[p.role].name}`}>
+      <TiltedCard containerHeight="auto" containerWidth="100%" imageHeight="auto" imageWidth="100%" radius={6} rotateAmplitude={9} glare={0.4} intro={false} floating>
+        <PortraitCard name={p.displayName} instagram={p.instagram} role={p.role} hasPhoto={p.hasPhoto} size="full" eager className="min-h-[26rem]" />
+      </TiltedCard>
     </div>
   );
 }

@@ -14,6 +14,15 @@ export const NAV_LINKS = [
   { href: '/code', label: 'The Code' },
 ] as const;
 
+/** The main button, by who is looking (see components/session/JoinButton). */
+export const SESSION_COPY = {
+  visitor: 'Join the kootam',
+  finish: 'Finish joining',
+  member: 'Your pass',
+  signOut: 'Sign out',
+  signIn: 'Sign in',
+} as const;
+
 export const HERO = {
   headline: ["WE'D RATHER", 'SHOW THAN TELL.'] as const,
   sub: 'Kerala’s room for content creators, video editors and everyone else who makes the frame. Find an editor, a DOP, your next collab. Brands find you here too.',
