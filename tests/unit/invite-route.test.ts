@@ -19,4 +19,10 @@ describe('POST /api/invite failure path', () => {
     expect(res.headers.get('cache-control')).toBe('no-store');
     expect(log).toHaveBeenCalledWith('[api/invite]', expect.any(Error));
   });
+
+  test('missing env says "not_configured", so the page can say so instead of blaming the connection', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { POST } = await import('@/app/api/invite/route');
+    expect(await (await POST()).json()).toEqual({ error: 'not_configured' });
+  });
 });

@@ -53,6 +53,7 @@ const LANE_OF: Record<LaneKey, Lane> = { creators: 'creator', editors: 'editor',
 const hardReload = (url: string) => window.location.assign(url);
 
 export function Reveal({ result, lane, returning, onRetry, onRecover = hardReload, footer }: RevealProps) {
+  if (!isInviteOk(result) && result.error === 'not_configured') return <NotConfigured />;
   if (!isInviteOk(result)) return <RevealProblem status={result.status} onRetry={onRetry} onRecover={onRecover} />;
   const linkedLane = result.body.laneKey ? LANE_OF[result.body.laneKey] : lane;
   return <RevealOk links={result.body} lane={linkedLane} returning={returning} footer={footer} />;
@@ -155,6 +156,23 @@ const PROBLEMS: Record<number, { title: string; body: ReactNode; retry?: boolean
   429: { title: 'Too many tries.', body: 'Wait ten minutes, then refresh.' },
 };
 const NETWORK = { title: 'The links didn’t load.', body: 'Check your connection and try again.', retry: true };
+
+/** This copy has no WhatsApp links (a clone or a preview): no retry can fix that; the live site can. */
+function NotConfigured() {
+  const live = `${brand.liveUrl}/me`;
+  return (
+    <div role="alert" className="flex flex-col items-start gap-4 border-l-[3px] border-mustard bg-graphite p-6">
+      <h2 className="font-display text-[2rem] uppercase leading-none text-chalk">The WhatsApp links aren’t set up on this copy of the site.</h2>
+      <p className="text-body text-chalk">
+        Your pass is saved. Open it on{' '}
+        <a href={live} className="underline underline-offset-4">
+          {brand.liveUrl.replace(/^https:\/\//, '')}
+        </a>{' '}
+        to get your links.
+      </p>
+    </div>
+  );
+}
 
 function RevealProblem({ status, onRetry, onRecover }: { status: number; onRetry?(): void; onRecover(url: string): void }) {
   const p = PROBLEMS[status] ?? NETWORK;
