@@ -14,12 +14,19 @@ test('the home headline is his line from his bio', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toHaveAccessibleName("WE'D RATHER SHOW THAN TELL.");
 });
 
-test('the document is ink-dark from the first byte', async ({ page }) => {
-  await page.goto('/');
+test('the join flow (the edit suite) stays ink-dark from the first byte', async ({ page }) => {
+  await page.goto('/join');
   await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', '#0A0A0B');
   const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
   expect(bg).toBe('rgb(10, 10, 11)');
 });
+
+for (const path of ['/', '/creators', '/code', '/privacy']) {
+  test(`${path} is the light wall from the first byte`, async ({ page }) => {
+    await page.goto(path);
+    await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', '#EEF2F8');
+  });
+}
 
 test('/me sends signed-out visitors to /join with a real redirect', async ({ request }) => {
   const res = await request.get('/me', { maxRedirects: 0 });

@@ -1,9 +1,10 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Star } from '@/components/brand/Star';
 import { SiteFooter } from '@/components/landing/SiteFooter';
 import { SiteNav } from '@/components/landing/SiteNav';
 import { Button } from '@/components/ui/Button';
 import { brand } from '@/config/brand';
+import { TOKENS } from '@/config/tokens';
 import { CODE_ARTICLES } from '@/config/code';
 import { t } from '@/i18n/ml';
 
@@ -16,11 +17,14 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: 'The Code', description: CODE_DESCRIPTION },
 };
 
+// The public pages are the wall: light, so the browser chrome matches it.
+export const viewport: Viewport = { themeColor: TOKENS.wall, colorScheme: 'light' };
+
 export default function CodePage() {
   const eyebrow = t('codeEyebrow');
   const footer = t('codeFooter');
   return (
-    <>
+    <div data-surface="wall" className="limewash min-h-dvh text-chalk">
       <SiteNav />
       <main id="main" className="mx-auto max-w-[90rem] px-4 pb-28 pt-28 md:px-10 md:pt-36">
         <header>
@@ -55,6 +59,6 @@ export default function CodePage() {
         </div>
       </main>
       <SiteFooter />
-    </>
+    </div>
   );
 }

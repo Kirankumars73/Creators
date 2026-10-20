@@ -22,5 +22,11 @@
     "width": 539,
     "height": 125,
     "fontSize": 96
+  },
+  "wordmark-wall": {
+    "text": "കൂട്ടം",
+    "width": 864,
+    "height": 576,
+    "fontSize": 360
   }
 }

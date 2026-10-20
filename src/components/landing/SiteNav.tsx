@@ -2,17 +2,15 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { Star } from '@/components/brand/Star';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { Button } from '@/components/ui/Button';
 import { brand } from '@/config/brand';
 import { NAV_LINKS } from '@/config/landing';
 
 /**
- * The top bar on every public page: wordmark, the page's main links, sign in and join. A 2px
- * rosso hairline under it tracks scroll (a CSS scroll-driven animation, no JavaScript). On phones
- * the links fold into a full-screen rosso menu whose links stagger in (after React Bits'
- * StaggeredMenu); it traps focus and closes on Escape.
+ * The top bar on every public page: wordmark, the main links, sign in and join. Transparent on
+ * the wall until you scroll. On phones the links fold into a full-screen red menu that traps
+ * focus and closes on Escape.
  */
 export function SiteNav() {
   const [open, setOpen] = useState(false);
@@ -60,13 +58,14 @@ export function SiteNav() {
     <>
       <a
         href="#main"
-        className="text-label fixed left-3 top-3 z-[90] inline-flex min-h-11 -translate-y-[200%] items-center bg-chalk px-4 text-ink focus:translate-y-0"
+        className="fixed left-3 top-3 z-[90] inline-flex min-h-11 -translate-y-[200%] items-center bg-print px-4 font-semibold text-paper focus:translate-y-0"
       >
         Skip to content
       </a>
       <header
+        data-surface="wall"
         data-scrolled={scrolled || undefined}
-        className="site-nav fixed inset-x-0 top-0 z-50 border-b border-transparent transition-[background-color,border-color] duration-200 data-[scrolled]:border-rule data-[scrolled]:bg-ink/85 data-[scrolled]:backdrop-blur-md"
+        className="fixed inset-x-0 top-0 z-50 bg-transparent text-chalk transition-[background-color,box-shadow] duration-200 data-[scrolled]:bg-wall/90 data-[scrolled]:shadow-[0_1px_0_var(--wall-rule)] data-[scrolled]:backdrop-blur-md"
       >
         <div className="mx-auto flex h-16 max-w-[90rem] items-center justify-between gap-6 px-4 md:h-[4.5rem] md:px-10">
           <Link href="/" aria-label={`${brand.name} — home`} className="inline-flex min-h-11 items-center">
@@ -74,13 +73,13 @@ export function SiteNav() {
           </Link>
           <nav aria-label="Main" className="hidden items-center gap-1 lg:flex">
             {NAV_LINKS.map((l) => (
-              <Link key={l.href} href={l.href} className="nav-link text-label inline-flex min-h-11 items-center px-3 text-chalk-dim hover:text-chalk">
+              <Link key={l.href} href={l.href} className="inline-flex min-h-11 items-center rounded-full px-3.5 text-[0.9375rem] font-semibold text-chalk-dim hover:bg-chalk/5 hover:text-chalk">
                 {l.label}
               </Link>
             ))}
           </nav>
-          <div className="flex items-center gap-2 md:gap-4">
-            <Link href="/me" className="text-label hidden min-h-11 items-center px-2 text-chalk-dim hover:text-chalk sm:inline-flex">
+          <div className="flex items-center gap-2 md:gap-3">
+            <Link href="/me" className="hidden min-h-11 items-center px-2 text-[0.9375rem] font-semibold text-chalk-dim hover:text-chalk sm:inline-flex">
               Sign in
             </Link>
             <Button href="/join" size="sm">
@@ -92,13 +91,12 @@ export function SiteNav() {
               aria-expanded={open}
               aria-controls="mobile-menu"
               onClick={() => setOpen(true)}
-              className="text-label inline-flex min-h-11 items-center gap-2 border border-rule px-3 text-chalk lg:hidden"
+              className="inline-flex min-h-11 items-center rounded-full border-2 border-chalk/20 px-4 text-sm font-semibold text-chalk lg:hidden"
             >
-              Menu <Star size={10} />
+              Menu
             </button>
           </div>
         </div>
-        <span aria-hidden="true" className="scroll-progress absolute inset-x-0 bottom-[-1px] h-[2px] origin-left bg-rosso" />
       </header>
 
       {open ? (
@@ -109,11 +107,13 @@ export function SiteNav() {
           aria-modal="true"
           aria-label="Menu"
           data-on="rosso"
-          className="menu-in fixed inset-0 z-[80] flex flex-col overflow-y-auto bg-rosso px-4 pb-10 pt-4"
+          className="menu-in fixed inset-0 z-[80] flex flex-col overflow-y-auto bg-rosso px-4 pb-10 pt-4 text-paper"
         >
           <div className="flex items-center justify-between">
-            <Wordmark size="xs" />
-            <button type="button" onClick={() => setOpen(false)} className="text-label inline-flex min-h-11 items-center border border-chalk px-3 text-chalk">
+            <span data-surface="night" className="text-chalk">
+              <Wordmark size="xs" />
+            </span>
+            <button type="button" onClick={() => setOpen(false)} className="inline-flex min-h-11 items-center rounded-full border-2 border-paper px-4 text-sm font-semibold">
               Close
             </button>
           </div>
@@ -124,14 +124,12 @@ export function SiteNav() {
                 href={l.href}
                 onClick={() => setOpen(false)}
                 style={{ animationDelay: `${80 + i * 45}ms` }}
-                className="menu-link flex min-h-14 items-baseline gap-3 border-b border-chalk/30 py-2 font-display text-[clamp(2.5rem,12vw,4rem)] uppercase leading-none text-chalk"
+                className="menu-link flex min-h-14 items-center py-1 font-display text-[clamp(2.5rem,12vw,4rem)] uppercase leading-none"
               >
-                <span className="font-mono text-xs tracking-[0.14em] text-chalk/80">{String(i + 1).padStart(2, '0')}</span>
                 {l.label}
               </Link>
             ))}
           </nav>
-          <p className="text-label mt-auto pt-10 text-chalk">{brand.region} · {brand.year}</p>
         </div>
       ) : null}
     </>

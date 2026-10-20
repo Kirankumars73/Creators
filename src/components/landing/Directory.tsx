@@ -2,18 +2,15 @@
 
 import Link from 'next/link';
 import { useDeferredValue, useState } from 'react';
-import { Odometer } from '@/components/brand/Odometer';
 import { Star } from '@/components/brand/Star';
-import { LANES, brand, type Lane } from '@/config/brand';
+import { LANES, type Lane } from '@/config/brand';
 import { ROLL_CALL } from '@/config/landing';
 import type { MemberCounts, WallMember } from '@/lib/wall/queries';
 
 type Filter = 'all' | Lane;
 
-const FILTERS: { id: Filter; label: string }[] = [
-  { id: 'all', label: 'Everyone' },
-  ...LANES.map((l) => ({ id: l, label: brand.rooms[l].name })),
-];
+const ROOM_LABEL: Record<Lane, string> = { creator: 'Content creators', editor: 'Editors', other: 'Something else' };
+const FILTERS: { id: Filter; label: string }[] = [{ id: 'all', label: 'Everyone' }, ...LANES.map((l) => ({ id: l, label: ROOM_LABEL[l] }))];
 
 const initials = (name: string) =>
   name
@@ -24,9 +21,9 @@ const initials = (name: string) =>
     .join('');
 
 /**
- * The member wall as a directory: filter by lane, search by name or handle, tap through to
+ * The member wall as a directory: filter by room, search by name or handle, tap through to
  * Instagram. Honest in all three states — populated, empty, unreachable. Only what members
- * opted to show (name, handle, lane); never email.
+ * opted to show (name, handle, room); never email.
  */
 export function Directory({
   wall,
@@ -43,27 +40,37 @@ export function Directory({
   const q = useDeferredValue(query.trim().toLowerCase().replace(/^@/, ''));
 
   if (!wall || !counts) {
-    return <p className="mt-12 max-w-2xl font-mono text-base leading-relaxed text-chalk-dim">{ROLL_CALL.unreachable}</p>;
+    return <p className="text-body mt-10 max-w-2xl text-chalk-dim">{ROLL_CALL.unreachable}</p>;
   }
   if (counts.total === 0 || wall.length === 0) {
-    return <p className="mt-12 max-w-2xl font-mono text-base leading-relaxed text-chalk">{ROLL_CALL.empty}</p>;
+    return (
+      <div className="mt-10 flex flex-col items-start gap-5">
+        <p className="text-body max-w-2xl text-chalk">{ROLL_CALL.empty}</p>
+        <Link href="/join" className="wall-link inline-flex min-h-11 items-center text-lg font-semibold text-chalk">
+          Join the kootam
+        </Link>
+      </div>
+    );
   }
 
   const matches = wall.filter(
     (m) => (filter === 'all' || m.role === filter) && (!q || m.displayName.toLowerCase().includes(q) || m.instagram.toLowerCase().includes(q)),
   );
   const shown = limit ? matches.slice(0, limit) : matches;
-  const tallies = [
-    ['Members', counts.total],
-    ['Creators', counts.creators],
-    ['Editors', counts.editors],
-    ['Other', counts.other],
-  ] as const;
+  const n = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
 
   return (
-    <div className="mt-12 flex flex-col gap-8">
+    <div className="mt-10 flex flex-col gap-8">
+      <p className="text-body text-chalk-dim">
+        <span className="sr-only">Members {counts.total}. </span>
+        <span aria-hidden="true">{counts.total} members: </span>
+        <span>
+          {n(counts.creators, 'content creator', 'content creators')}, {n(counts.editors, 'editor', 'editors')} and{' '}
+          {n(counts.other, 'other maker', 'other makers')}.
+        </span>
+      </p>
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div role="group" aria-label="Filter by lane" className="flex flex-wrap gap-2">
+        <div role="group" aria-label="Filter by room" className="flex flex-wrap gap-2">
           {FILTERS.map((f) => (
             <button
               key={f.id}
@@ -71,9 +78,9 @@ export function Directory({
               aria-pressed={filter === f.id}
               data-lane={f.id === 'all' ? undefined : f.id}
               onClick={() => setFilter(f.id)}
-              className="text-label inline-flex min-h-11 items-center gap-2 border border-rule px-3 text-chalk-dim aria-pressed:border-chalk aria-pressed:bg-chalk aria-pressed:text-ink"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border-2 border-chalk/20 px-4 text-sm font-semibold text-chalk hover:border-chalk aria-pressed:border-chalk aria-pressed:bg-chalk aria-pressed:text-surface"
             >
-              {f.id === 'all' ? <Star size={10} /> : <span className="size-2 bg-lane" />}
+              {f.id === 'all' ? <Star size={12} /> : <span className="size-2.5 rounded-full bg-lane" />}
               {f.label}
             </button>
           ))}
@@ -85,9 +92,8 @@ export function Directory({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={ROLL_CALL.search}
-            className="peer block min-h-11 w-full rounded-none border-0 border-b border-chalk-dim bg-graphite px-3 text-base text-chalk outline-none placeholder:text-chalk-mute"
+            className="block min-h-11 w-full rounded-full border-2 border-chalk/20 bg-carbon px-4 text-base text-chalk outline-none placeholder:text-chalk-mute focus:border-chalk"
           />
-          <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-[2px] origin-left scale-x-0 bg-rosso transition-transform duration-[180ms] ease-cut peer-focus:scale-x-100" />
         </label>
       </div>
 
@@ -103,17 +109,16 @@ export function Directory({
                 href={`https://instagram.com/${m.instagram}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                data-spotlight=""
-                className="spot group relative flex min-h-16 items-center gap-3 border border-rule border-l-[3px] border-l-lane bg-carbon p-3 transition-colors hover:border-lane focus-visible:border-lane"
+                className="group relative flex min-h-16 items-center gap-3 bg-carbon p-3 pr-4 shadow-[0_1px_0_color-mix(in_oklab,var(--chalk)_12%,transparent)] transition-transform duration-200 hover:-translate-y-0.5"
               >
-                <span aria-hidden="true" className="grid size-11 shrink-0 place-items-center bg-lane font-mono text-sm font-medium text-ink">
+                <span aria-hidden="true" className="grid size-11 shrink-0 place-items-center rounded-full bg-lane text-sm font-bold text-print">
                   {initials(m.displayName)}
                 </span>
                 <span className="flex min-w-0 flex-col">
-                  <span className="text-body truncate text-chalk">{m.displayName}</span>
-                  <span className="truncate font-mono text-sm text-chalk-dim">@{m.instagram}</span>
+                  <span className="truncate font-semibold text-chalk">{m.displayName}</span>
+                  <span className="truncate text-sm text-chalk-dim">@{m.instagram}</span>
                 </span>
-                <span className="text-label ml-auto shrink-0 text-chalk-mute">{brand.rooms[m.role].short}</span>
+                <span className="ml-auto shrink-0 text-xs font-semibold text-chalk-mute">{ROOM_LABEL[m.role]}</span>
                 {m.isNew ? (
                   <span className="star-pulse absolute -right-1.5 -top-1.5 inline-flex" title="Joined in the last day">
                     <Star size={14} />
@@ -126,26 +131,14 @@ export function Directory({
           ))}
         </ul>
       ) : (
-        <p className="font-mono text-base text-chalk-dim">{ROLL_CALL.none}</p>
+        <p className="text-body text-chalk-dim">{ROLL_CALL.none}</p>
       )}
 
-      <div className="flex flex-col gap-6 border-t border-rule pt-6 md:flex-row md:items-center md:justify-between">
-        <p className="flex flex-wrap gap-x-8 gap-y-2 font-mono text-sm uppercase tracking-[0.14em] text-chalk-dim">
-          {tallies.map(([label, n]) => (
-            <span key={label} className="flex items-center gap-3">
-              <span aria-hidden="true">{label}</span>
-              <span className="text-chalk">
-                <Odometer value={n} digits={6} label={label} />
-              </span>
-            </span>
-          ))}
-        </p>
-        {limit ? (
-          <Link href="/creators" className="text-label inline-flex min-h-11 items-center gap-2 border-b border-chalk-dim text-chalk hover:border-chalk">
-            {ROLL_CALL.more} <span aria-hidden="true">→</span>
-          </Link>
-        ) : null}
-      </div>
+      {limit ? (
+        <Link href="/creators" className="wall-link inline-flex min-h-11 items-center self-start text-lg font-semibold text-chalk">
+          {ROLL_CALL.more}
+        </Link>
+      ) : null}
     </div>
   );
 }

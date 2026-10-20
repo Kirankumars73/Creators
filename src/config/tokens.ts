@@ -15,6 +15,14 @@ export const TOKENS = {
   lumen: '#C6F24E',
   mint: '#7FD4B8',
   focus: '#7FD4B8',
+  wall: '#EEF2F8',
+  'wall-shade': '#E1E7F1',
+  'wall-rule': '#C3CCDA',
+  paper: '#FFFFFF',
+  print: '#101828',
+  'print-dim': '#3B4558',
+  'print-mute': '#586275',
+  neelam: '#2346C8',
 } as const satisfies Record<string, `#${string}`>;
 
 export type TokenName = keyof typeof TOKENS;

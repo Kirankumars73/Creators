@@ -26,27 +26,28 @@ const cards = () => within(screen.getByRole('list')).queryAllByRole('link');
 describe('Directory — the member wall, honest in every state', () => {
   test('at launch it never says "0 members" — it says scene one', () => {
     render(<Directory wall={[]} counts={{ total: 0, creators: 0, editors: 0, other: 0 }} />);
-    expect(screen.getByText('ROLL CALL — SCENE 01, TAKE 01. The room is empty. Somebody has to be first.')).toBeInTheDocument();
+    expect(screen.getByText('Nobody’s on the wall yet. Join and be the first name on it.')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Join the kootam' })).toHaveAttribute('href', '/join');
     expect(screen.queryByText(/0 members/i)).toBeNull();
   });
 
   test('when Supabase is unreachable it says so, quietly', () => {
     render(<Directory wall={null} counts={null} />);
-    expect(screen.getByText(/signal lost/i)).toBeInTheDocument();
+    expect(screen.getByText('The member list didn’t load. Refresh in a minute.')).toBeInTheDocument();
   });
 
-  test('members show name, handle and lane, link to Instagram — and never an email', () => {
+  test('members show name, handle and room, link to Instagram — and never an email', () => {
     const { container } = render(<Directory wall={wall} counts={counts} />);
     expect(cards()).toHaveLength(3);
     const ravi = screen.getByText('Ravi Menon').closest('a')!;
     expect(ravi).toHaveAttribute('href', 'https://instagram.com/ravicuts');
     expect(ravi).toHaveAttribute('rel', 'noopener noreferrer');
-    expect(within(ravi).getByText('LANE 02')).toBeInTheDocument();
+    expect(within(ravi).getByText('Editors')).toBeInTheDocument();
     expect(within(ravi).getByText('New')).toBeInTheDocument();
     expect(container.innerHTML).not.toMatch(/@example\.com|email/i);
   });
 
-  test('filtering by lane and searching by handle narrow the wall', async () => {
+  test('filtering by room and searching by handle narrow the wall', async () => {
     const user = userEvent.setup();
     render(<Directory wall={wall} counts={counts} />);
     await user.click(screen.getByRole('button', { name: /editors/i }));
@@ -68,11 +69,16 @@ describe('Directory — the member wall, honest in every state', () => {
   test('on the landing page it shows a slice and links to the full directory', () => {
     render(<Directory wall={wall} counts={counts} limit={2} />);
     expect(cards()).toHaveLength(2);
-    expect(screen.getByRole('link', { name: /see the whole directory/i })).toHaveAttribute('href', '/creators');
+    expect(screen.getByRole('link', { name: 'See every member' })).toHaveAttribute('href', '/creators');
   });
 
-  test('the counts line reads out every lane', () => {
+  test('the counts are one plain sentence covering every room', () => {
     render(<Directory wall={wall} counts={counts} />);
-    for (const label of ['Members 3', 'Creators 1', 'Editors 1', 'Other 1']) expect(screen.getByText(label)).toBeInTheDocument();
+    expect(screen.getByText('1 content creator, 1 editor and 1 other maker.')).toBeInTheDocument();
+  });
+
+  test('…and counts more than one in the plural', () => {
+    render(<Directory wall={wall} counts={{ total: 9, creators: 5, editors: 3, other: 1 }} />);
+    expect(screen.getByText('5 content creators, 3 editors and 1 other maker.')).toBeInTheDocument();
   });
 });

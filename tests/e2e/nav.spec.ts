@@ -6,7 +6,7 @@ test.describe('the top nav (desktop)', () => {
   test('links to the page sections, the directory and the Code; a section link glides there', async ({ page }) => {
     await page.goto('/');
     const nav = page.getByRole('navigation', { name: 'Main' });
-    for (const name of ['Who it’s for', 'How it works', 'For brands', 'Directory', 'The Code']) await expect(nav.getByRole('link', { name })).toBeVisible();
+    for (const name of ['How to join', 'Inside', 'For brands', 'Members', 'The Code']) await expect(nav.getByRole('link', { name })).toBeVisible();
     await nav.getByRole('link', { name: 'For brands' }).click();
     await expect(page).toHaveURL(/#brands$/);
     // Lands just below the fixed bar, not under it.
@@ -14,9 +14,9 @@ test.describe('the top nav (desktop)', () => {
     expect(await page.locator('#brands').evaluate((el) => el.getBoundingClientRect().top)).toBeGreaterThanOrEqual(60);
   });
 
-  test('Directory goes to its own page', async ({ page }) => {
+  test('Members goes to its own page', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Directory' }).click();
+    await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Members' }).click();
     await expect(page).toHaveURL(/\/creators$/);
     await expect(page.getByRole('heading', { level: 1 })).toHaveAccessibleName(/find your people/i);
   });
@@ -53,7 +53,7 @@ test.describe('the menu on a phone', () => {
   test('a section link closes the menu and scrolls there', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: /menu/i }).click();
-    await page.getByRole('dialog', { name: 'Menu' }).getByRole('link', { name: 'How it works' }).click();
+    await page.getByRole('dialog', { name: 'Menu' }).getByRole('link', { name: 'How to join' }).click();
     await expect(page.getByRole('dialog', { name: 'Menu' })).toHaveCount(0);
     await expect.poll(() => page.locator('#how').evaluate((el) => Math.round(el.getBoundingClientRect().top)), { timeout: 4000 }).toBeLessThanOrEqual(90);
   });

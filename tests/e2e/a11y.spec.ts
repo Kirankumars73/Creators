@@ -51,15 +51,15 @@ test.describe('keyboard', () => {
     expect(seen.slice(0, 9).map((s) => s.toUpperCase())).toEqual([
       'SKIP TO CONTENT',
       'CREATORS KOOTAM — HOME',
-      'WHO IT’S FOR',
-      'HOW IT WORKS',
+      'HOW TO JOIN',
+      'INSIDE',
       'FOR BRANDS',
-      'DIRECTORY',
+      'MEMBERS',
       'THE CODE',
       'SIGN IN',
       'JOIN',
     ]);
-    expect(seen[9]).toMatch(/JOIN AS A CREATOR/i);
+    expect(seen[9]).toMatch(/^JOIN THE KOOTAM$/i);
     expect(seen[10]).toMatch(/I’M A BRAND/i);
   });
 });

@@ -1,45 +1,34 @@
-import { ScrollFilm } from '@/components/film/ScrollFilm';
-import { ClickSpark } from '@/components/fx/ClickSpark';
-import { PointerFx } from '@/components/fx/PointerFx';
+import type { Viewport } from 'next';
 import { Brands } from '@/components/landing/Brands';
-import { CodeShelf } from '@/components/landing/CodeShelf';
-import { CraftTicker } from '@/components/landing/CraftTicker';
 import { Directory } from '@/components/landing/Directory';
 import { Faq } from '@/components/landing/Faq';
-import { FinalCta } from '@/components/landing/FinalCta';
 import { Hero } from '@/components/landing/Hero';
-import { HowItWorks } from '@/components/landing/HowItWorks';
-import { Hub } from '@/components/landing/Hub';
-import { InsideBento } from '@/components/landing/InsideBento';
-import { Lanes } from '@/components/landing/Lanes';
-import { Manifesto } from '@/components/landing/Manifesto';
-import { PassShowcase } from '@/components/landing/PassShowcase';
-import { SectionHead } from '@/components/landing/SectionHead';
+import { CodeShelf, FinalCta, HowToJoin, Inside, Manifesto, Pass } from '@/components/landing/Sections';
 import { SiteFooter } from '@/components/landing/SiteFooter';
 import { SiteNav } from '@/components/landing/SiteNav';
 import { StartDock } from '@/components/landing/StartDock';
-import { Stats } from '@/components/landing/Stats';
-import { ROLL_CALL, sectionEyebrow } from '@/config/landing';
+import { WallHeading } from '@/components/landing/WallHeading';
+import { ROLL_CALL } from '@/config/landing';
+import { TOKENS } from '@/config/tokens';
 import { getMemberCounts, getMemberWall } from '@/lib/wall/cached';
+
+// The public pages are the wall: light, so the browser chrome matches it.
+export const viewport: Viewport = { themeColor: TOKENS.wall, colorScheme: 'light' };
 
 export default async function Home() {
   const [counts, wall] = await Promise.all([getMemberCounts(), getMemberWall()]);
   return (
-    <ScrollFilm>
+    <div data-surface="wall" className="limewash min-h-dvh text-chalk">
       <SiteNav />
       <main id="main">
-        <Hero counts={counts} wall={wall} />
-        <CraftTicker />
+        <Hero counts={counts} />
         <Manifesto />
-        <Stats counts={counts} />
-        <Lanes />
-        <HowItWorks />
-        <InsideBento />
-        <Hub />
-        <PassShowcase />
+        <HowToJoin />
+        <Inside />
+        <Pass />
         <Brands />
-        <section id="roll-call" aria-labelledby="roll-call-title" className="relative mx-auto max-w-[90rem] px-4 py-24 md:px-10 md:py-36">
-          <SectionHead id="roll-call-title" eyebrow={sectionEyebrow('roll-call')} title={ROLL_CALL.title} accent={1} sub={ROLL_CALL.sub} />
+        <section id="roll-call" aria-labelledby="roll-call-title" className="mx-auto max-w-[90rem] px-4 py-16 md:px-10 md:py-24">
+          <WallHeading id="roll-call-title" title={ROLL_CALL.title} sub={ROLL_CALL.sub} />
           <Directory wall={wall} counts={counts} limit={12} />
         </section>
         <CodeShelf />
@@ -48,8 +37,6 @@ export default async function Home() {
       </main>
       <SiteFooter />
       <StartDock />
-      <PointerFx />
-      <ClickSpark />
-    </ScrollFilm>
+    </div>
   );
 }

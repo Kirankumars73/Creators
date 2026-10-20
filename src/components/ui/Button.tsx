@@ -17,11 +17,12 @@ const SIZES: Record<Size, string> = {
 
 // Labels are Anton at 24px: the large-text threshold, so chalk on rosso (4.11:1) passes.
 const VARIANTS: Record<Variant, string> = {
-  poster: 'bg-rosso text-chalk halation-rosso hover:bg-rosso-deep',
+  // paper, not chalk: on the wall "chalk" is the dark foreground (see [data-surface="wall"]).
+  poster: 'bg-rosso text-paper halation-rosso hover:bg-rosso-deep',
   ghost: 'border border-chalk-dim text-chalk hover:border-chalk',
-  ink: 'bg-ink text-chalk focus-visible:outline-chalk',
+  ink: 'bg-ink text-paper hover:bg-rosso-deep focus-visible:outline-chalk',
   bay: 'bg-lane text-ink',
-  chalk: 'bg-chalk text-ink hover:bg-mustard',
+  chalk: 'bg-paper text-print hover:bg-mustard',
 };
 
 /** Button styling for elements that can't be <Button>, e.g. an `intent://` anchor. */

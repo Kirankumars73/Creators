@@ -5,13 +5,13 @@ A WhatsApp community for Kerala's content creators and video editors, by Gowtham
 - **Spec:** [`docs/BUILD_BRIEF.md`](docs/BUILD_BRIEF.md)
 - **Plan:** [`docs/superpowers/plans/2026-10-13-creators-kootam.md`](docs/superpowers/plans/2026-10-13-creators-kootam.md), which includes the 13 approved departures from the brief.
 
-**Redesign (branch `redesign/creative-v2`, 2026-10-20):** the landing page follows the information architecture of creator-platform sites like linkflueverse.in — nav, hero with live stats, who it's for, how it works, inside the room, one room / every craft, the member pass, a brand-brief form, the directory, The Code, FAQ, final call to action, a "ready to start?" dock — in this site's own Poster × Editing Bay language, with effects after React Bits, Animista, 21st.dev and Uiverse (credited in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)). New: `/creators` (the public directory), brand briefs (form → `brand_briefs` table → `/admin`). No invented numbers: the only live figure is the member count, and the empty states say so. **Before merging to `main`, apply migration `0004_brand_briefs.sql` to production** (`pnpm dlx supabase db push`); until then the brief form falls back to "email us" and `/admin` says the briefs are unavailable, but nothing else breaks.
+**Redesign (branch `redesign/creative-v2`, 2026-10-20): "The Wall."** The public pages (`/`, `/creators`, `/code`, `/privacy`) are a Kerala wall: neelam lime-wash, കൂട്ടം hand-painted across it, the three rooms pasted on as film posters. Joining (`/join`, `/me`, `/admin`) stays the dark editing bay: you walk off the street into the edit suite. Reasoning, tokens and what was cut: [`docs/design/2026-10-20-the-wall.md`](docs/design/2026-10-20-the-wall.md). The page structure follows creator-platform sites (how to join, inside, member pass, brands, members, Code, FAQ, a ready-to-join dock). New: `/creators` (members directory) and brand briefs (form → `brand_briefs` → `/admin`). No invented numbers: the only live figure is the member count. **Before merging to `main`, apply migration `0004_brand_briefs.sql` to production** (`pnpm dlx supabase db push`); until then the brief form falls back to "email us" and `/admin` says briefs are unavailable, but nothing else breaks.
 
 **Live:** https://creators-kootam.vercel.app (Vercel project `creators-kootam`, functions in `bom1`). Supabase project `creators-kootam` (ref `jbldqvkthpbzjmfyyegm`, Mumbai) and Google sign-in are connected; the WhatsApp hand-off switches on once the invite links are in Vercel env (see Setup).
 
 ## Stack
 
-Next.js 16.4 (App Router, Cache Components) · React 19 · TypeScript strict · Supabase (Postgres, Auth, RLS) · Vercel · Tailwind 4 · zod · motion (join flow only) · GSAP + Lenis (landing only, lazy-loaded) · Vitest + PGlite · Playwright · axe-core.
+Next.js 16.4 (App Router, Cache Components) · React 19 · TypeScript strict · Supabase (Postgres, Auth, RLS) · Vercel · Tailwind 4 · zod · motion (join flow only) · Vitest + PGlite · Playwright · axe-core.
 
 ## Scripts
 
@@ -23,7 +23,7 @@ Next.js 16.4 (App Router, Cache Components) · React 19 · TypeScript strict · 
 | `pnpm check:leaks` | Builds with sentinel secrets and proves no WhatsApp link, service key or admin email reaches the browser bundle or the prerendered HTML/RSC |
 | `pnpm test:deployed` | Playwright against the live site (`BASE_URL=…`, needs `.auth/creator.json`; see the file header) |
 | `pnpm check:launch` | Lists every launch blocker still open, and exits 1 until there are none |
-| `pnpm render:ml` | Re-renders the fixed Malayalam strings to PNGs. Run it after editing `src/i18n/ml.ts`; a test fails until you do |
+| `pnpm render:ml` | Re-renders the fixed Malayalam strings to PNGs. Run it after editing `src/i18n/ml.ts`; a test fails until you do. `pnpm render:ml --wall` re-renders only the billboard-size wall-writing (`public/brand/ml/wordmark-wall.png`). On a machine without Playwright's browser, set `CHROMIUM_PATH=/usr/bin/chromium` |
 
 ## How joining works (and why the site can't add people itself)
 
@@ -55,7 +55,10 @@ The "For brands" section on `/` is a public form (no sign-in). A server action v
 
 ## Setup
 
-1. Run `pnpm install`, then copy `.env.example` to `.env.local`.
+1. Run `pnpm install`, then fill `.env.local`: `pnpm dlx vercel link`, then `pnpm dlx vercel env pull .env.local`.
+   - **Signing in locally:** run `pnpm dev` on port **3000**. `http://localhost:3000/**` is the only local origin on Supabase's redirect list; any other port sends you back to production after Google.
+   - With only the two `NEXT_PUBLIC_SUPABASE_*` values, Google sign-in works but finishing the join form doesn't: that needs `SUPABASE_SERVICE_ROLE_KEY` and the `WA_*` links too.
+   - With no Supabase values at all (a fresh clone, or a Vercel preview without env), `/join` says sign-in isn't set up on this copy and links to the live site, instead of a button that can only fail.
 2. **Supabase:**
    - Create a project in region `ap-south-1` (Mumbai).
    - Run `pnpm dlx supabase login`, then `pnpm dlx supabase link --project-ref <ref>`, then `pnpm dlx supabase db push`. The last command applies `supabase/migrations/*` — including `0004_brand_briefs.sql`, which the brand-brief form needs.
@@ -113,22 +116,14 @@ The "For brands" section on `/` is a public form (no sign-in). A server action v
   Lighthouse's simulated LCP on `/` is pessimistic: a real Chromium run on the live site with 4× CPU and 150 ms / 1.6 Mbps throttling paints the LCP element (the TAKE YOUR PLACE button) at 0.94s, with or without the cold open. Removing the cold open (2026-10-14) took Speed Index from 4.5s to about 3.2s.
 
   Reports are in `docs/launch/` (`lighthouse-live-*` for the live site). To keep this:
-  - GSAP and Lenis load after hydration.
+  - No WebGL, GSAP or Lenis on the public pages (removed with the wall redesign).
   - The hero has no intro and no wipe: the headline and the button paint at first paint.
   - Join steps and supabase-js load on demand.
   - Archivo is the static 700 face. The brief's "width 112" variable costs 74 KB and pushed LCP to 2.6s; to restore it, put `axes: ['wdth']` back in `src/app/fonts.ts`.
-- **Motion.**
-  - One registry of GSAP contexts lives in `ScrollFilm`. Nothing registers before `film.ready`; registering during hydration double-registers.
-  - Redesign (2026-10-20) — what moves, and how it stays cheap:
-    - **Hero:** React Bits *Threads* (WebGL2, `src/components/fx/Threads.tsx`), loaded with `next/dynamic` after hydration and paused off screen. Headline letters react to the pointer (transforms only; the `<h1>` paints at first paint). The lane-card stack swaps every 3.2s and pauses on hover, off screen and in hidden tabs.
-    - **One pointer listener** (`PointerFx`) drives every spotlight, tilt and magnet on the page; fine pointers only.
-    - **CSS-only where possible:** the scroll-progress hairline and bento posts use scroll-driven animations; the Code cards stack with `position: sticky`; the FAQ is native `<details>`.
-    - **GSAP (via `ScrollFilm`):** the manifesto's one-shot word reveal and the pinned, horizontally scrubbed "how it works" timeline (wide screens only).
-    - Same-page anchor links glide through Lenis; the fixed nav is cleared with `scroll-padding-top`, which Lenis honours too.
-  - The timeline scrubber was replaced by the top nav and the dock; the old cold-open/wipe/weave decisions still stand.
-  - Reduced motion is a designed mode, not a fallback.
-- **Redesign performance** (2026-10-20, local production build; Lighthouse was not re-run): a real Chromium run with 4× CPU and 150 ms / 1.6 Mbps throttling paints LCP at ~1.02s on `/` (3 runs, 1.020–1.028s; was 0.94s), CLS 0. The WebGL hero and the effects load after hydration, so they cost ~80 ms of LCP.
-- **Skills.** `anthropic-skills:theme-factory` was not used: §4 of the brief fully specifies the tokens.
+- **Motion** (the wall, 2026-10-20). One orchestrated moment: on load the wall-writing brushes in (a `clip-path` wipe on the masked image, roughened by the `#brush` SVG filter), then the three posters slap on. Everything else moves only when touched: posters lift on hover, FAQ answers open (`::details-content`), the phone menu wipes down. Anchor links use native smooth scrolling with `scroll-padding-top` for the fixed nav. The KOOTAM marquee is the only loop. Reduced motion is a designed mode: the wall is simply painted.
+- **Theming.** `[data-surface="wall"]` remaps the token names light (`chalk` = foreground, `carbon` = raised panel), so shared components restyle themselves; `[data-surface="night"]` restores the dark values inside a wall page (the brands band, the footer, a poster's photo frame). A test keeps the night block equal to `:root`.
+- **Performance** (2026-10-20, local production build; Lighthouse not re-run): a real Chromium run with 4× CPU and 150 ms / 1.6 Mbps throttling paints LCP at ~0.89s on `/` (3 runs, 0.888–0.896s; the previous version was 1.02s, the original 0.94s), CLS 0.
+- **Skills.** `anthropic-skills:theme-factory` was not used: §4 of the brief fully specifies the tokens. The wall redesign followed Anthropic's open-source `frontend-design` skill (plan, review against generic defaults, build, critique from screenshots).
 
 ## Launch verification (§14 Definition of Done)
 

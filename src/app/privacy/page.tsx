@@ -1,14 +1,18 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { SiteFooter } from '@/components/landing/SiteFooter';
 import { SiteNav } from '@/components/landing/SiteNav';
 import { brand } from '@/config/brand';
+import { TOKENS } from '@/config/tokens';
 
 export const metadata: Metadata = {
   title: 'Privacy',
   description: `What ${brand.name} collects, why, and who can see it.`,
 };
+
+// The public pages are the wall: light, so the browser chrome matches it.
+export const viewport: Viewport = { themeColor: TOKENS.wall, colorScheme: 'light' };
 
 const UPDATED = '20 October 2026';
 
@@ -39,7 +43,7 @@ export default function PrivacyPage() {
   ) : null;
 
   return (
-    <>
+    <div data-surface="wall" className="limewash min-h-dvh text-chalk">
       <SiteNav />
       <main id="main" className="mx-auto max-w-[90rem] px-4 pb-28 pt-28 md:px-10 md:pt-36">
         <header>
@@ -114,6 +118,6 @@ export default function PrivacyPage() {
         </Section>
       </main>
       <SiteFooter />
-    </>
+    </div>
   );
 }
