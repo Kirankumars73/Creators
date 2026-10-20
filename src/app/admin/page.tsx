@@ -1,6 +1,8 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
+import { SiteNav } from '@/components/landing/SiteNav';
+import { TOKENS } from '@/config/tokens';
 import { AdminPanel } from '@/components/admin/AdminPanel';
 import { BriefList } from '@/components/admin/BriefList';
 import { listPeople } from '@/lib/admin/queries';
@@ -9,13 +11,15 @@ import { getAdminEmail } from '@/lib/auth/require-admin';
 import { listBriefs } from '@/lib/briefs/repo';
 
 export const metadata: Metadata = { title: 'Admin', robots: { index: false, follow: false } };
+export const viewport: Viewport = { themeColor: TOKENS.wall, colorScheme: 'light' };
 
 export default function AdminPage({ searchParams }: PageProps<'/admin'>) {
   return (
-    <div data-surface="bay" className="min-h-dvh bg-surface">
-      <main className="flex flex-col gap-10 px-4 py-10 md:px-10">
-        <h1 className="text-title text-chalk">Admin</h1>
-        <Suspense fallback={<p className="text-label text-chalk-mute">Loading…</p>}>
+    <div data-surface="wall" className="limewash min-h-dvh text-chalk">
+      <SiteNav />
+      <main id="main" className="mx-auto flex max-w-[90rem] flex-col gap-10 px-4 pb-24 pt-28 md:px-10 md:pt-36">
+        <h1 className="font-display text-[clamp(3rem,9vw,7rem)] uppercase leading-[0.94] tracking-[-0.015em] text-chalk">Admin</h1>
+        <Suspense fallback={<p className="text-chalk-mute">Loading…</p>}>
           <AdminBoard searchParams={searchParams} />
         </Suspense>
       </main>

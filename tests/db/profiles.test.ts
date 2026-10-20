@@ -26,7 +26,7 @@ describe('member profiles: details only for members who chose a public profile',
     expect(pub).toMatchObject({ city: 'Thrissur', tags: ['Reels'], has_profile: true });
     expect(priv).toMatchObject({ city: null, tags: [], has_profile: false });
     for (const row of res.rows) {
-      expect(Object.keys(row).sort()).toEqual(['city', 'created_at', 'display_name', 'has_profile', 'instagram', 'role', 'tags']);
+      expect(Object.keys(row).sort()).toEqual(['city', 'created_at', 'display_name', 'has_photo', 'has_profile', 'instagram', 'role', 'tags']);
     }
   });
 
@@ -75,5 +75,35 @@ describe('briefs addressed to one member', () => {
       for_instagram: 'kit.maker',
     });
     await expect(db.asService((q) => insertRow(q, 'public.brand_briefs', { ...brief, for_instagram: 'not a handle!' }))).rejects.toThrow();
+  });
+});
+
+describe('member photos (migration 0006): shown only to members who say so', () => {
+  test('photo_public starts off, and the directory flags a photo only when it is public', async () => {
+    const row = await seed({ instagram: 'photo.default', photo_path: 'x/y.jpg' });
+    expect(row.photo_public).toBe(false);
+    await seed({ instagram: 'photo.shown', photo_path: 'x/z.jpg', photo_public: true });
+    await seed({ instagram: 'photo.none', photo_public: true });
+    const res = await db.asAnon((q) => q<{ instagram: string; has_photo: boolean }>('select instagram, has_photo from public.member_directory()'));
+    const flag = (h: string) => res.rows.find((r) => r.instagram === h)?.has_photo;
+    expect(flag('photo.default')).toBe(false);
+    expect(flag('photo.shown')).toBe(true);
+    expect(flag('photo.none')).toBe(false); // switched on but nothing uploaded: nothing to show
+  });
+
+  test('the profile read exposes the flag, never the storage path', async () => {
+    await seed({ instagram: 'photo.profile', photo_path: 'secret/path.jpg', photo_public: true });
+    const res = await db.asAnon((q) => q<Record<string, unknown>>('select * from public.member_profile($1)', ['photo.profile']));
+    expect(res.rows[0]).toMatchObject({ has_photo: true });
+    expect(JSON.stringify(res.rows[0])).not.toContain('secret/path');
+    expect(Object.keys(res.rows[0]!)).not.toContain('photo_path');
+  });
+
+  test('the photos bucket is private, and members cannot set photo columns from the browser', async () => {
+    const bucket = await db.pg.query<{ public: boolean }>(`select public from storage.buckets where id = 'member-photos'`);
+    expect(bucket.rows).toEqual([{ public: false }]);
+    const user = await db.addUser();
+    await db.asService((q) => insertRow(q, 'public.members', memberFixture(user.id, { instagram: 'self.photo' })));
+    await expect(db.asUser(user, (q) => q(`update public.members set photo_public = true where user_id = $1`, [user.id]))).rejects.toMatchObject({ code: '42501' });
   });
 });

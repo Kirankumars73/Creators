@@ -8,21 +8,46 @@ import type { Lane } from '@/config/brand';
 import { fetchInvite } from '@/lib/join/invite-client';
 import type { RenderTask } from '@/lib/join/render-progress';
 import { LaneChanger } from './LaneChanger';
+import { PhotoPanel } from './PhotoPanel';
 import { ProfileSwitch } from './ProfileSwitch';
 
 type MePanelProps = {
-  member: { role: Lane; instagram: string; roleChanges: number; active: boolean; showOnWall: boolean; profilePublic: boolean };
+  member: {
+    role: Lane;
+    instagram: string;
+    roleChanges: number;
+    active: boolean;
+    showOnWall: boolean;
+    profilePublic: boolean;
+    hasPhoto: boolean;
+    photoPublic: boolean;
+    hasGoogle: boolean;
+  };
   changeLane: Parameters<typeof LaneChanger>[0]['changeLane'];
   setProfilePublic: Parameters<typeof ProfileSwitch>[0]['setProfilePublic'];
+  setPhotoPublic: Parameters<typeof PhotoPanel>[0]['setPhotoPublic'];
 };
 
 /** Returning members: their links again (condensed reveal), their pass, their profile page, and the one lane move. */
-export function MePanel({ member, changeLane, setProfilePublic }: MePanelProps) {
+export function MePanel({ member, changeLane, setProfilePublic, setPhotoPublic }: MePanelProps) {
+  // Bumped when the photo changes, so the pass image beside the form is fetched again.
+  const [passVersion, setPassVersion] = useState(0);
   return (
     <div data-lane={member.role} className="grid grid-cols-1 gap-14 lg:grid-cols-[minmax(0,1fr)_19rem] lg:gap-16">
       <div className="flex min-w-0 flex-col gap-12">
         {/* Keyed by lane: after a move the links are fetched fresh for the new room. */}
         <MyLinks key={member.role} lane={member.role} />
+        {member.active ? (
+          <PhotoPanel
+            hasPhoto={member.hasPhoto}
+            photoPublic={member.photoPublic}
+            onWall={member.showOnWall}
+            hasGoogle={member.hasGoogle}
+            instagram={member.instagram}
+            setPhotoPublic={setPhotoPublic}
+            onChanged={() => setPassVersion((v) => v + 1)}
+          />
+        ) : null}
         {member.active ? (
           <ProfileSwitch handle={member.instagram} initial={member.profilePublic} onWall={member.showOnWall} setProfilePublic={setProfilePublic} />
         ) : null}
@@ -33,7 +58,7 @@ export function MePanel({ member, changeLane, setProfilePublic }: MePanelProps) 
         <figure className="flex flex-col items-center gap-5 lg:sticky lg:top-28">
           {/* React Bits TiltedCard: the real pass image, turning toward the pointer and catching the light. */}
           <TiltedCard
-            imageSrc="/api/pass/me"
+            imageSrc={`/api/pass/me?v=${passVersion}`}
             altText="Your member pass"
             containerHeight="30rem"
             containerWidth="17rem"

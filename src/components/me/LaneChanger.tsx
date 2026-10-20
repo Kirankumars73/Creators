@@ -71,12 +71,12 @@ export function LaneChanger({ current, changeLane }: LaneChangerProps) {
           <input
             value={otherText}
             onChange={(e) => setOtherText(e.target.value)}
-            className="min-h-12 border-0 border-b border-chalk-dim bg-graphite px-3 font-mono text-chalk"
+            className="min-h-12 border-0 border-b border-chalk-dim bg-graphite px-3 font-sans text-chalk"
           />
         </label>
       ) : null}
       {problem ? (
-        <p role="alert" className="border-l-[3px] border-rosso bg-graphite px-4 py-3 font-mono text-sm text-chalk">
+        <p role="alert" className="border-l-[3px] border-rosso bg-graphite px-4 py-3 font-sans text-sm text-chalk">
           {problem}
         </p>
       ) : null}

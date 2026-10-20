@@ -5,6 +5,7 @@ import type { MemberRow } from '@/lib/members/types';
 import { toPassData } from '@/lib/pass/data';
 import { passImage } from '@/lib/pass/image';
 import { siteUrl } from '@/lib/site';
+import { readPhotoObject } from '@/lib/photos/storage';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -19,7 +20,9 @@ export async function GET(_req: Request, ctx: RouteContext<'/api/pass/[id]'>) {
     const pass = row ? toPassData(row, { public: id !== 'me' }) : null;
     if (!pass) return new Response('Not found', { status: 404, headers: { 'Cache-Control': 'no-store' } });
     const cache = id === 'me' ? 'private, no-store' : 'public, max-age=300';
-    return await passImage(pass, cache, new URL(siteUrl).host);
+    // A missing or unreadable photo just means a pass without one, never a failed pass.
+    const photo = pass.photoPath ? await readPhotoObject(pass.photoPath).catch(() => null) : null;
+    return await passImage(pass, cache, new URL(siteUrl).host, photo);
   } catch (err) {
     console.error('[api/pass]', err);
     return new Response('Unavailable', { status: 503, headers: { 'Cache-Control': 'no-store' } });

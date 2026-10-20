@@ -127,8 +127,8 @@ export function CodeShelf() {
       <WallHeading id="code-title" title={CODE_SHELF.title} sub={CODE_SHELF.sub} />
       <ol className="mt-14 flex flex-col gap-10">
         {CODE_ARTICLES.slice(0, 3).map((a) => (
-          <li key={a.n} className="grid grid-cols-[4.5rem_1fr] items-baseline gap-4 md:grid-cols-[7rem_1fr] md:gap-8">
-            <span className="font-display text-[clamp(3.5rem,8vw,6rem)] leading-none text-rosso">{Number(a.n)}</span>
+          <li key={a.n} className="grid grid-cols-[3rem_1fr] items-baseline gap-3 md:grid-cols-[7rem_1fr] md:gap-8">
+            <span className="font-display text-[clamp(3rem,8vw,6rem)] leading-none text-rosso">{Number(a.n)}</span>
             <p className="max-w-[34ch] text-[clamp(1.375rem,2.6vw,2.125rem)] font-bold leading-[1.15] tracking-[-0.01em] text-chalk">{a.text}</p>
           </li>
         ))}

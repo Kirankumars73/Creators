@@ -40,7 +40,7 @@ export function Field({ label, name, error, hint, className = '', id, ...rest }:
       {description ? (
         <p
           id={descId}
-          className={`font-mono text-[0.8125rem] leading-snug ${error ? 'border-l-2 border-rosso pl-2 text-chalk' : 'text-chalk-dim'}`}
+          className={`text-[0.875rem] font-medium leading-snug ${error ? 'border-l-2 border-rosso pl-2 text-chalk' : 'text-chalk-dim'}`}
         >
           {description}
         </p>

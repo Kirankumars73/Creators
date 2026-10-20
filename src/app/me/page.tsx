@@ -6,7 +6,7 @@ import { MePanel } from '@/components/me/MePanel';
 import { TOKENS } from '@/config/tokens';
 import { getSessionUser } from '@/lib/auth/session';
 import { getOwnMember } from '@/lib/members/self';
-import { changeLane, setProfilePublic } from './actions';
+import { changeLane, setPhotoPublic, setProfilePublic } from './actions';
 
 export const metadata: Metadata = { title: 'Your pass', robots: { index: false, follow: false } };
 export const viewport: Viewport = { themeColor: TOKENS.wall, colorScheme: 'light' };
@@ -43,9 +43,14 @@ async function MeServer() {
         showOnWall: member.show_on_wall,
         // Before migration 0005 the column doesn't exist yet: treat that as "off".
         profilePublic: member.profile_public ?? false,
+        // Likewise photo_path / photo_public before migration 0006.
+        hasPhoto: !!member.photo_path,
+        photoPublic: member.photo_public ?? false,
+        hasGoogle: !!user.avatarUrl,
       }}
       changeLane={changeLane}
       setProfilePublic={setProfilePublic}
+      setPhotoPublic={setPhotoPublic}
     />
   );
 }

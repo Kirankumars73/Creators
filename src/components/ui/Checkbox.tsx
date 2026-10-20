@@ -38,7 +38,7 @@ export function Checkbox({ label, checked, onChange, name, error, id }: Checkbox
         <span className="text-body text-chalk">{label}</span>
       </label>
       {error ? (
-        <p id={errId} className="border-l-2 border-rosso pl-2 font-mono text-[0.8125rem] text-chalk">
+        <p id={errId} className="border-l-2 border-rosso pl-2 text-[0.875rem] font-medium text-chalk">
           {error}
         </p>
       ) : null}

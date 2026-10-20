@@ -13,6 +13,7 @@
     "test:deployed": "playwright test -c playwright.deployed.config.ts",
     "check:bans": "node scripts/check-bans.mjs",
     "check:leaks": "node scripts/check-leaks.mjs",
+    "check:live": "node scripts/check-live.mjs",
     "check:launch": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-launch.mjs",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm check:bans",
     "render:ml": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/render-ml-assets.mjs"
@@ -26,6 +27,7 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "server-only": "^0.0.1",
+    "sharp": "0.35.5",
     "zod": "^4.6.7"
   },
   "devDependencies": {

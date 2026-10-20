@@ -199,7 +199,7 @@ export function DetailsForm({ lane, otherText, user, draft, onDraft, onSubmit, o
           label={
             <>
               Show me on the member wall
-              <span className="mt-1 block font-mono text-[0.8125rem] text-chalk-dim">Name and handle only. Never your email.</span>
+              <span className="mt-1 block text-[0.875rem] font-medium text-chalk-dim">Name and handle only. Never your email.</span>
             </>
           }
           checked={showOnWall}
@@ -213,7 +213,7 @@ export function DetailsForm({ lane, otherText, user, draft, onDraft, onSubmit, o
             label={
               <>
                 Give me a public profile page
-                <span className="mt-1 block font-mono text-[0.8125rem] text-chalk-dim">
+                <span className="mt-1 block text-[0.875rem] font-medium text-chalk-dim">
                   Your district, what you do and your portfolio link, so brands and collaborators can find you. Never your email.
                 </span>
               </>
@@ -244,7 +244,7 @@ export function DetailsForm({ lane, otherText, user, draft, onDraft, onSubmit, o
         />
       </div>
       {formError ? (
-        <p role="alert" className="border-l-[3px] border-rosso bg-graphite px-4 py-3 font-mono text-sm text-chalk">
+        <p role="alert" className="border-l-[3px] border-rosso bg-graphite px-4 py-3 font-sans text-sm text-chalk">
           {formError}
           {formError === FORM_ERRORS.unauthenticated ? (
             <>

@@ -41,6 +41,9 @@ describe('buildMemberInsert', () => {
     const row = buildMemberInsert(user, input) as Record<string, unknown>;
     expect(row).not.toHaveProperty('status');
     expect(row).not.toHaveProperty('role_changes');
+    // A photo is added later, from /me, through its own checked path — never by the join form.
+    expect(row).not.toHaveProperty('photo_path');
+    expect(row).not.toHaveProperty('photo_public');
   });
 });
 

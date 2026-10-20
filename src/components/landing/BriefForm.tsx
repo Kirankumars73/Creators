@@ -48,7 +48,7 @@ export function BriefForm({ forInstagram }: { forInstagram?: string } = {}) {
         <h3 className="font-display text-[2rem] uppercase leading-none text-chalk">{forInstagram ? `Brief @${forInstagram}` : BRANDS.formTitle}</h3>
         <span className="text-label text-chalk-mute">Free</span>
       </div>
-      <p className="font-mono text-[0.8125rem] leading-snug text-chalk-dim">
+      <p className="text-[0.875rem] font-medium leading-snug text-chalk-dim">
         {/* Members' emails are never public: a brief to one member goes through the team. */}
         {forInstagram ? `It comes to the kootam team, who pass it to @${forInstagram}. You get a reply by email.` : BRANDS.formNote}
       </p>
@@ -78,7 +78,7 @@ export function BriefForm({ forInstagram }: { forInstagram?: string } = {}) {
           <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-[2px] origin-left scale-x-0 bg-lane transition-transform duration-[180ms] ease-cut peer-focus:scale-x-100" />
         </div>
         {errors.brief ? (
-          <p id={`${briefId}-err`} className="border-l-2 border-rosso pl-2 font-mono text-[0.8125rem] leading-snug text-chalk">
+          <p id={`${briefId}-err`} className="border-l-2 border-rosso pl-2 text-[0.875rem] font-medium leading-snug text-chalk">
             {errors.brief}
           </p>
         ) : null}
@@ -94,7 +94,7 @@ export function BriefForm({ forInstagram }: { forInstagram?: string } = {}) {
       {forInstagram ? <input type="hidden" name="for_instagram" value={forInstagram} /> : null}
 
       {state && !state.ok && state.error === 'unavailable' ? (
-        <p role="alert" className="border-l-2 border-rosso pl-3 font-mono text-[0.8125rem] leading-snug text-chalk">
+        <p role="alert" className="border-l-2 border-rosso pl-3 text-[0.875rem] font-medium leading-snug text-chalk">
           The brief board is offline right now.{' '}
           {mail ? (
             <a href={mail} className="underline underline-offset-4">
@@ -106,7 +106,7 @@ export function BriefForm({ forInstagram }: { forInstagram?: string } = {}) {
         </p>
       ) : null}
       <noscript>
-        <p className="font-mono text-[0.8125rem] text-chalk-dim">
+        <p className="text-[0.875rem] font-medium text-chalk-dim">
           This form needs JavaScript.{' '}
           {mail ? (
             <a href={mail} className="underline underline-offset-4">

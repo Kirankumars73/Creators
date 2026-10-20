@@ -33,9 +33,9 @@ const BRIEFS = [
 export default function DevAdmin({ searchParams }: PageProps<'/dev/admin'>) {
   if (process.env.NODE_ENV === 'production') notFound();
   return (
-    <div data-surface="bay" className="min-h-dvh bg-surface">
-      <main className="flex flex-col gap-10 px-4 py-10 md:px-10">
-        <h1 className="text-title text-chalk">Admin</h1>
+    <div data-surface="wall" className="limewash min-h-dvh text-chalk">
+      <main className="mx-auto flex max-w-[90rem] flex-col gap-10 px-4 pb-24 pt-16 md:px-10">
+        <h1 className="font-display text-[clamp(3rem,9vw,7rem)] uppercase leading-[0.94] tracking-[-0.015em] text-chalk">Admin</h1>
         <Suspense>
           <Board searchParams={searchParams} />
         </Suspense>

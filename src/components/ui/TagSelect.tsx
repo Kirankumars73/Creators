@@ -22,7 +22,7 @@ export function TagSelect({ label, options, value, onChange }: TagSelectProps) {
             type="button"
             aria-pressed={value.includes(o)}
             onClick={() => toggle(o)}
-            className="min-h-11 border border-chalk-dim px-3 font-mono text-sm text-chalk transition-colors duration-[var(--dur-cut)] ease-cut hover:border-chalk aria-pressed:border-lane aria-pressed:bg-lane aria-pressed:text-ink"
+            className="min-h-11 border border-chalk-dim px-3 font-sans text-sm text-chalk transition-colors duration-[var(--dur-cut)] ease-cut hover:border-chalk aria-pressed:border-lane aria-pressed:bg-lane aria-pressed:text-ink"
           >
             {o}
           </button>

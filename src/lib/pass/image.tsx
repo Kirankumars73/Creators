@@ -23,10 +23,11 @@ function Corner({ at }: { at: 'tl' | 'tr' | 'bl' | 'br' }) {
 }
 
 /** The 1080×1920 member pass: story-sized, lane-colored, poster-built (§7, §12). */
-export async function passImage(pass: PassData, cacheControl: string, host: string) {
+export async function passImage(pass: PassData, cacheControl: string, host: string, photo?: Buffer | null) {
   const lane = LANE_COLOR[pass.role];
   const [fonts, wordmarkMl] = await Promise.all([ogFonts(), mlImage('wordmark', 120)]);
-  const headlineSize = pass.headline.length > 18 ? 104 : 136;
+  // A photo takes height, so long names step down one more size to keep the room label clear.
+  const headlineSize = pass.headline.length > 18 ? (photo ? 88 : 104) : photo && pass.headline.length > 12 ? 112 : 136;
 
   return new ImageResponse(
     (
@@ -46,13 +47,26 @@ export async function passImage(pass: PassData, cacheControl: string, host: stri
             )}
           </div>
 
-          <div style={{ display: 'flex', marginTop: 140, fontSize: 30, letterSpacing: 4, color: TOKENS['chalk-dim'] }}>MEMBER PASS</div>
+          {photo ? (
+            // Their photo, cropped to a wide frame with a lane-colour edge; the headline sits below it.
+            <div style={{ display: 'flex', marginTop: 48, width: 872, height: 400, border: `6px solid ${lane}` }}>
+              <img
+                src={`data:image/jpeg;base64,${photo.toString('base64')}`}
+                width={860}
+                height={388}
+                alt=""
+                style={{ width: 860, height: 388, objectFit: 'cover', objectPosition: '50% 20%' }}
+              />
+            </div>
+          ) : null}
+
+          <div style={{ display: 'flex', marginTop: photo ? 44 : 140, fontSize: 30, letterSpacing: 4, color: TOKENS['chalk-dim'] }}>MEMBER PASS</div>
           <div style={{ display: 'flex', marginTop: 24, fontFamily: 'Anton', fontSize: headlineSize, lineHeight: 0.92, textTransform: 'uppercase' }}>
             {pass.headline}
           </div>
           <div style={{ display: 'flex', marginTop: 28, fontSize: 40, color: TOKENS['chalk-dim'] }}>@{pass.instagram}</div>
 
-          <div style={{ display: 'flex', flexGrow: 1 }} />
+          <div style={{ display: 'flex', flexGrow: 1, minHeight: 40 }} />
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 20, fontSize: 30, letterSpacing: 4, color: TOKENS.chalk }}>
             <div style={{ width: 22, height: 22, background: lane }} />

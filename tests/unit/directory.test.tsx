@@ -16,6 +16,7 @@ const member = (over: Partial<WallMember>): WallMember => ({
   city: null,
   tags: [],
   hasProfile: false,
+  hasPhoto: false,
   ...over,
 });
 const wall = [

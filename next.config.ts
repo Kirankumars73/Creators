@@ -3,6 +3,13 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: true,
+  experimental: {
+    // Off on purpose (2026-10-21): production once shipped the new pages with the *old*
+    // globals.css, a stale restored build cache, which turned the light site dark. A slower
+    // clean build is cheaper than that. `pnpm check:live` verifies a deploy afterwards.
+    turbopackFileSystemCacheForBuild: false,
+    turbopackFileSystemCacheForDev: false,
+  },
   partialPrefetching: true,
   // Fonts + pre-rendered Malayalam read from disk by next/og routes.
   outputFileTracingIncludes: {

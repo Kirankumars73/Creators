@@ -14,10 +14,27 @@ test('the home headline is his line from his bio', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toHaveAccessibleName("WE'D RATHER SHOW THAN TELL.");
 });
 
-test('admin (the edit suite) stays ink-dark from the first byte', async ({ page }) => {
-  await page.goto('/admin');
-  const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  expect(bg).toBe('rgb(10, 10, 11)');
+test('the 404 is the wall too — with the nav, the footer and a way home', async ({ page }) => {
+  await page.goto('/no-such-page');
+  await expect(page.getByRole('heading', { name: /this frame isn’t in the film/i })).toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Main' })).toBeVisible();
+  await expect(page.locator('footer')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Back to the start' })).toHaveAttribute('href', '/');
+  expect(await page.evaluate(() => getComputedStyle(document.querySelector('[data-surface="wall"]')!).backgroundColor)).toBe('rgb(238, 242, 248)');
+});
+
+test('form labels are plain sentence case, not tracked mono caps (join details, via the dev preview)', async ({ page }) => {
+  await page.goto('/join');
+  const label = await page.evaluate(() => {
+    const el = document.createElement('span');
+    el.className = 'text-label';
+    document.body.append(el);
+    const cs = getComputedStyle(el);
+    return { transform: cs.textTransform, spacing: cs.letterSpacing, family: cs.fontFamily };
+  });
+  expect(label.transform).toBe('none');
+  expect(label.spacing).toBe('normal');
+  expect(label.family).not.toMatch(/mono/i);
 });
 
 for (const path of ['/', '/creators', '/code', '/privacy', '/join']) {
@@ -85,6 +102,28 @@ test.describe('member pages (/m/<handle>)', () => {
   });
 
   test('the dev previews are 404 in production', async ({ request }) => {
-    for (const path of ['/dev/profile', '/dev/join', '/dev/admin']) expect((await request.get(path)).status(), path).toBe(404);
+    for (const path of ['/dev/profile', '/dev/join', '/dev/admin', '/dev/photo', '/dev/pass']) expect((await request.get(path)).status(), path).toBe(404);
+  });
+});
+
+test.describe('photos are private by default and never reachable without the member’s say-so', () => {
+  test('the public photo route finds nothing for a handle (and refuses nonsense), with no database', async ({ request }) => {
+    expect((await request.get('/api/photo/by/anu.shoots')).status()).toBe(503);
+    expect((await request.get('/api/photo/by/..%2Fetc')).status()).toBe(404);
+    expect((await request.get('/api/photo/by/' + 'a'.repeat(31))).status()).toBe(404);
+  });
+
+  test('your own photo needs a sign-in', async ({ request }) => {
+    expect((await request.get('/api/photo/me')).status()).toBe(404);
+  });
+
+  test('uploading or removing from another site is refused before anything else happens', async ({ request }) => {
+    for (const method of ['POST', 'DELETE'] as const) {
+      const res = await request.fetch('/api/photo/me', { method, headers: { origin: 'https://evil.example' } });
+      expect(res.status(), method).toBe(403);
+    }
+    // Same site but signed out: refused at the door, not crashed.
+    const own = await request.fetch('/api/photo/me', { method: 'DELETE', headers: { origin: 'http://localhost:3100' } });
+    expect([401, 503]).toContain(own.status());
   });
 });

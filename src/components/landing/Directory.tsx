@@ -12,7 +12,7 @@ type Filter = 'all' | Lane;
 const ROOM_LABEL: Record<Lane, string> = { creator: 'Content creators', editor: 'Editors', other: 'Something else' };
 const FILTERS: { id: Filter; label: string }[] = [{ id: 'all', label: 'Everyone' }, ...LANES.map((l) => ({ id: l, label: ROOM_LABEL[l] }))];
 
-const SELECT = 'min-h-11 rounded-full border-2 border-chalk/20 bg-carbon px-4 text-sm font-semibold text-chalk focus:border-chalk';
+const SELECT = 'min-h-11 rounded-full border-2 border-chalk/20 bg-carbon px-4 text-base font-semibold text-chalk focus:border-chalk';
 
 const initials = (name: string) =>
   name
@@ -151,9 +151,14 @@ export function Directory({
                 href={`/m/${m.instagram}`}
                 className="group relative flex min-h-16 items-center gap-3 bg-carbon p-3 pr-4 shadow-[0_1px_0_color-mix(in_oklab,var(--chalk)_12%,transparent)] transition-transform duration-200 hover:-translate-y-0.5"
               >
-                <span aria-hidden="true" className="grid size-11 shrink-0 place-items-center rounded-full bg-lane text-sm font-bold text-print">
-                  {initials(m.displayName)}
-                </span>
+                {m.hasPhoto ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={`/api/photo/by/${m.instagram}`} alt="" width={44} height={44} loading="lazy" className="size-11 shrink-0 rounded-full object-cover" />
+                ) : (
+                  <span aria-hidden="true" className="grid size-11 shrink-0 place-items-center rounded-full bg-lane text-sm font-bold text-print">
+                    {initials(m.displayName)}
+                  </span>
+                )}
                 <span className="flex min-w-0 flex-col">
                   <span className="truncate font-semibold text-chalk">{m.displayName}</span>
                   <span className="truncate text-sm text-chalk-dim">@{m.instagram}</span>

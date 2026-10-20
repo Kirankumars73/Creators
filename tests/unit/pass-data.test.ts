@@ -16,6 +16,8 @@ const row: MemberRow = {
   portfolio_url: null,
   show_on_wall: true,
   profile_public: false,
+  photo_path: null,
+  photo_public: false,
   accepted_code: true,
   status: 'active',
   role_changes: 0,
@@ -36,4 +38,18 @@ describe('toPassData', () => {
 
   test('a Malayalam name falls back to the handle (next/og cannot shape it)', () =>
     expect(toPassData({ ...row, display_name: 'ഗൗതം ദാസ്' })!.headline).toBe('@the.gowtham_das'));
+
+  describe('the photo on the pass', () => {
+    const withPhoto = { ...row, photo_path: `${row.id}/p.jpg` };
+
+    test('the member’s own pass carries their photo whether or not it is switched on publicly', () =>
+      expect(toPassData(withPhoto)!.photoPath).toBe(withPhoto.photo_path));
+
+    test('a shared (public) pass carries it only when they switched it on', () => {
+      expect(toPassData(withPhoto, { public: true })!.photoPath).toBeNull();
+      expect(toPassData({ ...withPhoto, photo_public: true }, { public: true })!.photoPath).toBe(withPhoto.photo_path);
+    });
+
+    test('no photo means no photo, whatever the switch says', () => expect(toPassData({ ...row, photo_public: true }, { public: true })!.photoPath).toBeNull());
+  });
 });
