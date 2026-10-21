@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import ClickSpark from '@/components/bits/ClickSpark';
 import { SmoothScroll } from '@/components/motion/SmoothScroll';
+import { PageLoader } from '@/components/brand/PageLoader';
 import { SessionLoader } from '@/components/session/SessionLoader';
 import { Grain } from '@/components/texture/Grain';
 import { brand } from '@/config/brand';
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="en" data-surface="poster" className={fontVariables} suppressHydrationWarning>
       <body>
+        <PageLoader />
         {/* React Bits ClickSpark: a burst of mustard sparks wherever someone taps (off under reduced motion). */}
         <ClickSpark sparkColor={TOKENS.mustard} sparkCount={10} sparkRadius={22} sparkSize={9} duration={450}>
           {children}
