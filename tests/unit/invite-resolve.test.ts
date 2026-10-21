@@ -96,3 +96,16 @@ describe('parseServerEnv — pasted values (final review F10)', () => {
     expect(env.serviceRoleKey).toBe('service-key');
   });
 });
+
+describe('adminEmailsFromEnv — the built-in admins', () => {
+  test('the founder and the developer are admins even when nothing is set on the host', async () => {
+    const { adminEmailsFromEnv } = await import('@/lib/env.server');
+    expect(adminEmailsFromEnv(undefined)).toEqual(['gowthamdas04@gmail.com', 'thomasmartinoa@gmail.com']);
+    expect(adminEmailsFromEnv('')).toEqual(['gowthamdas04@gmail.com', 'thomasmartinoa@gmail.com']);
+  });
+
+  test('ADMIN_EMAILS adds more, lower-cased, without duplicating the built-in ones', async () => {
+    const { adminEmailsFromEnv } = await import('@/lib/env.server');
+    expect(adminEmailsFromEnv(' New@x.com, THOMASMARTINOA@gmail.com ,')).toEqual(['gowthamdas04@gmail.com', 'thomasmartinoa@gmail.com', 'new@x.com']);
+  });
+});

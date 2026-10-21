@@ -61,10 +61,18 @@ export function getServerEnv(): ServerEnv {
   return cached;
 }
 
-/** ADMIN_EMAILS alone — admin access must not depend on the WhatsApp links being valid. */
+/**
+ * Admins that are always admins, whatever the host's settings: the founder and the developer.
+ * Safe to keep in code: an admin must still sign in with Google and have a confirmed email
+ * (see isAdminUser), so knowing an address is not enough. ADMIN_EMAILS adds more on top.
+ */
+export const BUILT_IN_ADMINS = ['gowthamdas04@gmail.com', 'thomasmartinoa@gmail.com'] as const;
+
+/** The built-in admins plus ADMIN_EMAILS — admin access must not depend on the WhatsApp links being valid. */
 export function adminEmailsFromEnv(raw: string | undefined = process.env.ADMIN_EMAILS): string[] {
-  return (raw ?? '')
+  const extra = (raw ?? '')
     .split(',')
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean);
+  return [...new Set([...BUILT_IN_ADMINS, ...extra])];
 }

@@ -6,8 +6,8 @@ import { TOKENS } from '@/config/tokens';
 
 // Short enough to never feel slow, long enough that a fast load doesn't flash.
 const MIN_MS = 450;
-// Never trap someone behind it if a picture or font hangs.
-const MAX_MS = 5000;
+// Never trap someone behind it if a picture, font or the 3D badge hangs.
+const MAX_MS = 8000;
 
 /**
  * Covers the page while it loads (HTML, fonts, pictures), then fades away, so people see the
@@ -27,7 +27,21 @@ export function PageLoader() {
       const wait = Math.max(0, MIN_MS - (performance.now() - start));
       window.setTimeout(() => setDone(true), wait);
     };
-    const ready = () => void Promise.all([document.fonts?.ready, new Promise((r) => requestAnimationFrame(() => r(null)))]).then(finish, finish);
+    // Parts of a page that need longer (the member badge) mark themselves [data-page-hold] while
+    // they are not ready; the page stays covered until none are left.
+    const held = () => !!document.querySelector('[data-page-hold]');
+    const whenNotHeld = () =>
+      new Promise<void>((resolve) => {
+        if (!held()) return resolve();
+        const mo = new MutationObserver(() => {
+          if (!held()) {
+            mo.disconnect();
+            resolve();
+          }
+        });
+        mo.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-page-hold'] });
+      });
+    const ready = () => void Promise.all([document.fonts?.ready, new Promise((r) => requestAnimationFrame(() => r(null)))]).then(whenNotHeld).then(finish, finish);
     if (document.readyState === 'complete') ready();
     else window.addEventListener('load', ready, { once: true });
     const cap = window.setTimeout(finish, MAX_MS);
