@@ -6,83 +6,69 @@ import { mlImage, ogFonts } from '@/lib/og/assets';
 import type { PassData } from './data';
 
 const LANE_COLOR: Record<Lane, string> = { creator: TOKENS.rosso, editor: TOKENS.lumen, other: TOKENS.mint };
-const STAR = 'M12 1.2L14.81 8.73L22.84 9.08L16.55 14.08L18.7 21.82L12 17.39L5.3 21.82L7.45 14.08L1.16 9.08L9.19 8.73Z';
 const STRIPES = `data:image/svg+xml;base64,${Buffer.from(
   `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="56"><defs><pattern id="s" width="56" height="56" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><rect width="28" height="56" fill="${TOKENS.chalk}"/></pattern></defs><rect width="1080" height="56" fill="${TOKENS.ink}"/><rect width="1080" height="56" fill="url(#s)"/></svg>`,
 ).toString('base64')}`;
 
-function Corner({ at }: { at: 'tl' | 'tr' | 'bl' | 'br' }) {
-  const s = { position: 'absolute' as const, width: 36, height: 36, borderColor: TOKENS.rule, borderStyle: 'solid' as const };
-  const side = {
-    tl: { top: 96, left: 40, borderTopWidth: 2, borderLeftWidth: 2, borderRightWidth: 0, borderBottomWidth: 0 },
-    tr: { top: 96, right: 40, borderTopWidth: 2, borderRightWidth: 2, borderLeftWidth: 0, borderBottomWidth: 0 },
-    bl: { bottom: 40, left: 40, borderBottomWidth: 2, borderLeftWidth: 2, borderTopWidth: 0, borderRightWidth: 0 },
-    br: { bottom: 40, right: 40, borderBottomWidth: 2, borderRightWidth: 2, borderTopWidth: 0, borderLeftWidth: 0 },
-  }[at];
-  return <div style={{ ...s, ...side }} />;
-}
+const initialsOf = (name: string) =>
+  name
+    .replace(/^@/, '')
+    .split(/[\s._]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => [...w][0] ?? '')
+    .join('')
+    .toUpperCase();
 
-/** The 1080×1920 member pass: story-sized, lane-colored, poster-built (§7, §12). */
+const INK_ON: Record<Lane, string> = { creator: TOKENS.paper, editor: TOKENS.print, other: TOKENS.print };
+
+/**
+ * The 1080×1920 member pass, story-sized: the member's photo large across the top (or their
+ * initials on the room's colour), fading into a deep panel with their name and handle, and a bold
+ * block in the room's colour carrying the room name. Same family as the badge on their page.
+ */
 export async function passImage(pass: PassData, cacheControl: string, host: string, photo?: Buffer | null) {
   const lane = LANE_COLOR[pass.role];
-  const [fonts, wordmarkMl] = await Promise.all([ogFonts(), mlImage('wordmark', 120)]);
-  // A photo takes height, so long names step down one more size to keep the room label clear.
-  const headlineSize = pass.headline.length > 18 ? (photo ? 88 : 104) : photo && pass.headline.length > 12 ? 112 : 136;
+  const ink = INK_ON[pass.role];
+  const [fonts, wordmarkMl] = await Promise.all([ogFonts(), mlImage('wordmark', 110)]);
+  const headlineSize = pass.headline.length > 18 ? 96 : pass.headline.length > 12 ? 124 : 150;
+  const PHOTO_H = 1440;
+  // Two-word rooms set on two lines, so they step down to leave room for the footer line.
+  const roomSize = pass.roomName.length > 10 ? 120 : 168;
 
   return new ImageResponse(
     (
-      <div style={{ width: 1080, height: 1920, display: 'flex', flexDirection: 'column', background: TOKENS.ink, color: TOKENS.chalk, fontFamily: 'Geist Mono', position: 'relative' }}>
-        <img src={STRIPES} width={1080} height={56} alt="" />
-        <Corner at="tl" />
-        <Corner at="tr" />
-        <Corner at="bl" />
-        <Corner at="br" />
-        <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, padding: '120px 104px 112px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-            <div style={{ fontFamily: 'Anton', fontSize: 150, lineHeight: 0.86, letterSpacing: -3 }}>{brand.wordmark.latin}</div>
-            {wordmarkMl ? (
-              <img src={wordmarkMl.src} width={wordmarkMl.width} height={wordmarkMl.height} alt="" style={{ marginTop: 8 }} />
-            ) : (
-              <div style={{ fontFamily: 'Anton', fontSize: 110, lineHeight: 1 }}>KOOTAM</div>
-            )}
-          </div>
-
+      <div style={{ width: 1080, height: 1920, display: 'flex', flexDirection: 'column', background: '#080c18', color: '#ffffff', fontFamily: 'Geist Mono', position: 'relative' }}>
+        {/* The picture, or the room's colour with their initials. */}
+        <div style={{ position: 'absolute', top: 0, left: 0, width: 1080, height: PHOTO_H, display: 'flex', background: lane }}>
           {photo ? (
-            // Their photo, cropped to a wide frame with a lane-colour edge; the headline sits below it.
-            <div style={{ display: 'flex', marginTop: 48, width: 872, height: 400, border: `6px solid ${lane}` }}>
-              <img
-                src={`data:image/jpeg;base64,${photo.toString('base64')}`}
-                width={860}
-                height={388}
-                alt=""
-                style={{ width: 860, height: 388, objectFit: 'cover', objectPosition: '50% 20%' }}
-              />
-            </div>
-          ) : null}
+            <img src={`data:image/jpeg;base64,${photo.toString('base64')}`} width={1080} height={PHOTO_H} alt="" style={{ width: 1080, height: PHOTO_H, objectFit: 'cover', objectPosition: '50% 20%' }} />
+          ) : (
+            <div style={{ display: 'flex', width: 1080, justifyContent: 'center', paddingTop: 250, fontFamily: 'Anton', fontSize: 560, lineHeight: 1, color: ink, opacity: 0.92 }}>{initialsOf(pass.headline)}</div>
+          )}
+        </div>
+        {/* Fades: from the top (so the wordmark reads) and into the panel below the picture. */}
+        <div style={{ position: 'absolute', top: 0, left: 0, width: 1080, height: 420, background: 'linear-gradient(to bottom, rgba(8,12,24,0.7), rgba(8,12,24,0))' }} />
+        <div style={{ position: 'absolute', top: PHOTO_H - 820, left: 0, width: 1080, height: 880, background: 'linear-gradient(to bottom, rgba(8,12,24,0), rgba(8,12,24,0.88) 55%, #080c18)' }} />
 
-          <div style={{ display: 'flex', marginTop: photo ? 44 : 140, fontSize: 30, letterSpacing: 4, color: TOKENS['chalk-dim'] }}>MEMBER PASS</div>
-          <div style={{ display: 'flex', marginTop: 24, fontFamily: 'Anton', fontSize: headlineSize, lineHeight: 0.92, textTransform: 'uppercase' }}>
-            {pass.headline}
-          </div>
-          <div style={{ display: 'flex', marginTop: 28, fontSize: 40, color: TOKENS['chalk-dim'] }}>@{pass.instagram}</div>
+        <img src={STRIPES} width={1080} height={56} alt="" style={{ position: 'absolute', top: 0, left: 0 }} />
+        <div style={{ position: 'absolute', top: 120, left: 80, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <div style={{ fontFamily: 'Anton', fontSize: 132, lineHeight: 0.86, letterSpacing: -3 }}>{brand.wordmark.latin}</div>
+          {wordmarkMl ? <img src={wordmarkMl.src} width={wordmarkMl.width} height={wordmarkMl.height} alt="" style={{ marginTop: 6 }} /> : <div style={{ fontFamily: 'Anton', fontSize: 96, lineHeight: 1 }}>KOOTAM</div>}
+        </div>
+        <div style={{ position: 'absolute', top: 132, right: 80, display: 'flex', padding: '14px 30px', background: '#ffffff', color: TOKENS.print, fontSize: 30, letterSpacing: 5 }}>MEMBER PASS</div>
 
-          <div style={{ display: 'flex', flexGrow: 1, minHeight: 40 }} />
+        {/* Name and handle over the fade. */}
+        <div style={{ position: 'absolute', left: 80, right: 80, bottom: 510, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', alignSelf: 'flex-start', padding: '10px 26px', background: lane, color: ink, fontSize: 30, letterSpacing: 4 }}>{pass.laneLabel}</div>
+          <div style={{ display: 'flex', marginTop: 30, fontFamily: 'Anton', fontSize: headlineSize, lineHeight: 0.92, textTransform: 'uppercase' }}>{pass.headline}</div>
+          <div style={{ display: 'flex', marginTop: 24, fontSize: 44, color: 'rgba(255,255,255,0.86)' }}>@{pass.instagram}</div>
+        </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20, fontSize: 30, letterSpacing: 4, color: TOKENS.chalk }}>
-            <div style={{ width: 22, height: 22, background: lane }} />
-            {pass.laneLabel}
-          </div>
-          <div style={{ display: 'flex', marginTop: 20, fontFamily: 'Anton', fontSize: 196, lineHeight: 0.86, color: lane, letterSpacing: -4 }}>
-            {pass.roomName}
-          </div>
-          <div style={{ display: 'flex', gap: 22, marginTop: 56 }}>
-            {Array.from({ length: 7 }, (_, i) => (
-              <svg key={i} width={34} height={34} viewBox="0 0 24 24">
-                <path d={STAR} fill={TOKENS.mustard} />
-              </svg>
-            ))}
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 56, fontSize: 26, letterSpacing: 3, color: TOKENS['chalk-dim'] }}>
+        {/* The room, in its own colour. */}
+        <div style={{ position: 'absolute', left: 0, bottom: 0, width: 1080, height: 440, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '44px 80px 52px', background: lane, color: ink }}>
+          <div style={{ display: 'flex', fontFamily: 'Anton', fontSize: roomSize, lineHeight: 0.9, letterSpacing: -2 }}>{pass.roomName}</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 28, letterSpacing: 3 }}>
             <span>JOINED {pass.joined}</span>
             <span>{brand.region}</span>
             <span>{host.toUpperCase()}</span>

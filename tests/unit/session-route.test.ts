@@ -2,6 +2,8 @@ import { afterEach, describe, expect, test, vi } from 'vitest';
 
 const state = vi.hoisted(() => ({ user: null as null | { id: string; email: string; name: string | null; avatarUrl: string | null }, member: null as unknown, throwMember: false }));
 vi.mock('@/lib/auth/session', () => ({ getSessionUser: async () => state.user }));
+const briefs = vi.hoisted(() => ({ list: vi.fn(async (handle: string) => (handle ? [] : []) as unknown[]) }));
+vi.mock('@/lib/briefs/repo', () => ({ listBriefsFor: briefs.list }));
 vi.mock('@/lib/members/self', () => ({
   getOwnMember: async () => {
     if (state.throwMember) throw new Error('db down');
@@ -38,7 +40,7 @@ describe('GET /api/session — who is looking at the site', () => {
     state.user = { id: 'u1', email: 'secret@example.com', name: 'Anu', avatarUrl: 'https://lh3.googleusercontent.com/a/x' };
     state.member = { id: 'm1', user_id: 'u1', email: 'secret@example.com', display_name: 'Anu K', instagram: 'anu.shoots', role: 'editor', status: 'active', photo_path: 'm1/secret-path.jpg', photo_public: false, avatar_url: 'https://lh3.googleusercontent.com/a/x' };
     const { body } = await call();
-    expect(body).toEqual({ state: 'member', name: 'Anu K', handle: 'anu.shoots', role: 'editor', hasPhoto: true });
+    expect(body).toEqual({ state: 'member', name: 'Anu K', handle: 'anu.shoots', role: 'editor', hasPhoto: true, briefs: 0 });
     expect(JSON.stringify(body)).not.toMatch(/secret|m1|googleusercontent/);
   });
 
@@ -55,5 +57,20 @@ describe('GET /api/session — who is looking at the site', () => {
     const { res, body } = await call();
     expect(res.status).toBe(200);
     expect(body.state).toBe('no-member');
+  });
+
+  test('a member with briefs waiting gets the count, looked up by their handle', async () => {
+    state.user = { id: 'u1', email: 'a@example.com', name: 'A', avatarUrl: null };
+    state.member = { display_name: 'A B', instagram: 'a.b', role: 'creator', status: 'active', photo_path: null };
+    briefs.list.mockResolvedValueOnce([{ id: '1' }, { id: '2' }]);
+    expect((await call()).body).toMatchObject({ state: 'member', briefs: 2 });
+    expect(briefs.list).toHaveBeenCalledWith('a.b');
+  });
+
+  test('if briefs cannot be read the header just shows no count', async () => {
+    state.user = { id: 'u1', email: 'a@example.com', name: 'A', avatarUrl: null };
+    state.member = { display_name: 'A B', instagram: 'a.b', role: 'creator', status: 'active', photo_path: null };
+    briefs.list.mockRejectedValueOnce(new Error('no table'));
+    expect((await call()).body).toMatchObject({ state: 'member', briefs: 0 });
   });
 });

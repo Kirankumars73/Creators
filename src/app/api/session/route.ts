@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { Lane } from '@/config/brand';
 import { getSessionUser } from '@/lib/auth/session';
+import { listBriefsFor } from '@/lib/briefs/repo';
 import { getOwnMember } from '@/lib/members/self';
 
 const NO_STORE = { 'Cache-Control': 'private, no-store' };
@@ -8,7 +9,7 @@ const NO_STORE = { 'Cache-Control': 'private, no-store' };
 export type SessionInfo =
   | { state: 'signed-out' }
   | { state: 'no-member'; name: string | null }
-  | { state: 'member'; name: string; handle: string; role: Lane; hasPhoto: boolean };
+  | { state: 'member'; name: string; handle: string; role: Lane; hasPhoto: boolean; briefs: number };
 
 // GET /api/session — what the header and the join buttons need to know about whoever is looking:
 // signed out, signed in but not joined, or a member. The public pages are cached for everyone, so
@@ -24,7 +25,11 @@ export async function GET() {
         console.error('[api/session] member read failed', err);
         return null;
       });
-      if (member) info = { state: 'member', name: member.display_name, handle: member.instagram, role: member.role, hasPhoto: !!member.photo_path };
+      if (member) {
+        // How many briefs are waiting for them (the header shows it). Unreadable is just zero.
+        const briefs = await listBriefsFor(member.instagram).then((b) => b.length, () => 0);
+        info = { state: 'member', name: member.display_name, handle: member.instagram, role: member.role, hasPhoto: !!member.photo_path, briefs };
+      }
     }
   } catch (err) {
     console.error('[api/session]', err);

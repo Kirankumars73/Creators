@@ -30,7 +30,7 @@ describe('loadSession', () => {
   });
 
   test('a signed-in browser asks /api/session once, and not again on the next call', async () => {
-    const f = reply({ state: 'member', name: 'Anu', handle: 'anu', role: 'editor', hasPhoto: true });
+    const f = reply({ state: 'member', name: 'Anu', handle: 'anu', role: 'editor', hasPhoto: true, briefs: 0 });
     await loadSession({ cookie: COOKIE, fetchImpl: f as unknown as typeof fetch });
     await loadSession({ cookie: COOKIE, fetchImpl: f as unknown as typeof fetch });
     expect(f).toHaveBeenCalledTimes(1);
@@ -77,8 +77,15 @@ describe('JoinButton: the main button knows who is looking', () => {
   });
 
   test('a member: their pass — not another invitation to join', async () => {
-    await show({ state: 'member', name: 'Anu', handle: 'anu', role: 'editor', hasPhoto: false });
+    await show({ state: 'member', name: 'Anu', handle: 'anu', role: 'editor', hasPhoto: false, briefs: 0 });
     expect(screen.getByRole('link', { name: 'Your pass' })).toHaveAttribute('href', '/me');
     expect(screen.queryByText(/join/i)).toBeNull();
+  });
+
+  test('a member with briefs waiting sees how many, and the button goes straight to them', async () => {
+    await show({ state: 'member', name: 'Anu', handle: 'anu', role: 'editor', hasPhoto: false, briefs: 2 });
+    const link = screen.getByRole('link', { name: /Your pass/ });
+    expect(link).toHaveAttribute('href', '/me#briefs');
+    expect(screen.getByLabelText('2 briefs waiting')).toHaveTextContent('2');
   });
 });

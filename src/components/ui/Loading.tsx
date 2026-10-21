@@ -11,7 +11,7 @@ export function Bone({ className = '' }: { className?: string }) {
  */
 export function LoadingPage({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div role="status" aria-live="polite" aria-label={label} className="flex flex-col gap-8">
+    <div role="status" aria-live="polite" aria-label={label} data-page-hold="" className="flex flex-col gap-8">
       <span className="sr-only">{label}</span>
       {children}
     </div>

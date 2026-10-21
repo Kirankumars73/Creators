@@ -39,6 +39,8 @@ export function HangingBadge({ instagram, role, fallback }: { instagram: string;
   const [layer, setLayer] = useState<HTMLElement | null>(null);
   const [geo, setGeo] = useState<Geometry | null>(null);
   const [phase, setPhase] = useState<Phase>('loading');
+  // Once the badge is on screen, give it a moment to draw its first frames before the page lets go.
+  const [settled, setSettled] = useState(false);
 
   useEffect(() => {
     let dead = false;
@@ -75,8 +77,16 @@ export function HangingBadge({ instagram, role, fallback }: { instagram: string;
   }, [layer]);
 
   const live = phase === 'ready' && !!layer && !!geo;
+  useEffect(() => {
+    if (!live) return;
+    const t = window.setTimeout(() => setSettled(true), 450);
+    return () => window.clearTimeout(t);
+  }, [live]);
+  // The loading screen waits while this mark is on the page (it is in the server HTML, so it is
+  // there from the first paint): until the badge is drawn, or we know it won't be (no WebGL).
+  const holding = phase !== 'plain' && !settled;
   return (
-    <div ref={spacer} className="min-h-[30rem] lg:min-h-[34rem]">
+    <div ref={spacer} data-page-hold={holding ? "" : undefined} className="min-h-[30rem] lg:min-h-[34rem]">
       {live ? null : phase === 'plain' ? fallback : <BadgeSkeleton role={role} />}
       {live ? createPortal(<MemberLanyard instagram={instagram} role={role} anchor={geo.anchor} size={geo.size} />, layer) : null}
     </div>

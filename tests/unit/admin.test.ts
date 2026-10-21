@@ -47,3 +47,23 @@ describe('setMemberStatusCore — server actions are public endpoints', () => {
     expect(update).not.toHaveBeenCalled();
   });
 });
+
+describe('the built-in admins still need a Google-confirmed sign-in', async () => {
+  const { adminEmailsFromEnv } = await import('@/lib/env.server');
+  const allow = adminEmailsFromEnv(undefined);
+  const google = { email: 'thomasmartinoa@gmail.com', email_confirmed_at: '2026-10-01', app_metadata: { provider: 'google' } };
+
+  test('signed in with Google: admin', () => {
+    expect(isAdminUser(google, allow)).toBe(true);
+    expect(isAdminUser({ ...google, email: 'GOWTHAMDAS04@gmail.com' }, allow)).toBe(true);
+  });
+
+  test('the same address through email/password, or unconfirmed: not admin', () => {
+    expect(isAdminUser({ ...google, app_metadata: { provider: 'email' } }, allow)).toBe(false);
+    expect(isAdminUser({ ...google, email_confirmed_at: null }, allow)).toBe(false);
+  });
+
+  test('anyone else: not admin', () => {
+    expect(isAdminUser({ ...google, email: 'someone@gmail.com' }, allow)).toBe(false);
+  });
+});
