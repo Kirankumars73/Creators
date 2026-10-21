@@ -3,7 +3,6 @@
 import { motion } from 'motion/react';
 import { useEffect, useState, type ReactNode } from 'react';
 import ElectricBorder from '@/components/bits/ElectricBorder';
-import { Star } from '@/components/brand/Star';
 import { Button } from '@/components/ui/Button';
 import { brand, type Lane } from '@/config/brand';
 import { TOKENS } from '@/config/tokens';
@@ -91,12 +90,6 @@ function RevealOk({
     <div data-lane={lane} className="relative flex flex-col gap-10">
       {cut ? <div aria-hidden="true" className="fixed inset-0 z-50 bg-ink" /> : null}
       <header className="relative">
-        <span aria-hidden="true" className="star-flick absolute -left-2 -top-6">
-          <Star size={18} />
-        </span>
-        <span aria-hidden="true" className="star-flick absolute -top-3 right-[18%] [animation-delay:120ms]">
-          <Star size={12} />
-        </span>
         <h2 className="text-title halation-lane text-lane">Export complete.</h2>
         <p className="text-ml mt-5 text-[clamp(1.5rem,3.6vw,2.75rem)] font-semibold text-chalk" lang="ml">
           {youreIn.ml ?? youreIn.en}

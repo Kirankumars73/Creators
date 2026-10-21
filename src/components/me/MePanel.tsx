@@ -8,6 +8,8 @@ import { SavePassButton } from '@/components/join/SavePassButton';
 import type { Lane } from '@/config/brand';
 import { fetchInvite } from '@/lib/join/invite-client';
 import type { RenderTask } from '@/lib/join/render-progress';
+import type { MemberBrief } from '@/lib/briefs/repo';
+import { BriefsForYou } from './BriefsForYou';
 import { LaneChanger } from './LaneChanger';
 import { PhotoPanel } from './PhotoPanel';
 import { ProfileSwitch } from './ProfileSwitch';
@@ -25,13 +27,14 @@ type MePanelProps = {
     photoPublic: boolean;
     hasGoogle: boolean;
   };
+  briefs: MemberBrief[];
   changeLane: Parameters<typeof LaneChanger>[0]['changeLane'];
   setProfilePublic: Parameters<typeof ProfileSwitch>[0]['setProfilePublic'];
   setPhotoPublic: Parameters<typeof PhotoPanel>[0]['setPhotoPublic'];
 };
 
 /** Returning members: their links again (condensed reveal), their pass, their profile page, and the one lane move. */
-export function MePanel({ member, changeLane, setProfilePublic, setPhotoPublic }: MePanelProps) {
+export function MePanel({ member, briefs, changeLane, setProfilePublic, setPhotoPublic }: MePanelProps) {
   // Bumped when the photo changes, so the pass image beside the form is fetched again.
   const [passVersion, setPassVersion] = useState(0);
   const router = useRouter();
@@ -40,6 +43,8 @@ export function MePanel({ member, changeLane, setProfilePublic, setPhotoPublic }
   return (
     <div data-lane={member.role} className="grid grid-cols-1 gap-14 lg:grid-cols-[minmax(0,1fr)_19rem] lg:gap-16">
       <div className="flex min-w-0 flex-col gap-12">
+        {/* Briefs first: it is the thing someone is waiting to hear about. */}
+        {member.active && (briefs.length > 0 || member.profilePublic) ? <BriefsForYou briefs={briefs} /> : null}
         {/* Keyed by lane: after a move the links are fetched fresh for the new room. */}
         <MyLinks key={member.role} lane={member.role} />
         {member.active ? (

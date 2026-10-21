@@ -22,12 +22,19 @@ type JoinButtonProps = {
  */
 export function JoinButton({ children, href = '/join', ...rest }: JoinButtonProps) {
   const session = useSession();
-  if (session.state === 'member')
+  if (session.state === 'member') {
+    const waiting = session.briefs;
     return (
-      <Button {...rest} href="/me">
+      <Button {...rest} href={waiting ? '/me#briefs' : '/me'}>
         {SESSION_COPY.member}
+        {waiting ? (
+          <span className="ml-2 inline-grid min-w-6 place-items-center rounded-full bg-paper px-1.5 py-0.5 font-sans text-sm font-bold leading-none text-rosso" aria-label={`${waiting} ${waiting === 1 ? 'brief' : 'briefs'} waiting`}>
+            {waiting}
+          </span>
+        ) : null}
       </Button>
     );
+  }
   if (session.state === 'no-member')
     return (
       <Button {...rest} href="/join?step=lane">

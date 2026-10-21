@@ -6,6 +6,7 @@ import { MePanel } from '@/components/me/MePanel';
 import { MeLoading } from '@/components/ui/Loading';
 import { TOKENS } from '@/config/tokens';
 import { getSessionUser } from '@/lib/auth/session';
+import { listBriefsFor } from '@/lib/briefs/repo';
 import { getOwnMember } from '@/lib/members/self';
 import { changeLane, setPhotoPublic, setProfilePublic } from './actions';
 
@@ -34,8 +35,14 @@ async function MeServer() {
     return null;
   });
   if (!member) redirect('/join?step=lane');
+  // Briefs sent through their page. Unreadable (e.g. before the brief migration) is just "none".
+  const briefs = await listBriefsFor(member.instagram).catch((err: unknown) => {
+    console.error('[me] briefs read failed', err);
+    return [];
+  });
   return (
     <MePanel
+      briefs={briefs}
       member={{
         role: member.role,
         displayName: member.display_name,
