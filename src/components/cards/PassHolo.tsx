@@ -12,12 +12,12 @@ export function PassHolo({ src, alt, lane }: { src: string; alt: string; lane?: 
       image={src}
       alt={alt}
       preset={lane === 'editor' ? 'glitter' : lane === 'other' ? 'cosmos' : 'shards'}
-      intensity={0.45}
-      scale={1.3}
+      intensity={0.11}
+      scale={1.6}
       frame={3.5}
-      glare={0.8}
+      glare={0.25}
       tiltMax={29}
-      edgeSparkle={0.9}
+      edgeSparkle={0.12}
       hoverScale={1.03}
       radius={9}
       width={310}
